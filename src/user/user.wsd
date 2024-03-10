@@ -1,0 +1,36 @@
+@startuml user
+
+class UserService {
+  -logger: Logger
+  -prisma: PrismaService
+
+  +findUsers(): Promise<User[]>
+  +findById(userId: number): Promise<UserDto>
+  +deleteUser(userId: number): Promise<String>
+}
+
+class UserController {
+  - logger: Logger
+  - userService: UserService
+
+  + getCurrentUserInfo(userAccessTokenData): Promise<UserDto>
+  + findUserById(userId: number): Promise<UserDto>
+  + deleteUser(userId: number, userAccessTokenData)
+}
+
+class BaseUserDto{
+    +username: String
+    +isAdmin: boolean
+}
+
+class UserDto{
+    +id: number
+}
+
+
+
+UserController --> UserService
+BaseUserDto <|-- UserDto
+
+
+@enduml

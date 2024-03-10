@@ -1,4 +1,6 @@
-import { UserDto } from '@/user/dto/UserDto';
+import { BadRequestDto } from '@/dto/BadRequestDto';
+import { BaseRequestExceptionDto } from '@/dto/BaseRequestExceptionDto';
+import { UserAccess } from '@/user/decorators/user.decorator';
 import {
   Body,
   Controller,
@@ -7,7 +9,6 @@ import {
   Logger,
   Post,
   Req,
-  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
@@ -18,9 +19,6 @@ import { SignInDto } from './dto/signIn.dto';
 import { SignUpDto } from './dto/signUp.dto';
 import { TokensDto } from './dto/tokens.dto';
 import { Tokens } from './types';
-import { UserAccess } from '@/user/decorators/user.decorator';
-import { BadRequestDto } from '@/dto/BadRequestDto';
-import { BaseRequestExceptionDto } from '@/dto/BaseRequestExceptionDto';
 
 @ApiTags('AuthController')
 @Controller('api/auth')
@@ -28,8 +26,8 @@ export class AuthController {
   private readonly logger = new Logger('AuthController');
   constructor(private readonly authService: AuthService) {}
 
-  @HttpCode(HttpStatus.OK)
   @Post('signin')
+  @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'запрос на вход' })
   @ApiResponse({
     status: HttpStatus.OK,

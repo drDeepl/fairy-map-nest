@@ -92,7 +92,7 @@ export class AuthService {
       if (error instanceof PrismaClientKnownRequestError) {
         if (error.code == 'P2002') {
           throw new HttpException(
-            'пользователь с такой жлектронной почтой уже существует',
+            'пользователь с такой электронной почтой уже существует',
             HttpStatus.FORBIDDEN,
           );
         }
