@@ -16,10 +16,10 @@ datasource db {
 
 model User {
   id                Int             @id @default(autoincrement())
-  first_name        String        @unique @db.VarChar(64)
-  last_name         String         @unique @db.VarChar(64)
-  role              String              @db.VarChar(64)
-  email             String             @unique @db.VarChar(128)
+  firstName        String           @map("first_name") @unique @db.VarChar(64)
+  lastName         String           @map("last_name") @unique @db.VarChar(64)
+  role              String          @db.VarChar(64)
+  email             String          @unique @db.VarChar(128)
   passwordHash      String          @map("password_hash")
   refreshTokenHash  String?         @map("refresh_token_hash") @db.VarChar(255)
   storyAudios       StoryAudio[]
@@ -79,38 +79,37 @@ model EthnicGroupMapPoint {
 }
 
 model Story{
-  id        Int       @id @default(autoincrement())
-  name      String    @unique @db.VarChar(255)
-  text      String    @db.Text
-  isPublic Boolean    @db.Boolean
-  ethnicGroupId Int
-  ethniGroup  EthnicGroup @relation(fields: [ethnicGroupId], references: [id])
-  audioId Int @unique
-  audio StoryAudio @relation(fields: [audioId], references: [id])
+  id            Int         @id @default(autoincrement())
+  name          String      @unique @db.VarChar(255)
+  text          String      @db.Text
+  ethnicGroupId Int         @map("ethnic_group_id")
+  ethniGroup    EthnicGroup @relation(fields: [ethnicGroupId], references: [id])
+  audioId       Int         @map("audio_id") @unique
+  audio         StoryAudio  @relation(fields: [audioId], references: [id])
   storyAudioRequests StoryAudioRequest[]
   
 }
 
 
 model StoryAudio{
-  id        Int       @id @default(autoincrement())
-  author    Int       
-  authors   User @relation(fields: [author], references: [id])
-  path_to_file String @db.VarChar(255)
-  isPublic Boolean    @db.Boolean
-  languageId Int
-  languages Language @relation(fields: [languageId], references: [id])
-  story Story?
-  ratings RatingAudio[]
+  id            Int       @id @default(autoincrement())
+  author        Int
+  authors       User       @relation(fields: [author], references: [id])
+  path_to_file  String     @db.VarChar(255)
+  isPublic      Boolean    @map("is_public") @db.Boolean
+  languageId    Int        @map("language_id")
+  languages     Language   @relation(fields: [languageId], references: [id])
+  story         Story?
+  ratings       RatingAudio[]
   
 }
 
 model RatingAudio{
-  id        Int       @id @default(autoincrement())
-  userId Int
-  user User @relation(fields: [userId], references: [id])
-  storyAudioId Int
-  storyAudio StoryAudio @relation(fields: [storyAudioId], references: [id])
+  id            Int        @id @default(autoincrement())
+  userId        Int
+  user          User       @relation(fields: [userId], references: [id])
+  storyAudioId  Int        @map("story_audio_id")
+  storyAudio    StoryAudio @relation(fields: [storyAudioId], references: [id])
 
 }
 
@@ -124,20 +123,20 @@ model TypeRequest{
 
 model AddStoryRequest{
   id          Int       @id @default(autoincrement())
-  story_name String   @db.VarChar(255)
-  status     String       @db.VarChar(64)
-  comment    String      @db.Text
-  userId     Int
+  storyName String      @map("story_name") @db.VarChar(255)
+  status     String     @db.VarChar(64)
+  comment    String     @db.Text
+  userId     Int        @map("user_id")
   user       User @relation(fields: [userId], references: [id])
 }
 
 
 model StoryAudioRequest{
   id            Int           @id @default(autoincrement())
-  story_id      Int
-  story         Story         @relation(fields: [story_id], references: [id])
-  type_id       Int
-  typeRequest   TypeRequest   @relation(fields: [type_id], references: [id])
+  storyId       Int           @map("story_id")
+  story         Story         @relation(fields: [storyId], references: [id])
+  typeId        Int           @map("type_id")
+  typeRequest   TypeRequest   @relation(fields: [typeId], references: [id])
   status        String        @db.VarChar(64)
   comment       String        @db.Text
   userId        Int

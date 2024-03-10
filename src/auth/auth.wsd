@@ -1,0 +1,74 @@
+@startuml auth
+
+class AuthService {
+  -logger: Logger
+
+  +jwtService: JwtService
+  +configService: ConfigService
+  +prisma: PrismaService
+
+  +AuthService(jwtService: JwtService, configService: ConfigService, prisma: PrismaService)
+  +hashData(data: string): Promise<string>
+  +getTokens(userId: number, username: string, isAdmin: boolean): Promise<Tokens>
+  +updateHashRefreshToken(userId: number, refreshToken: string)
+  +signUp(dto: SignUpDto): Promise<Tokens>
+  +signIn(dto: SignInDto): Promise<Tokens>
+  +logout(userId: number)
+  +refreshTokens(userId: number, refreshToken: string): Promise<Tokens>
+}
+
+
+class AuthController {
+  -logger: Logger
+  -authService: AuthService
+  +AuthController(authService: AuthService)
+  +signIn(dto: SignInDto): Promise<Tokens>
+  +signUp(dto: SignUpDto): Promise<Tokens>
+  +refresh(req: Request)
+  +logout(req: Request)
+}
+
+
+class AuthService {
+  +signIn(dto: SignInDto): Promise<Tokens>
+  +signUp(dto: SignUpDto): Promise<Tokens>
+  +refreshTokens(sub: string, refreshToken: string): Promise<Tokens>
+  +logout(sub: string)
+}
+
+class AccessTokenStrategy {
+  - logger: Logger
+  + constructor(configService: ConfigService)
+  + validate(payload: any)
+}
+
+class RefreshTokenStrategy {
+    -logger: Logger
+    -configService: ConfigService
+
+    +RefreshTokenStrategy(configService: ConfigService)
+    +validate(req: Request, payload: any)
+}
+
+class BaseAuthDto{
+    +username: string
+    +password: string
+}
+
+class SignInDto {}
+
+class SignUpDto{}
+
+class TokensDto{
+    +refresh_token
+    +access_token
+}
+
+
+BaseAuthDto <|-- SignInDto
+BaseAuthDto <|-- SignUpDto
+'
+
+ AuthController  -->  AuthService
+
+@enduml

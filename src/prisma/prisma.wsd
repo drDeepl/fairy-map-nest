@@ -1,0 +1,10 @@
+@startuml prisma
+
+class PrismaService {
+  +configService: ConfigService
+  +onModuleInit()
+  +onModuleDestroy()
+}
+
+
+@enduml
