@@ -6,6 +6,8 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { ConstituentsModule } from './constituent/constituent.module';
 import { PrismaModule } from './prisma/prisma.module';
+import { EthnicGroupModule } from './ethnic-group/ethnic-group.module';
+
 @Module({
   imports: [
     AuthModule,
@@ -17,6 +19,7 @@ import { PrismaModule } from './prisma/prisma.module';
     PrismaModule,
     UserModule,
     ConstituentsModule,
+    EthnicGroupModule,
   ],
   controllers: [AppController],
   providers: [AppService],

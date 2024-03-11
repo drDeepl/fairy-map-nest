@@ -16,6 +16,7 @@ import * as bcrypt from 'bcrypt';
 import { SignInDto } from './dto/signIn.dto';
 import { SignUpDto } from './dto/signUp.dto';
 import { Tokens } from './types';
+import { Role } from '@/util/Constants';
 
 @Injectable()
 export class AuthService {
@@ -31,7 +32,7 @@ export class AuthService {
     return bcrypt.hash(data, 10);
   }
 
-  async getTokens(userId: number, role: string = 'user'): Promise<Tokens> {
+  async getTokens(userId: number, role: string = Role.admin): Promise<Tokens> {
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(
         {

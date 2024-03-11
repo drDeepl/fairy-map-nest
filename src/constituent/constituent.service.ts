@@ -5,6 +5,7 @@ import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { AddConstituentDto } from './dto/AddConstituentDto';
 import { ConstituentDto } from './dto/ConstituentDto';
+import { EditConstituentDto } from './dto/EditConstituentDto';
 
 @Injectable()
 export class ConstituentsService {
@@ -40,6 +41,54 @@ export class ConstituentsService {
             HttpStatus.BAD_GATEWAY,
           );
         }
+      });
+  }
+
+  async getConstituents(): Promise<ConstituentDto[]> {
+    this.logger.warn('GET CONSTITUENTS');
+    return this.prisma.constituentsRF.findMany({
+      select: {
+        id: true,
+        name: true,
+      },
+    });
+  }
+
+  async editConstituentById(id: number, dto: EditConstituentDto) {
+    return this.prisma.constituentsRF
+      .update({
+        where: { id: id },
+        data: { name: dto.name },
+      })
+      .catch((error) => {
+        PrintNameAndCodePrismaException(error, this.logger);
+        if (error.code === 'P2002') {
+          throw new HttpException(
+            'субъект с таким названеим уже существует',
+            HttpStatus.FORBIDDEN,
+          );
+        }
+        throw new HttpException(
+          this.msgException.UnhandledError,
+          HttpStatus.BAD_GATEWAY,
+        );
+      });
+  }
+
+  async deleteConstituentById(id: number) {
+    this.logger.warn('DELETE CONSTITUENT BY ID');
+    this.prisma.constituentsRF
+      .delete({
+        where: {
+          id: id,
+        },
+      })
+      .catch((error) => {
+        PrintNameAndCodePrismaException(error, this.logger);
+        throw new HttpException(
+          this.msgException.UnhandledError,
+          HttpStatus.BAD_GATEWAY,
+        );
       });
   }
 }
