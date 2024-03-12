@@ -19,6 +19,11 @@ import { ConstituentsService } from './constituent.service';
 import { AddConstituentDto } from './dto/AddConstituentDto';
 import { ConstituentDto } from './dto/ConstituentDto';
 import { EditConstituentDto } from './dto/EditConstituentDto';
+import { Role } from '@/util/Constants';
+import { Roles } from '@/util/decorators/Roles';
+import { RoleGuard } from '@/util/guards/role.guard';
+import { AddEthnicGroupToConstituentDto } from './dto/AddEthnicGroupToConstituentDto';
+import { EthnicGroupToConstituentDto } from './dto/EthnicGroupToConstituentDto';
 
 @ApiTags('ConstituentController')
 @Controller('api/constituent')
@@ -26,10 +31,7 @@ export class ConstituentsController {
   private readonly logger = new Logger('ConstituentsController');
   constructor(private readonly constituentService: ConstituentsService) {}
 
-  @UseGuards(AuthGuard('jwt'))
-  @Post('/add')
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'запрос на вход' })
+  @ApiOperation({ summary: 'добавление субъекта РФ' })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Success',
@@ -37,6 +39,10 @@ export class ConstituentsController {
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  @Roles(Role.admin)
+  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @HttpCode(HttpStatus.OK)
+  @Post('/add')
   async addConstituent(
     @Body() dto: AddConstituentDto,
   ): Promise<ConstituentDto> {
@@ -44,21 +50,57 @@ export class ConstituentsController {
     return this.constituentService.addNewConstituent(dto);
   }
 
-  @Get('/all')
+  @ApiOperation({ summary: 'добавление этнической группы к субъекту рф' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Success',
+    type: EthnicGroupToConstituentDto,
+  })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  @Roles(Role.admin)
+  @UseGuards(AuthGuard('jwt'), RoleGuard)
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'запрос на вход' })
+  @Post('/add/ethnic-group')
+  async addEthnicGroupToConstituent(
+    @Body() dto: AddEthnicGroupToConstituentDto,
+  ): Promise<EthnicGroupToConstituentDto> {
+    this.logger.debug('ADD ETHNIC GROUP TO CONSTITUENT RF');
+    return this.constituentService.addEthnicGroupToConstituent(dto);
+  }
+
+  @ApiOperation({
+    summary: 'получение этнической группы, принадлежащей субъекту рф',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Success',
+    type: [EthnicGroupToConstituentDto],
+  })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
+  @HttpCode(HttpStatus.OK)
+  @Get('/ethnic-group/:constituentId')
+  async getEthnicGroupByConstituentId(
+    @Param('constituentId', ParseIntPipe) constituentId: number,
+  ): Promise<EthnicGroupToConstituentDto[]> {
+    this.logger.debug('GET ETHNIC GROUP FOR CONSTITUENT');
+    return this.constituentService.getEthnicGroupByConstituentId(constituentId);
+  }
+
+  @ApiOperation({ summary: 'получение всех субъектов' })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Success',
     type: [ConstituentDto],
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
+  @HttpCode(HttpStatus.OK)
+  @Get('/all')
   async getConstituents(): Promise<ConstituentDto[]> {
     this.logger.warn('GET CONSTITUENTS');
     return this.constituentService.getConstituents();
   }
 
-  @Put('/edit/:id')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'редактирование субъекта' })
   @ApiResponse({
@@ -67,6 +109,9 @@ export class ConstituentsController {
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  @Roles(Role.admin)
+  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @Put('/edit/:id')
   async editConstituent(
     @Param('id', ParseIntPipe) id,
     @Body() dto: EditConstituentDto,
@@ -75,7 +120,6 @@ export class ConstituentsController {
     return this.constituentService.editConstituentById(id, dto);
   }
 
-  @Delete('/:id')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'удаление данных субъекта' })
   @ApiResponse({
@@ -84,6 +128,9 @@ export class ConstituentsController {
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  @Roles(Role.admin)
+  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @Delete('/:id')
   async deleteConstituentById(@Param('id', ParseIntPipe) id: number) {
     this.logger.warn('DELETE CONSTITUENT BY ID');
     return this.constituentService.deleteConstituentById(id);

@@ -6,6 +6,8 @@ import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { AddConstituentDto } from './dto/AddConstituentDto';
 import { ConstituentDto } from './dto/ConstituentDto';
 import { EditConstituentDto } from './dto/EditConstituentDto';
+import { AddEthnicGroupToConstituentDto } from './dto/AddEthnicGroupToConstituentDto';
+import { EthnicGroupToConstituentDto } from './dto/EthnicGroupToConstituentDto';
 
 @Injectable()
 export class ConstituentsService {
@@ -42,6 +44,42 @@ export class ConstituentsService {
           );
         }
       });
+  }
+
+  async addEthnicGroupToConstituent(
+    dto: AddEthnicGroupToConstituentDto,
+  ): Promise<EthnicGroupToConstituentDto> {
+    this.logger.debug('ADD ETHNIC GROUP TO CONSTITUENT');
+    return this.prisma.constituentsRFOnEthnicGroup
+      .create({
+        data: {
+          constituentRfId: dto.constituentRfId,
+          ethnicGroupId: dto.ethnicGroupId,
+        },
+      })
+      .catch((error) => {
+        PrintNameAndCodePrismaException(error, this.logger);
+        if (error.code === 'P2003') {
+          throw new HttpException(
+            'Несуществующий субъект или этническая группа',
+            HttpStatus.FORBIDDEN,
+          );
+        } else {
+          throw new HttpException(
+            this.msgException.UnhandledError,
+            HttpStatus.BAD_GATEWAY,
+          );
+        }
+      });
+  }
+
+  async getEthnicGroupByConstituentId(constituentId) {
+    this.logger.debug('GET ETHNIC GROUP BY CONSTITUENT ID');
+    return this.prisma.constituentsRFOnEthnicGroup.findMany({
+      where: {
+        constituentRfId: constituentId,
+      },
+    });
   }
 
   async getConstituents(): Promise<ConstituentDto[]> {
