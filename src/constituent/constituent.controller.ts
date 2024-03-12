@@ -5,6 +5,7 @@ import {
   Delete,
   Get,
   HttpCode,
+  HttpException,
   HttpStatus,
   Logger,
   Param,
@@ -24,6 +25,7 @@ import { Roles } from '@/util/decorators/Roles';
 import { RoleGuard } from '@/util/guards/role.guard';
 import { AddEthnicGroupToConstituentDto } from './dto/AddEthnicGroupToConstituentDto';
 import { EthnicGroupToConstituentDto } from './dto/EthnicGroupToConstituentDto';
+import { DeleteEthnicGroupToConstituentDto } from './dto/DeleteEthnicGroupToConstituentDto';
 
 @ApiTags('ConstituentController')
 @Controller('api/constituent')
@@ -67,6 +69,30 @@ export class ConstituentsController {
   ): Promise<EthnicGroupToConstituentDto> {
     this.logger.debug('ADD ETHNIC GROUP TO CONSTITUENT RF');
     return this.constituentService.addEthnicGroupToConstituent(dto);
+  }
+
+  @ApiOperation({ summary: 'добавление этнической группы к субъекту рф' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Success',
+    type: EthnicGroupToConstituentDto,
+  })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  @Roles(Role.admin)
+  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @HttpCode(HttpStatus.OK)
+  @Delete('/ethnic-group/delete')
+  async deleteEthnicGroupFromConstituent(
+    @Body() dto: DeleteEthnicGroupToConstituentDto,
+  ) {
+    this.logger.debug('DELETE ETHNIC GROUP FROM CONSTITUENT');
+    return this.constituentService
+      .deleteEthnicGroupFromConstituentById(dto)
+      .catch((error) => {
+        throw new HttpException(error.message, error.status);
+      })
+      .then((result) => {});
   }
 
   @ApiOperation({

@@ -8,6 +8,7 @@ import { ConstituentDto } from './dto/ConstituentDto';
 import { EditConstituentDto } from './dto/EditConstituentDto';
 import { AddEthnicGroupToConstituentDto } from './dto/AddEthnicGroupToConstituentDto';
 import { EthnicGroupToConstituentDto } from './dto/EthnicGroupToConstituentDto';
+import { DeleteEthnicGroupToConstituentDto } from './dto/DeleteEthnicGroupToConstituentDto';
 
 @Injectable()
 export class ConstituentsService {
@@ -80,6 +81,33 @@ export class ConstituentsService {
         constituentRfId: constituentId,
       },
     });
+  }
+
+  async deleteEthnicGroupFromConstituentById(
+    dto: DeleteEthnicGroupToConstituentDto,
+  ) {
+    this.logger.debug('DELETE ETHNIC GROUP FROM CONSTITUENT BY ID');
+    this.prisma.constituentsRFOnEthnicGroup
+      .deleteMany({
+        where: {
+          constituentRfId: dto.constituentRfId,
+          ethnicGroupId: dto.ethnicGroupId,
+        },
+      })
+      .catch((error) => {
+        PrintNameAndCodePrismaException(error, this.logger);
+        if (error.code === 'P2003') {
+          throw new HttpException(
+            'Несуществующий субъект или этническая группа',
+            HttpStatus.FORBIDDEN,
+          );
+        } else {
+          throw new HttpException(
+            this.msgException.UnhandledError,
+            HttpStatus.BAD_GATEWAY,
+          );
+        }
+      });
   }
 
   async getConstituents(): Promise<ConstituentDto[]> {
