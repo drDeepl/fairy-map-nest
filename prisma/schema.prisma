@@ -86,9 +86,11 @@ model Story{
   text          String      @db.Text
   ethnicGroupId Int         @map("ethnic_group_id")
   ethniGroup    EthnicGroup @relation(fields: [ethnicGroupId], references: [id])
-  audioId       Int         @map("audio_id") @unique
-  audio         StoryAudio  @relation(fields: [audioId], references: [id])
+  audioId       Int?         @map("audio_id") @unique 
+  audio         StoryAudio?  @relation(fields: [audioId], references: [id])
   storyAudioRequests StoryAudioRequest[]
+
+  @@map("stories")
   
 }
 
@@ -103,6 +105,8 @@ model StoryAudio{
   languages     Language   @relation(fields: [languageId], references: [id])
   story         Story?
   ratings       RatingAudio[]
+
+  @@map("story_audios")
   
 }
 
@@ -113,6 +117,8 @@ model RatingAudio{
   storyAudioId  Int        @map("story_audio_id")
   storyAudio    StoryAudio @relation(fields: [storyAudioId], references: [id])
 
+  @@map("audios_rating")
+
 }
 
 
@@ -120,6 +126,8 @@ model TypeRequest{
   id                  Int       @id @default(autoincrement())
   name                String    @unique @db.VarChar(255)
   storiesAudioRequest StoryAudioRequest[]
+
+  @@map("type_requests")
 
 }
 
@@ -130,6 +138,8 @@ model AddStoryRequest{
   comment    String     @db.Text
   userId     Int        @map("user_id")
   user       User @relation(fields: [userId], references: [id])
+
+  @@map("add_story_requests")
 }
 
 
@@ -143,4 +153,7 @@ model StoryAudioRequest{
   comment       String        @db.Text
   userId        Int
   user          User          @relation(fields: [userId], references: [id])
+
+  @@map("story_audio_requests")
+  
 }
