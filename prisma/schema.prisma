@@ -74,6 +74,8 @@ model EthnicGroupMapPoint {
   id        Int       @id @default(autoincrement())
   ethnicGroupId Int   @map("ethnic_group_id")
   ethnicGroup EthnicGroup @relation(fields: [ethnicGroupId], references: [id])
+  longitude Float
+  latitude Float
   @@map("ethnic_group_map_points")
 
 }

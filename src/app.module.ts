@@ -7,6 +7,7 @@ import { AuthModule } from './auth/auth.module';
 import { ConstituentsModule } from './constituent/constituent.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { EthnicGroupModule } from './ethnic-group/ethnic-group.module';
+import { MapModule } from './map/map.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { EthnicGroupModule } from './ethnic-group/ethnic-group.module';
     UserModule,
     ConstituentsModule,
     EthnicGroupModule,
+    MapModule,
   ],
   controllers: [AppController],
   providers: [AppService],
