@@ -5,5 +5,5 @@ import { BaseStoryDto } from './BaseStoryDto';
 export class AddStoryDto extends BaseStoryDto {
   @ApiProperty({ description: '', nullable: false })
   @IsInt()
-  ethnicalGroupId: number;
+  ethnicGroupId: number;
 }

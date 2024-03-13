@@ -9,7 +9,7 @@ export class StoryDto extends BaseStoryDto {
   id: number;
 
   @ApiProperty({ description: '', nullable: true })
-  audioId: number;
+  audioId: number | null;
 
   @ApiProperty({ description: '', nullable: false })
   ethnicGroup: EthnicGroupDto;

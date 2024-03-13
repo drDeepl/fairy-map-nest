@@ -158,6 +158,11 @@ export class ConstituentsController {
   @Delete('/:id')
   async deleteConstituentById(@Param('id', ParseIntPipe) id: number) {
     this.logger.warn('DELETE CONSTITUENT BY ID');
-    return this.constituentService.deleteConstituentById(id);
+    return this.constituentService
+      .deleteConstituentById(id)
+      .catch((error) => {
+        throw new HttpException(error.message, error.status);
+      })
+      .then((result) => {});
   }
 }

@@ -7,9 +7,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   const config = new DocumentBuilder()
-    .setDescription(
-      'API для интерактивной карты со сказками различных национальностей',
-    )
+    .setDescription('API интерактивной карты сказок различных национальностей')
     .addTag('InteractiveMap')
     .build();
 

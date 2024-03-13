@@ -1,8 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty } from 'class-validator';
 
-export class BaseStoryDto {
+export class BaseTextStoryDto {
   @ApiProperty({ description: '', nullable: false })
   @IsNotEmpty()
-  name: string;
+  text: string;
 }
