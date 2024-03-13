@@ -24,8 +24,9 @@ model User {
   refreshTokenHash  String?         @map("refresh_token_hash") @db.VarChar(255)
   storyAudios       StoryAudio[]
   ratings           RatingAudio[]
-  addStoryRequests AddStoryRequest[]
+  addStoryRequests  AddStoryRequest[]
   storyAudioRequest StoryAudioRequest[]
+  audioStories      UserAudioStory[]
 
   @@map("users")
 }
@@ -62,10 +63,10 @@ model ConstituentsRFOnEthnicGroup{
 }
 
 model Language{
-  id        Int       @id @default(autoincrement())
-  name      String    @unique @db.VarChar(255)
-  ethnicGroup EthnicGroup?
-  storyAudios StoryAudio[]
+  id            Int       @id @default(autoincrement())
+  name          String    @unique @db.VarChar(255)
+  ethnicGroup   EthnicGroup?
+  userStories   UserAudioStory[]
 
   @@map("languages")
 }
@@ -78,6 +79,16 @@ model EthnicGroupMapPoint {
   latitude Float
   @@map("ethnic_group_map_points")
 
+}
+
+model TextStory{
+  id            Int         @id @default(autoincrement())
+  text          String      @db.Text
+  storyId       Int         @unique @map("story_id")
+  story         Story       @relation(fields: [storyId], references: [id])
+
+  @@map("text_stories")
+  
 }
 
 model Story{
@@ -94,31 +105,33 @@ model Story{
   
 }
 
-model TextStory{
-  id            Int         @id @default(autoincrement())
-  text          String      @db.Text
-  storyId       Int         @unique @map("story_id")
-  story         Story       @relation(fields: [storyId], references: [id])
-
-  @@map("text_stories")
-  
-}
-
-
 model StoryAudio{
-  id            Int       @id @default(autoincrement())
+  id            Int             @id @default(autoincrement())
   author        Int
-  authors       User       @relation(fields: [author], references: [id])
-  path_to_file  String     @db.VarChar(255)
-  isPublic      Boolean    @map("is_public") @db.Boolean
-  languageId    Int        @map("language_id")
-  languages     Language   @relation(fields: [languageId], references: [id])
+  authors       User            @relation(fields: [author], references: [id])
   story         Story?
+  userAudioId   Int             @unique() @map("user_audio_id")
+  userAudio     UserAudioStory  @relation(fields:[userAudioId], references: [id])
   ratings       RatingAudio[]
+
 
   @@map("story_audios")
   
 }
+
+model UserAudioStory{
+  id            Int         @id @default(autoincrement())
+  userId        Int         @map("user_id")
+  user          User        @relation(fields: [userId], references:[id])
+  languageId    Int         @map("language_id")
+  language      Language    @relation(fields:[languageId], references: [id])
+  pathAudio     String      @db.VarChar(255)
+  storyAudio    StoryAudio?
+  
+  
+}
+
+
 
 model RatingAudio{
   id            Int        @id @default(autoincrement())

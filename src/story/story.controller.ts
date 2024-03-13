@@ -57,7 +57,7 @@ export class StoryController {
   @Get('/ethnic-group/:ethnicGroupId')
   async getStoriesByEthnicGroupId(
     @Param('ethnicGroupId', ParseIntPipe) ethnicGroupId: number,
-  ) {
+  ): Promise<StoryDto[]> {
     this.logger.debug('GET STORIES BY ETHNIC GROUP ID');
     return this.storyService.getStoriesByEthnicGroup(ethnicGroupId);
   }
@@ -119,4 +119,7 @@ export class StoryController {
       })
       .then((result) => {});
   }
+
+
+  
 }

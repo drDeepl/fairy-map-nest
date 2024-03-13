@@ -9,6 +9,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { EthnicGroupModule } from './ethnic-group/ethnic-group.module';
 import { MapModule } from './map/map.module';
 import { StoryModule } from './story/story.module';
+import { UserAudioModule } from './user-audio/user-audio.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { StoryModule } from './story/story.module';
     EthnicGroupModule,
     MapModule,
     StoryModule,
+    UserAudioModule,
   ],
   controllers: [AppController],
   providers: [AppService],
