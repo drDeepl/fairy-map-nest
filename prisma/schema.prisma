@@ -98,7 +98,6 @@ model Story{
   ethnicGroup         EthnicGroup @relation(fields: [ethnicGroupId], references: [id])
   audioId             Int?         @map("audio_id") @unique
   audio               StoryAudio?  @relation(fields: [audioId], references: [id])
-  storyAudioRequests  StoryAudioRequest[]
   texts               TextStory?
 
   @@map("stories")
@@ -120,13 +119,15 @@ model StoryAudio{
 }
 
 model UserAudioStory{
-  id            Int         @id @default(autoincrement())
-  userId        Int         @map("user_id")
-  user          User        @relation(fields: [userId], references:[id])
-  languageId    Int         @map("language_id")
-  language      Language    @relation(fields:[languageId], references: [id])
-  pathAudio     String      @db.VarChar(255)
-  storyAudio    StoryAudio?
+  id                 Int         @id @default(autoincrement())
+  name               String      @db.VarChar(255)
+  userId             Int         @map("user_id")
+  user               User        @relation(fields: [userId], references:[id])
+  languageId         Int         @map("language_id")
+  language           Language    @relation(fields:[languageId], references: [id])
+  pathAudio          String      @db.VarChar(255)
+  storyAudio         StoryAudio?
+  storyAudioRequests StoryAudioRequest[]
   
   
 }
@@ -167,15 +168,15 @@ model AddStoryRequest{
 
 
 model StoryAudioRequest{
-  id            Int           @id @default(autoincrement())
-  storyId       Int           @map("story_id")
-  story         Story         @relation(fields: [storyId], references: [id])
-  typeId        Int           @map("type_id")
-  typeRequest   TypeRequest   @relation(fields: [typeId], references: [id])
-  status        String        @db.VarChar(64)
-  comment       String        @db.Text
+  id            Int              @id @default(autoincrement())
+  userAudioId   Int              @map("user_audio_id")
+  userAudio     UserAudioStory   @relation(fields: [userAudioId], references: [id])
+  typeId        Int              @map("type_id")
+  typeRequest   TypeRequest      @relation(fields: [typeId], references: [id])
+  status        String           @db.VarChar(64)
+  comment       String           @db.Text
   userId        Int
-  user          User          @relation(fields: [userId], references: [id])
+  user          User             @relation(fields: [userId], references: [id])
 
   @@map("story_audio_requests")
   
