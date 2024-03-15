@@ -1,26 +1,28 @@
 import {
   Controller,
   HttpCode,
+  HttpException,
   HttpStatus,
   Logger,
   Param,
   ParseFilePipeBuilder,
   ParseIntPipe,
   Post,
+  Req,
   UploadedFile,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UserAudioService } from './user-audio.service';
-import { ConstituentDto } from '@/constituent/dto/ConstituentDto';
-import { Role } from '@/util/Constants';
-import { Roles } from '@/util/decorators/Roles';
+
+import { Role, diskStorageOptions, validateAudio } from '@/util/Constants';
+
 import { RoleGuard } from '@/util/guards/role.guard';
 import { AuthGuard } from '@nestjs/passport';
 import { BaseUserAudioDto } from './dto/BaseUserAudioDto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
+import { diskStorage, File } from 'multer';
 
 @ApiTags('UserAudioController')
 @Controller('api/user-audio')
@@ -39,30 +41,25 @@ export class UserAudioController {
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
   @UseGuards(AuthGuard('jwt'), RoleGuard)
   @HttpCode(HttpStatus.OK)
-  @Post('/upload/:userId')
+  @Post('/upload/:languageId')
   @UseInterceptors(
     FileInterceptor('file', {
-      storage: diskStorage({
-        destination: 'uploaded-user-audios',
-        filename: (req, file, cb) => {
-          console.log(req);
-          return cb(null, file.originalname);
-        },
-      }),
+      storage: diskStorage(diskStorageOptions),
+      fileFilter: validateAudio,
     }),
   )
   async uploadUserAudio(
-    @UploadedFile(
-      new ParseFilePipeBuilder()
-        .addFileTypeValidator({
-          fileType: 'audio/mpeg',
-        })
-        .build({ errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY }),
-    )
-    audio,
-    @Param('userId', ParseIntPipe) userId: number,
+    @UploadedFile() file: File,
+    @Req() req,
+    @Param('languageId', ParseIntPipe) languageId: number,
   ) {
     this.logger.debug('UPLOAD USER AUDIO');
-    // this.userAudioService.saveAudio(audio, userId);
+    console.log(file);
+    return this.userAudioService.saveAudio(
+      file.filename,
+      file.destination,
+      req.user.sub,
+      languageId,
+    );
   }
 }

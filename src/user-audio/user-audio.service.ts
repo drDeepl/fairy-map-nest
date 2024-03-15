@@ -1,21 +1,45 @@
 import { PrismaService } from '@/prisma/prisma.service';
-import { Injectable, Logger } from '@nestjs/common';
-import fs from 'fs';
-import { join } from 'path';
+import { PrintNameAndCodePrismaException } from '@/util/ExceptionUtils';
+import { MessageException } from '@/util/MessageException';
+import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 
 @Injectable()
 export class UserAudioService {
   private readonly logger = new Logger('UserAudioService');
+  private readonly msgException = new MessageException();
 
   constructor(private prisma: PrismaService) {}
 
-  async saveAudio(audio, userId: number) {
+  async saveAudio(
+    filename: string,
+    destination: string,
+    userId: number,
+    languageId: number,
+  ) {
     this.logger.debug('SAVE AUDIO');
-    console.log(audio);
-    const path: string = join(
-      process.cwd(),
-      `uploaded-user-audios/${userId}/${audio.originalname}`,
-    );
-    this.logger.error(path);
+    return this.prisma.userAudioStory
+      .create({
+        data: {
+          name: filename,
+          userId: userId,
+          languageId: languageId,
+          pathAudio: destination,
+        },
+      })
+      .catch((error) => {
+        PrintNameAndCodePrismaException(error, this.logger);
+        if (error.code === 'P2003') {
+          throw new HttpException(
+            'выбранного языка не существует',
+            HttpStatus.FORBIDDEN,
+          );
+        } else {
+          throw new HttpException(
+            this.msgException.UnhandledError,
+            HttpStatus.BAD_GATEWAY,
+          );
+        }
+      })
+      .then((result) => {});
   }
 }
