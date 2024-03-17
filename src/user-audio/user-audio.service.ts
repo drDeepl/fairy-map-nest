@@ -2,6 +2,8 @@ import { PrismaService } from '@/prisma/prisma.service';
 import { PrintNameAndCodePrismaException } from '@/util/ExceptionUtils';
 import { MessageException } from '@/util/MessageException';
 import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
+const fs = require('fs');
+
 
 @Injectable()
 export class UserAudioService {
@@ -41,5 +43,31 @@ export class UserAudioService {
         }
       })
       .then((result) => {});
+  }
+
+  async deleteUserAudioById(id: number){
+    this.logger.debug("DELETE USER AUDIO BY ID");
+    this.prisma.userAudioStory.findUnique({
+      where:{
+        id: id
+      }
+    })
+    .catch(error => {
+      PrintNameAndCodePrismaException(error, this.logger);
+      if (error.code === 'P2003') {
+        throw new HttpException(
+          'аудиозапись не найдена',
+          HttpStatus.FORBIDDEN,
+        );
+      } else {
+        throw new HttpException(
+          this.msgException.UnhandledError,
+          HttpStatus.BAD_GATEWAY,
+        );
+      }
+    })
+    .then(result => {
+      console.log(result)
+    })
   }
 }

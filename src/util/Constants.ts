@@ -7,16 +7,18 @@ export enum Role {
   user = 'user',
 }
 
-export const diskStorageOptions = {
+export const diskStorageOptionsAudio = {
   destination: (req, file, callback) => {
     const userId = req.user.sub;
-    const path = `./static/uploads/${userId}`;
+    const path = `./static/uploads/audio/${userId}`;
     fs.mkdirSync(path, { recursive: true });
 
     return callback(null, path);
   },
   filename: (req, file, callback) => {
-    return callback(null, `${file.originalname}`);
+    console.error(Object.keys(req))
+    console.error(req.params)
+    return callback(null, `${req.params.languageId}L${file.originalname}`);
   },
 };
 

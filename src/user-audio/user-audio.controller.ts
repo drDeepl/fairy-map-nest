@@ -1,11 +1,11 @@
 import {
   Controller,
+  Delete,
   HttpCode,
   HttpException,
   HttpStatus,
   Logger,
   Param,
-  ParseFilePipeBuilder,
   ParseIntPipe,
   Post,
   Req,
@@ -16,13 +16,15 @@ import {
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UserAudioService } from './user-audio.service';
 
-import { Role, diskStorageOptions, validateAudio } from '@/util/Constants';
+import { Role, diskStorageOptionsAudio, validateAudio } from '@/util/Constants';
 
+import { Roles } from '@/util/decorators/Roles';
 import { RoleGuard } from '@/util/guards/role.guard';
+import { Get } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { BaseUserAudioDto } from './dto/BaseUserAudioDto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage, File } from 'multer';
+import { File, diskStorage } from 'multer';
+import { BaseUserAudioDto } from './dto/BaseUserAudioDto';
 
 @ApiTags('UserAudioController')
 @Controller('api/user-audio')
@@ -31,7 +33,23 @@ export class UserAudioController {
 
   constructor(private readonly userAudioService: UserAudioService) {}
 
-  @ApiOperation({ summary: 'добавление озвучки пользователя' })
+  @ApiOperation({ summary: 'получение озвучки пользователя' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Success',
+    type: BaseUserAudioDto,
+  })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
+  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @HttpCode(HttpStatus.OK)
+  @Get("/:userAudioId")
+  async getUserAudioById(@Param("userAudioId", ParseIntPipe) userAudioId:number){
+    this.logger.debug("GET USER AUDIO BY ID");
+    
+
+  }
+
+  @ApiOperation({ summary: 'добавление озвучки пользователя для выбранного языка' })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Success',
@@ -44,7 +62,7 @@ export class UserAudioController {
   @Post('/upload/:languageId')
   @UseInterceptors(
     FileInterceptor('file', {
-      storage: diskStorage(diskStorageOptions),
+      storage: diskStorage(diskStorageOptionsAudio),
       fileFilter: validateAudio,
     }),
   )
@@ -55,11 +73,45 @@ export class UserAudioController {
   ) {
     this.logger.debug('UPLOAD USER AUDIO');
     console.log(file);
-    return this.userAudioService.saveAudio(
-      file.filename,
-      file.destination,
-      req.user.sub,
-      languageId,
-    );
+    if(file != undefined){
+      return this.userAudioService.saveAudio(
+        file.filename,
+        file.destination,
+        req.user.sub,
+        languageId,
+      ).catch(error => {
+        this.logger.error(Object.keys(error));
+        throw new HttpException(error, HttpStatus.FORBIDDEN);
+        
+      });
+    }else{ 
+      throw new HttpException("поле с файлом не может быть пустым", HttpStatus.FORBIDDEN);
+
+    }
   }
+
+  @ApiOperation({ summary: 'удаление озвучки пользователя' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Success',
+    type: BaseUserAudioDto,
+  })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  @Roles(Role.admin)
+  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @HttpCode(HttpStatus.OK)
+  @Delete("/delete/:userAudioId")
+  async deleteUserAudioById(@Param("userAudioId", ParseIntPipe) userAudioId:number){
+    this.logger.debug("DELETE USER AUDIO BY ID");
+    return this.userAudioService.deleteUserAudioById(userAudioId)
+    .catch(error => {
+      throw new HttpException(error, HttpStatus.FORBIDDEN);
+    })
+    .then(result => {})
+    
+  }
+
+
+
 }
