@@ -1,3 +1,3 @@
-import { BaseUserAudioDto } from './BaseUserAudioDto';
+import { AddUserAudioDto } from './AddUserAudioDto';
 
-export class EditUserAudioDto extends BaseUserAudioDto {}
+export class EditUserAudioDto extends AddUserAudioDto {}

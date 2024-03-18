@@ -1,26 +1,58 @@
 import { PrismaService } from '@/prisma/prisma.service';
 import { PrintNameAndCodePrismaException } from '@/util/ExceptionUtils';
+import { FileUtils } from '@/util/FileUtils';
 import { MessageException } from '@/util/MessageException';
-import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
-const fs = require('fs');
-
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  Logger,
+  StreamableFile,
+} from '@nestjs/common';
+import { error } from 'console';
+import { createReadStream, unlink, unlinkSync } from 'fs';
+import { join } from 'path';
+import { BaseUserAudioDto } from './dto/BaseUserAudioDto';
+import { UploadedUserAudioDto } from './dto/UploadedUserAudioDto';
 
 @Injectable()
 export class UserAudioService {
   private readonly logger = new Logger('UserAudioService');
   private readonly msgException = new MessageException();
+  private readonly fileUtils = new FileUtils();
 
   constructor(private prisma: PrismaService) {}
+
+  async findUserAudioByParams(params: object) {
+    return this.prisma.userAudioStory
+      .findFirst({
+        where: params,
+      })
+      .catch((error) => {
+        PrintNameAndCodePrismaException(error, this.logger);
+        throw new HttpException(
+          'озвучка с заданными параметрами не найдена',
+          HttpStatus.FORBIDDEN,
+        );
+      });
+  }
 
   async saveAudio(
     filename: string,
     destination: string,
     userId: number,
     languageId: number,
-  ) {
+  ): Promise<UploadedUserAudioDto> {
     this.logger.debug('SAVE AUDIO');
+
+    // FIX: If User already have audio for current language id than EXCEPTION else create
     return this.prisma.userAudioStory
       .create({
+        select: {
+          id: true,
+          name: true,
+          languageId: true,
+        },
         data: {
           name: filename,
           userId: userId,
@@ -41,33 +73,59 @@ export class UserAudioService {
             HttpStatus.BAD_GATEWAY,
           );
         }
-      })
-      .then((result) => {});
+      });
   }
 
-  async deleteUserAudioById(id: number){
-    this.logger.debug("DELETE USER AUDIO BY ID");
-    this.prisma.userAudioStory.findUnique({
-      where:{
-        id: id
-      }
-    })
-    .catch(error => {
-      PrintNameAndCodePrismaException(error, this.logger);
-      if (error.code === 'P2003') {
-        throw new HttpException(
-          'аудиозапись не найдена',
-          HttpStatus.FORBIDDEN,
-        );
-      } else {
+  async deleteUserAudioById(id: number) {
+    this.logger.debug('DELETE USER AUDIO BY ID');
+    return this.prisma.userAudioStory
+      .findUnique({
+        where: {
+          id: id,
+        },
+      })
+      .catch((error) => {
+        PrintNameAndCodePrismaException(error, this.logger);
         throw new HttpException(
           this.msgException.UnhandledError,
           HttpStatus.BAD_GATEWAY,
         );
-      }
-    })
-    .then(result => {
-      console.log(result)
-    })
+      })
+      .then((userAudio) => {
+        if (userAudio) {
+          try {
+            unlinkSync(userAudio.pathAudio);
+            this.prisma.userAudioStory
+              .delete({
+                where: {
+                  id: userAudio.id,
+                },
+              })
+              .catch((error) => {
+                PrintNameAndCodePrismaException(error, this.logger);
+                throw new HttpException(
+                  'ошибка при удалении озвучки',
+                  HttpStatus.FORBIDDEN,
+                );
+              });
+          } catch (error) {
+            this.logger.error(`type:${error.code}\n${error}`);
+            throw new HttpException(
+              'ошибка при удалении озвучки',
+              HttpStatus.FORBIDDEN,
+            );
+          }
+        } else {
+          throw new HttpException(
+            'Озвучка для сказки не найдена',
+            HttpStatus.FORBIDDEN,
+          );
+        }
+      });
+  }
+
+  async getAudio(userId: number, languageId: number): Promise<StreamableFile> {
+    this.logger.debug('GET USER AUDIO');
+    return;
   }
 }

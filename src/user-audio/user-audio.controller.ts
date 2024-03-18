@@ -42,14 +42,16 @@ export class UserAudioController {
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @UseGuards(AuthGuard('jwt'), RoleGuard)
   @HttpCode(HttpStatus.OK)
-  @Get("/:userAudioId")
-  async getUserAudioById(@Param("userAudioId", ParseIntPipe) userAudioId:number){
-    this.logger.debug("GET USER AUDIO BY ID");
-    
-
+  @Get('/:userAudioId')
+  async getUserAudioById(
+    @Param('userAudioId', ParseIntPipe) userAudioId: number,
+  ) {
+    this.logger.debug('GET USER AUDIO BY ID');
   }
 
-  @ApiOperation({ summary: 'добавление озвучки пользователя для выбранного языка' })
+  @ApiOperation({
+    summary: 'добавление озвучки пользователя для выбранного языка',
+  })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Success',
@@ -73,20 +75,17 @@ export class UserAudioController {
   ) {
     this.logger.debug('UPLOAD USER AUDIO');
     console.log(file);
-    if(file != undefined){
-      return this.userAudioService.saveAudio(
-        file.filename,
-        file.destination,
-        req.user.sub,
-        languageId,
-      ).catch(error => {
-        this.logger.error(Object.keys(error));
-        throw new HttpException(error, HttpStatus.FORBIDDEN);
-        
-      });
-    }else{ 
-      throw new HttpException("поле с файлом не может быть пустым", HttpStatus.FORBIDDEN);
-
+    if (file != undefined) {
+      return this.userAudioService
+        .saveAudio(file.originalname, file.path, req.user.sub, languageId)
+        .catch((error) => {
+          throw new HttpException(error.message, HttpStatus.FORBIDDEN);
+        });
+    } else {
+      throw new HttpException(
+        'поле с файлом не может быть пустым',
+        HttpStatus.FORBIDDEN,
+      );
     }
   }
 
@@ -101,17 +100,17 @@ export class UserAudioController {
   @Roles(Role.admin)
   @UseGuards(AuthGuard('jwt'), RoleGuard)
   @HttpCode(HttpStatus.OK)
-  @Delete("/delete/:userAudioId")
-  async deleteUserAudioById(@Param("userAudioId", ParseIntPipe) userAudioId:number){
-    this.logger.debug("DELETE USER AUDIO BY ID");
-    return this.userAudioService.deleteUserAudioById(userAudioId)
-    .catch(error => {
-      throw new HttpException(error, HttpStatus.FORBIDDEN);
-    })
-    .then(result => {})
-    
+  @Delete('/delete/:userAudioId')
+  async deleteUserAudioById(
+    @Param('userAudioId', ParseIntPipe) userAudioId: number,
+  ) {
+    this.logger.debug('DELETE USER AUDIO BY ID');
+    return this.userAudioService
+      .deleteUserAudioById(userAudioId)
+      .catch((error) => {
+        this.logger.error(error);
+        throw new HttpException(error.message, error.status);
+      })
+      .then((result) => {});
   }
-
-
-
 }

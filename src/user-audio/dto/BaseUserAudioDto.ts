@@ -8,9 +8,5 @@ export class BaseUserAudioDto {
 
   @ApiProperty({ description: '', nullable: false })
   @IsInt()
-  userId: number;
-
-  @ApiProperty({ description: '', nullable: false })
-  @IsInt()
   languageId: number;
 }
