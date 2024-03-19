@@ -9,11 +9,12 @@ import {
   Logger,
   StreamableFile,
 } from '@nestjs/common';
-import { error } from 'console';
 import { createReadStream, unlink, unlinkSync } from 'fs';
-import { join } from 'path';
+
 import { BaseUserAudioDto } from './dto/BaseUserAudioDto';
 import { UploadedUserAudioDto } from './dto/UploadedUserAudioDto';
+import { UserAudioDto } from './dto/UserAudioDto';
+import { join } from 'path';
 
 @Injectable()
 export class UserAudioService {
@@ -22,6 +23,33 @@ export class UserAudioService {
   private readonly fileUtils = new FileUtils();
 
   constructor(private prisma: PrismaService) {}
+
+  async getUserAudioById(userAudioId: number): Promise<StreamableFile> {
+    this.logger.debug('GET USER AUDIO BY ID');
+    return this.prisma.userAudioStory
+      .findUnique({
+        select: {
+          id: true,
+          name: true,
+          languageId: true,
+          pathAudio: true,
+        },
+        where: {
+          id: userAudioId,
+        },
+      })
+      .catch((error) => {
+        PrintNameAndCodePrismaException(error, this.logger);
+        throw new HttpException(
+          this.msgException.UnhandledError,
+          HttpStatus.BAD_REQUEST,
+        );
+      })
+      .then((result) => {
+        const file = createReadStream(join(process.cwd(), result.pathAudio));
+        return new StreamableFile(file);
+      });
+  }
 
   async findUserAudioByParams(params: object) {
     return this.prisma.userAudioStory
@@ -44,8 +72,6 @@ export class UserAudioService {
     languageId: number,
   ): Promise<UploadedUserAudioDto> {
     this.logger.debug('SAVE AUDIO');
-
-    // FIX: If User already have audio for current language id than EXCEPTION else create
     return this.prisma.userAudioStory
       .create({
         select: {

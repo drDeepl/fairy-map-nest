@@ -41,10 +41,6 @@ export const validateAudio = (req, file, callback) => {
   console.log(audioPath);
 
   if (allowedMimes.includes(fileMime)) {
-    // const extens = file.originalname.split('.')[1];
-    // const filename = `${req.params.languageId}@${getUuid(file.originalname)}.${extens}`;
-    // const pathToAudio = path + '/' + req.user.sub + '/' + filename;
-
     if (
       fileUtils.fileWithParamsIsExists(
         req.params.languageId,

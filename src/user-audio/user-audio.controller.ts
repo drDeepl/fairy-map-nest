@@ -1,6 +1,7 @@
 import {
   Controller,
   Delete,
+  Header,
   HttpCode,
   HttpException,
   HttpStatus,
@@ -9,6 +10,7 @@ import {
   ParseIntPipe,
   Post,
   Req,
+  StreamableFile,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -25,6 +27,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { File, diskStorage } from 'multer';
 import { BaseUserAudioDto } from './dto/BaseUserAudioDto';
+import { UserAudioDto } from './dto/UserAudioDto';
 
 @ApiTags('UserAudioController')
 @Controller('api/user-audio')
@@ -37,16 +40,18 @@ export class UserAudioController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Success',
-    type: BaseUserAudioDto,
+    type: StreamableFile,
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
-  @UseGuards(AuthGuard('jwt'), RoleGuard)
   @HttpCode(HttpStatus.OK)
   @Get('/:userAudioId')
+  @Header('Content-Type', 'application/mpeg')
+  @Header('Content-Disposition', 'inline')
   async getUserAudioById(
     @Param('userAudioId', ParseIntPipe) userAudioId: number,
-  ) {
+  ): Promise<StreamableFile> {
     this.logger.debug('GET USER AUDIO BY ID');
+    return await this.userAudioService.getUserAudioById(userAudioId);
   }
 
   @ApiOperation({
