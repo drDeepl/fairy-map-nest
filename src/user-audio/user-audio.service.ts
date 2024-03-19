@@ -46,8 +46,10 @@ export class UserAudioService {
         );
       })
       .then((result) => {
-        const file = createReadStream(join(process.cwd(), result.pathAudio));
-        return new StreamableFile(file);
+        if (result) {
+          const file = createReadStream(join(process.cwd(), result.pathAudio));
+          return new StreamableFile(file);
+        }
       });
   }
 
@@ -59,7 +61,7 @@ export class UserAudioService {
       .catch((error) => {
         PrintNameAndCodePrismaException(error, this.logger);
         throw new HttpException(
-          'озвучка с заданными параметрами не найдена',
+          'ошибка в объявлении параметров',
           HttpStatus.FORBIDDEN,
         );
       });
