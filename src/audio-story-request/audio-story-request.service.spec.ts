@@ -1,15 +1,15 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { RequestAudioStoryService } from './request-audio-story.service';
+import { AudioStoryRequestService } from './audio-story-request.service';
 
 describe('RequestAudioStoryService', () => {
-  let service: RequestAudioStoryService;
+  let service: AudioStoryRequestService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [RequestAudioStoryService],
+      providers: [AudioStoryRequestService],
     }).compile();
 
-    service = module.get<RequestAudioStoryService>(RequestAudioStoryService);
+    service = module.get<AudioStoryRequestService>(AudioStoryRequestService);
   });
 
   it('should be defined', () => {

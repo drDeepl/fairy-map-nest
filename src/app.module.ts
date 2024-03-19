@@ -10,7 +10,7 @@ import { EthnicGroupModule } from './ethnic-group/ethnic-group.module';
 import { MapModule } from './map/map.module';
 import { StoryModule } from './story/story.module';
 import { UserAudioModule } from './user-audio/user-audio.module';
-import { RequestAudioStoryModule } from './request-audio-story/request-audio-story.module';
+import { AudioStoryRequestModule } from './audio-story-request/audio-story-request.module';
 
 @Module({
   imports: [
@@ -27,7 +27,7 @@ import { RequestAudioStoryModule } from './request-audio-story/request-audio-sto
     MapModule,
     StoryModule,
     UserAudioModule,
-    RequestAudioStoryModule,
+    AudioStoryRequestModule,
   ],
   controllers: [AppController],
   providers: [AppService],

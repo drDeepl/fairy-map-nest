@@ -1,15 +1,17 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { RequestAudioStoryController } from './request-audio-story.controller';
+import { AudioStoryRequestController } from './audio-story-request.controller';
 
 describe('RequestAudioStoryController', () => {
-  let controller: RequestAudioStoryController;
+  let controller: AudioStoryRequestController;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      controllers: [RequestAudioStoryController],
+      controllers: [AudioStoryRequestController],
     }).compile();
 
-    controller = module.get<RequestAudioStoryController>(RequestAudioStoryController);
+    controller = module.get<AudioStoryRequestController>(
+      AudioStoryRequestController,
+    );
   });
 
   it('should be defined', () => {
