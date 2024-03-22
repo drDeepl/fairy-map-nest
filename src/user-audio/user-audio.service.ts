@@ -9,12 +9,13 @@ import {
   Logger,
   StreamableFile,
 } from '@nestjs/common';
-import { createReadStream, unlink, unlinkSync } from 'fs';
-
+import * as fs from 'node:fs';
+import { File } from 'multer';
 import { BaseUserAudioDto } from './dto/BaseUserAudioDto';
 import { UploadedUserAudioDto } from './dto/UploadedUserAudioDto';
 import { UserAudioDto } from './dto/UserAudioDto';
 import { join } from 'path';
+import { getUuid, uploadsPath } from '@/util/Constants';
 
 @Injectable()
 export class UserAudioService {
@@ -47,7 +48,9 @@ export class UserAudioService {
       })
       .then((result) => {
         if (result) {
-          const file = createReadStream(join(process.cwd(), result.pathAudio));
+          const file = fs.createReadStream(
+            join(process.cwd(), result.pathAudio),
+          );
           return new StreamableFile(file);
         }
       });
@@ -68,24 +71,47 @@ export class UserAudioService {
   }
 
   async saveAudio(
-    filename: string,
-    destination: string,
     userId: number,
     languageId: number,
+    file: File,
   ): Promise<UploadedUserAudioDto> {
     this.logger.debug('SAVE AUDIO');
+    const filename = file.originalname;
+    const extens = this.fileUtils.getFileExtenstion(filename);
+    const filenameFolder = `${languageId}@${getUuid(filename)}.${extens}`;
+    const destination = `${uploadsPath}${userId}`;
+    const pathAudio = `${destination}/${filenameFolder}`;
+    this.prisma.userAudioStory
+      .findFirst({
+        where: {
+          userId: userId,
+          languageId: languageId,
+        },
+      })
+      .catch((error) => {
+        PrintNameAndCodePrismaException(error, this.logger);
+        throw new HttpException(
+          this.msgException.UnhandledError,
+          HttpStatus.BAD_GATEWAY,
+        );
+      })
+      .then((result) => {
+        console.log('FINDING USER AUDIO');
+        console.log(result);
+      });
     return this.prisma.userAudioStory
       .create({
         select: {
           id: true,
           name: true,
           languageId: true,
+          pathAudio: true,
         },
         data: {
           name: filename,
           userId: userId,
           languageId: languageId,
-          pathAudio: destination,
+          pathAudio: pathAudio,
         },
       })
       .catch((error) => {
@@ -101,6 +127,11 @@ export class UserAudioService {
             HttpStatus.BAD_GATEWAY,
           );
         }
+      })
+      .then((result) => {
+        const savedFile = fs.writeFileSync(result.pathAudio, file.buffer);
+        console.log(savedFile);
+        return result;
       });
   }
 
@@ -122,7 +153,7 @@ export class UserAudioService {
       .then((userAudio) => {
         if (userAudio) {
           try {
-            unlinkSync(userAudio.pathAudio);
+            fs.unlinkSync(userAudio.pathAudio);
             this.prisma.userAudioStory
               .delete({
                 where: {

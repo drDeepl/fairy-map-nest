@@ -19,15 +19,13 @@ import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UserAudioService } from './user-audio.service';
 
 import { Role, diskStorageOptionsAudio, validateAudio } from '@/util/Constants';
-
+import { File, diskStorage, memoryStorage } from 'multer';
 import { Roles } from '@/util/decorators/Roles';
 import { RoleGuard } from '@/util/guards/role.guard';
 import { Get } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { File, diskStorage } from 'multer';
 import { BaseUserAudioDto } from './dto/BaseUserAudioDto';
-import { UserAudioDto } from './dto/UserAudioDto';
 
 @ApiTags('UserAudioController')
 @Controller('api/user-audio')
@@ -69,7 +67,7 @@ export class UserAudioController {
   @Post('/upload/:languageId')
   @UseInterceptors(
     FileInterceptor('file', {
-      storage: diskStorage(diskStorageOptionsAudio),
+      storage: memoryStorage(),
       fileFilter: validateAudio,
     }),
   )
@@ -80,9 +78,10 @@ export class UserAudioController {
   ) {
     this.logger.debug('UPLOAD USER AUDIO');
     console.log(file);
+    // .saveAudio(file.originalname, file.path, req.user.sub, languageId, file)
     if (file != undefined) {
       return this.userAudioService
-        .saveAudio(file.originalname, file.path, req.user.sub, languageId)
+        .saveAudio(req.user.sub, languageId, file)
         .catch((error) => {
           throw new HttpException(error.message, HttpStatus.FORBIDDEN);
         });

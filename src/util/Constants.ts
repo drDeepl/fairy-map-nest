@@ -1,7 +1,8 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
-import { existsSync, mkdirSync } from 'fs';
+import * as fs from 'node:fs';
+
 import { FileUtils } from './FileUtils';
-const getUuid = require('uuid-by-string');
+export const getUuid = require('uuid-by-string');
 
 const fileUtils = new FileUtils();
 
@@ -10,7 +11,8 @@ export enum Role {
   moder = 'moder',
   user = 'user',
 }
-const uploadsPath = './static/uploads/audio/';
+export const uploadsPath = './static/uploads/audio/';
+
 export const diskStorageOptionsAudio = {
   destination: (req, file, callback) => {
     console.warn('DESTINATION');
@@ -19,8 +21,8 @@ export const diskStorageOptionsAudio = {
     // const path = `./static/uploads/audio/${userId}`;
     console.log('DESTINATION');
     console.error(file);
-    if (!existsSync(path)) {
-      mkdirSync(uploadsPath, { recursive: true });
+    if (!fs.existsSync(path)) {
+      fs.mkdirSync(uploadsPath, { recursive: true });
     }
     return callback(null, path);
   },
@@ -38,8 +40,6 @@ export const validateAudio = (req, file, callback) => {
   const allowedMimes = ['audio/mpeg', 'audio/mp3', 'audio/mp4'];
   const fileMime = file?.mimetype;
   const audioPath = uploadsPath + req.user.sub + '/';
-  console.log(audioPath);
-
   if (allowedMimes.includes(fileMime)) {
     if (
       fileUtils.fileWithParamsIsExists(
@@ -48,16 +48,18 @@ export const validateAudio = (req, file, callback) => {
         audioPath,
       )
     ) {
-      callback(
+      return callback(
         new HttpException(
           'Озвучка с выбранными параметрами уже существует',
           HttpStatus.FORBIDDEN,
         ),
       );
     } else {
-      callback(null, true);
+      return callback(null, true);
     }
   } else {
-    callback(new HttpException('Неправильный тип файла', HttpStatus.FORBIDDEN));
+    return callback(
+      new HttpException('Неправильный тип файла', HttpStatus.FORBIDDEN),
+    );
   }
 };

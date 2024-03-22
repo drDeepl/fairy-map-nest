@@ -1,5 +1,6 @@
-import { HttpException, HttpStatus } from '@nestjs/common';
-import { unlink, existsSync } from 'fs';
+import { HttpException, HttpStatus, Logger } from '@nestjs/common';
+import * as fs from 'node:fs';
+
 const getUuid = require('uuid-by-string');
 export class FileUtils {
   throwRM(err: string) {
@@ -11,16 +12,21 @@ export class FileUtils {
     );
   }
 
+  getFileExtenstion(filename: string): string {
+    return filename.split('.').pop();
+  }
+
   fileWithParamsIsExists(
     languageId: number,
     originalname,
     destination: string,
   ): boolean {
-    const extens = originalname.split('.')[1];
+    const extens = this.getFileExtenstion(originalname);
     const filename = `${languageId}@${getUuid(originalname)}.${extens}`;
-    if (existsSync(`${destination}/${filename}`)) {
+    if (fs.existsSync(`${destination}/${filename}`)) {
       return true;
     }
+
     return false;
   }
 }
