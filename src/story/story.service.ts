@@ -42,32 +42,54 @@ export class StoryService {
 
   async addStory(dto: AddStoryDto): Promise<StoryDto> {
     this.logger.debug('ADD STORY');
+    const maxCountStories = 10;
     return this.prisma.story
-      .create({
-        select: {
-          id: true,
-          name: true,
-          ethnicGroup: true,
-          audioId: true,
-        },
-        data: {
-          name: dto.name,
+      .count({
+        where: {
           ethnicGroupId: dto.ethnicGroupId,
         },
       })
-      .catch((error) => {
-        PrintNameAndCodePrismaException(error, this.logger);
-        if (error.code == 'P2002') {
-          throw new HttpException(
-            'сказка с таким названием уже существует',
-            HttpStatus.FORBIDDEN,
-          );
-        } else {
-          throw new HttpException(
-            this.msgException.UnhandledError,
-            HttpStatus.BAD_GATEWAY,
-          );
+      .then((result) => {
+        this.logger.warn(`Count stories for ethnic group ${result}`);
+        if (result < maxCountStories) {
+          return this.prisma.story
+            .create({
+              select: {
+                id: true,
+                name: true,
+                ethnicGroup: true,
+                audioId: true,
+              },
+              data: {
+                name: dto.name,
+                ethnicGroupId: dto.ethnicGroupId,
+              },
+            })
+            .catch((error) => {
+              PrintNameAndCodePrismaException(error, this.logger);
+              if (error.code == 'P2002') {
+                throw new HttpException(
+                  'сказка с таким названием уже существует',
+                  HttpStatus.FORBIDDEN,
+                );
+              }
+              if (error.code === 'P2003') {
+                throw new HttpException(
+                  'выбранной этнической группы не существует',
+                  HttpStatus.FORBIDDEN,
+                );
+              } else {
+                throw new HttpException(
+                  this.msgException.UnhandledError,
+                  HttpStatus.BAD_GATEWAY,
+                );
+              }
+            });
         }
+        throw new HttpException(
+          `Превышен лимит сказок для одной этнической группы. Максимальное количество: ${maxCountStories}`,
+          HttpStatus.FORBIDDEN,
+        );
       });
   }
 
