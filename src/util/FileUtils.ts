@@ -23,10 +23,24 @@ export class FileUtils {
   ): boolean {
     const extens = this.getFileExtenstion(originalname);
     const filename = `${languageId}@${getUuid(originalname)}.${extens}`;
-    if (fs.existsSync(`${destination}/${filename}`)) {
-      return true;
+
+    const files = fs.readdirSync(destination);
+    try {
+      console.log('FILES');
+      console.log(files);
+
+      const matchingFiles = files.filter((file) =>
+        new RegExp(`^[${languageId}]`).test(file),
+      );
+      console.log(matchingFiles);
+      return matchingFiles.length > 0;
+    } catch (e) {
+      throw new HttpException('Что-то пошло не так', HttpStatus.BAD_GATEWAY);
+    } finally {
     }
 
-    return false;
+    // if (fs.existsSync(`${destination}/${filename}`)) {
+    //   isExists = true;
+    // }
   }
 }

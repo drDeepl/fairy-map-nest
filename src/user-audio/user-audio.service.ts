@@ -81,31 +81,13 @@ export class UserAudioService {
     const filenameFolder = `${languageId}@${getUuid(filename)}.${extens}`;
     const destination = `${uploadsPath}${userId}`;
     const pathAudio = `${destination}/${filenameFolder}`;
-    this.prisma.userAudioStory
-      .findFirst({
-        where: {
-          userId: userId,
-          languageId: languageId,
-        },
-      })
-      .catch((error) => {
-        PrintNameAndCodePrismaException(error, this.logger);
-        throw new HttpException(
-          this.msgException.UnhandledError,
-          HttpStatus.BAD_GATEWAY,
-        );
-      })
-      .then((result) => {
-        console.log('FINDING USER AUDIO');
-        console.log(result);
-      });
+
     return this.prisma.userAudioStory
       .create({
         select: {
           id: true,
           name: true,
           languageId: true,
-          pathAudio: true,
         },
         data: {
           name: filename,
@@ -129,7 +111,7 @@ export class UserAudioService {
         }
       })
       .then((result) => {
-        const savedFile = fs.writeFileSync(result.pathAudio, file.buffer);
+        const savedFile = fs.writeFileSync(pathAudio, file.buffer);
         console.log(savedFile);
         return result;
       });

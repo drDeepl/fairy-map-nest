@@ -41,6 +41,9 @@ export const validateAudio = (req, file, callback) => {
   const fileMime = file?.mimetype;
   const audioPath = uploadsPath + req.user.sub + '/';
   if (allowedMimes.includes(fileMime)) {
+    if (!fs.existsSync(audioPath)) {
+      fs.mkdirSync(uploadsPath, { recursive: true });
+    }
     if (
       fileUtils.fileWithParamsIsExists(
         req.params.languageId,
@@ -48,18 +51,17 @@ export const validateAudio = (req, file, callback) => {
         audioPath,
       )
     ) {
-      return callback(
+      callback(
         new HttpException(
           'Озвучка с выбранными параметрами уже существует',
           HttpStatus.FORBIDDEN,
         ),
       );
     } else {
-      return callback(null, true);
+      callback(null, true);
     }
   } else {
-    return callback(
-      new HttpException('Неправильный тип файла', HttpStatus.FORBIDDEN),
-    );
+    callback(new HttpException('Неправильный тип файла', HttpStatus.FORBIDDEN));
   }
+  console.log('END VALIDATE');
 };

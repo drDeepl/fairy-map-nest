@@ -9,6 +9,7 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  Put,
   Req,
   StreamableFile,
   UploadedFile,
@@ -64,7 +65,7 @@ export class UserAudioController {
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
   @UseGuards(AuthGuard('jwt'), RoleGuard)
   @HttpCode(HttpStatus.OK)
-  @Post('/upload/:languageId')
+  @Put('/upload/:languageId')
   @UseInterceptors(
     FileInterceptor('file', {
       storage: memoryStorage(),
