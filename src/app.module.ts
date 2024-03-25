@@ -11,6 +11,7 @@ import { MapModule } from './map/map.module';
 import { StoryModule } from './story/story.module';
 import { UserAudioModule } from './user-audio/user-audio.module';
 import { AudioStoryRequestModule } from './audio-story-request/audio-story-request.module';
+import { RequestModule } from './request/request.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { AudioStoryRequestModule } from './audio-story-request/audio-story-reque
     StoryModule,
     UserAudioModule,
     AudioStoryRequestModule,
+    RequestModule,
   ],
   controllers: [AppController],
   providers: [AppService],
