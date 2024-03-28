@@ -9,11 +9,17 @@ import { TypeRequestDto } from './dto/type-request/TypeRequestDto';
 import { EntityStatusRequestDto } from './dto/status-request/EntityStatusRequestDto';
 import { AddStatusRequestDto } from './dto/status-request/AddStatusRequestDto';
 import { EditStatusRequestDto } from './dto/status-request/EditStatusRequestDto';
+import { DataBaseExceptionHandler } from '@/util/exception/DataBaseExceptionHandler';
+import { statusCodeMessages } from '@/util/Constants';
 
 @Injectable()
 export class RequestService {
   private readonly logger = new Logger('RequestService');
   private readonly msgException = new MessageException();
+
+  private readonly statusHandlerException = new DataBaseExceptionHandler(
+    statusCodeMessages,
+  );
 
   constructor(private readonly prisma: PrismaService) {}
 
@@ -154,7 +160,7 @@ export class RequestService {
       })
       .catch((error) => {
         PrintNameAndCodePrismaException(error, this.logger);
-        throw new HttpException('Что-то пошло не так', HttpStatus.BAD_GATEWAY);
+        throw this.statusHandlerException.handleError(error);
       });
   }
 
@@ -163,7 +169,7 @@ export class RequestService {
     dto: EditStatusRequestDto,
   ): Promise<EntityStatusRequestDto> {
     this.logger.debug('EDIT STATUS REQUEST');
-    return this.prisma.requestStatus
+    return await this.prisma.requestStatus
       .update({
         where: {
           id: id,
@@ -174,7 +180,21 @@ export class RequestService {
       })
       .catch((error) => {
         PrintNameAndCodePrismaException(error, this.logger);
-        throw new HttpException('Что-то пошло не так', HttpStatus.BAD_GATEWAY);
+        throw this.statusHandlerException.handleError(error);
+      });
+  }
+
+  async deleteStatusRequestById(id: number): Promise<void> {
+    this.logger.debug('DELETE STATUS REQUEST BY ID');
+    await this.prisma.requestStatus
+      .delete({
+        where: {
+          id: id,
+        },
+      })
+      .catch((error) => {
+        PrintNameAndCodePrismaException(error, this.logger);
+        throw this.statusHandlerException.handleError(error);
       });
   }
 }

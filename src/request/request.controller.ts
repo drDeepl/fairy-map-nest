@@ -126,7 +126,7 @@ export class RequestController {
       .then((result) => {});
   }
 
-  @ApiOperation({ summary: 'получение списка статусов для заявок' })
+  @ApiOperation({ summary: 'получение списка статусов заявок' })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Success',
@@ -166,6 +166,7 @@ export class RequestController {
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  @Roles(Role.admin)
   @UseGuards(AuthGuard('jwt'), RoleGuard)
   @HttpCode(HttpStatus.OK)
   @Post('/status/add')
@@ -174,7 +175,7 @@ export class RequestController {
     return await this.requestService.addStatusRequest(dto);
   }
 
-  @ApiOperation({ summary: 'редактирование статуса' })
+  @ApiOperation({ summary: 'редактирование статуса | TODO | FIX' })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Success',
@@ -182,6 +183,7 @@ export class RequestController {
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  @Roles(Role.admin)
   @UseGuards(AuthGuard('jwt'), RoleGuard)
   @HttpCode(HttpStatus.OK)
   @Put('/status/edit/:statusId')
@@ -191,5 +193,23 @@ export class RequestController {
   ): Promise<EntityStatusRequestDto> {
     this.logger.debug('EDIT STATUS REQUEST');
     return await this.requestService.editStatusRequest(statusId, dto);
+  }
+
+  @ApiOperation({ summary: 'удаление статуса по id' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Success',
+  })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  @Roles(Role.admin)
+  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @HttpCode(HttpStatus.OK)
+  @Delete('/status/delete/:statusId')
+  async deleteStatusRequestById(
+    @Param('statusId', ParseIntPipe) statusId: number,
+  ): Promise<void> {
+    this.logger.debug('DELETE STATUS REQUEST BY ID');
+    return await this.deleteStatusRequestById(statusId);
   }
 }

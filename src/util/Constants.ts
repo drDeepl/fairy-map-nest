@@ -65,3 +65,8 @@ export const validateAudio = (req, file, callback) => {
   }
   console.log('END VALIDATE');
 };
+
+export const statusCodeMessages = {
+  P2002: 'статус с таким названием уже существует',
+  P2025: 'выбранный статус не существует',
+};
