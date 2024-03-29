@@ -154,25 +154,14 @@ model TypeRequest{
 
 }
 
-model RequestStatus{
-  id                  Int       @id @default(autoincrement())
-  name                String    @unique @db.VarChar(255)
-  addStoryRequests    AddStoryRequest[]
-  storyAudioRequests  StoryAudioRequest[]
-
-  
-}
-
-
 
 model AddStoryRequest{
   id            Int             @id @default(autoincrement())
   storyName     String          @map("story_name") @db.VarChar(255)
-  status_id     Int        
+  status        Status          @default(SEND)    
   comment       String          @db.Text
   userId        Int             @map("user_id")
   user          User            @relation(fields: [userId], references: [id])
-  requestStatus RequestStatus   @relation(fields:[status_id], references: [id])
   
 
   @@map("add_story_requests")
@@ -185,12 +174,17 @@ model StoryAudioRequest{
   userAudio     UserAudioStory   @relation(fields: [userAudioId], references: [id])
   typeId        Int              @map("type_id")
   typeRequest   TypeRequest      @relation(fields: [typeId], references: [id])
-  status_id     Int        
+  status        Status           @default(SEND)        
   comment       String           @db.Text
   userId        Int
   user          User             @relation(fields: [userId], references: [id])
-  requestStatus RequestStatus   @relation(fields:[status_id], references: [id])
 
   @@map("story_audio_requests")
   
+}
+
+enum Status {
+  SEND      @map("отправлено") 
+  SUCCESSED @map("одобрено")
+  CANCELLED @map("отклонено")
 }

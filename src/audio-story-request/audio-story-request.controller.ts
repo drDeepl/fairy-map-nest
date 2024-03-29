@@ -16,6 +16,8 @@ import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AudioStoryRequestService } from './audio-story-request.service';
 import { RoleGuard } from '@/util/guards/role.guard';
 import { AuthGuard } from '@nestjs/passport';
+import { AddAudioStoryRequestDto } from './dto/audio-story-request/AddAudioStoryRequestDto';
+import { AudioStoryRequestEntity } from './entity/AudioStoryRequestEntity';
 
 @ApiTags('AudioStoryRequestController')
 @Controller('api/audio-story-request')
@@ -32,5 +34,10 @@ export class AudioStoryRequestController {
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
   @UseGuards(AuthGuard('jwt'), RoleGuard)
   @Post('/add')
-  async createAddAudioRequest() {}
+  async createAddAudioRequest(
+    @Body() dto: AddAudioStoryRequestDto,
+  ): Promise<AudioStoryRequestEntity> {
+    this.logger.debug('CREATE ADD AUTIO STORY REQUEST');
+    return await this.audioStoryRequestService.createAddAudioRequest(dto);
+  }
 }

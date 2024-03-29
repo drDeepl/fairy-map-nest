@@ -68,5 +68,16 @@ export const validateAudio = (req, file, callback) => {
 
 export const statusCodeMessages = {
   P2002: 'статус с таким названием уже существует',
-  P2025: 'выбранный статус не существует',
+  P2025: 'выбранного статус не существует',
 };
+
+export const PCodeMessages = {
+  P2002: 'запись с таким названием уже существует',
+  P2025: 'выбранной записи не существует',
+};
+
+export enum REQUEST_STATUS {
+  SEND = 'отправлено',
+  SUCCESSED = 'одобрено',
+  CANCELLED = 'отклонено',
+}

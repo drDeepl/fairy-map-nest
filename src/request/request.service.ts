@@ -10,7 +10,8 @@ import { EntityStatusRequestDto } from './dto/status-request/EntityStatusRequest
 import { AddStatusRequestDto } from './dto/status-request/AddStatusRequestDto';
 import { EditStatusRequestDto } from './dto/status-request/EditStatusRequestDto';
 import { DataBaseExceptionHandler } from '@/util/exception/DataBaseExceptionHandler';
-import { statusCodeMessages } from '@/util/Constants';
+import { REQUEST_STATUS, statusCodeMessages } from '@/util/Constants';
+import { Status } from '@prisma/client';
 
 @Injectable()
 export class RequestService {
@@ -126,75 +127,17 @@ export class RequestService {
       });
   }
 
-  async getStatusRequestAll(): Promise<EntityStatusRequestDto[]> {
+  async getStatusRequestAll(): Promise<string[]> {
     this.logger.debug('GET STATUS REQUEST ALL');
-    return await this.prisma.requestStatus.findMany().catch((error) => {
-      PrintNameAndCodePrismaException(error, this.logger);
-      throw new HttpException('Что-то пошло не так', HttpStatus.BAD_GATEWAY);
+
+    return Object.keys(Status).map((status) => {
+      if (REQUEST_STATUS[status] === undefined) {
+        throw new HttpException(
+          'Конфликт определения статусов',
+          HttpStatus.BAD_GATEWAY,
+        );
+      }
+      return REQUEST_STATUS[status];
     });
-  }
-
-  async getStatusRequestById(id: number): Promise<EntityStatusRequestDto> {
-    this.logger.debug('GET STATUS REQUEST BY ID');
-    return await this.prisma.requestStatus
-      .findUnique({
-        where: {
-          id: id,
-        },
-      })
-      .catch((error) => {
-        PrintNameAndCodePrismaException(error, this.logger);
-        throw new HttpException('Что-то пошло не так', HttpStatus.BAD_GATEWAY);
-      });
-  }
-
-  async addStatusRequest(
-    dto: AddStatusRequestDto,
-  ): Promise<EntityStatusRequestDto> {
-    this.logger.debug('AD STATUS REQUEST');
-    return await this.prisma.requestStatus
-      .create({
-        data: {
-          name: dto.name,
-        },
-      })
-      .catch((error) => {
-        PrintNameAndCodePrismaException(error, this.logger);
-        throw this.statusHandlerException.handleError(error);
-      });
-  }
-
-  async editStatusRequest(
-    id: number,
-    dto: EditStatusRequestDto,
-  ): Promise<EntityStatusRequestDto> {
-    this.logger.debug('EDIT STATUS REQUEST');
-    return await this.prisma.requestStatus
-      .update({
-        where: {
-          id: id,
-        },
-        data: {
-          name: dto.name,
-        },
-      })
-      .catch((error) => {
-        PrintNameAndCodePrismaException(error, this.logger);
-        throw this.statusHandlerException.handleError(error);
-      });
-  }
-
-  async deleteStatusRequestById(id: number): Promise<void> {
-    this.logger.debug('DELETE STATUS REQUEST BY ID');
-    await this.prisma.requestStatus
-      .delete({
-        where: {
-          id: id,
-        },
-      })
-      .catch((error) => {
-        PrintNameAndCodePrismaException(error, this.logger);
-        throw this.statusHandlerException.handleError(error);
-      });
   }
 }
