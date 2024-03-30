@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Status } from '@prisma/client';
 import { IsNumber, IsString } from 'class-validator';
 
-export class AudioReqeustWithUserAudioDto {
+export class AudioRequestWithUserAudioDto {
   @ApiProperty({ description: '', nullable: false })
   @IsNumber()
   id: number;

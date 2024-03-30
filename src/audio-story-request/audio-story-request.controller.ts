@@ -13,13 +13,15 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  Put,
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AudioStoryRequestService } from './audio-story-request.service';
 import { AddAudioStoryRequestDto } from './dto/audio-story-request/AddAudioStoryRequestDto';
-import { AudioReqeustWithUserAudioDto } from './dto/audio-story-request/AudioReqeustWithUserAudioDto';
+import { AudioRequestWithUserAudioDto } from './dto/audio-story-request/AudioRequestWithUserAudioDto';
+import { EditAudioStoryRequestDto } from './dto/audio-story-request/EditAudioStoryRequestDto';
 import { AudioStoryRequestEntity } from './entity/AudioStoryRequestEntity';
 
 @ApiTags('AudioStoryRequestController')
@@ -42,12 +44,12 @@ export class AudioStoryRequestController {
   @Get('/my-audio-story-requests')
   async getAllAudioStoryRequestsCurrentUser(
     @User() user: UserAccessInterface,
-  ): Promise<AudioReqeustWithUserAudioDto[]> {
+  ): Promise<AudioRequestWithUserAudioDto[]> {
     this.logger.debug('GET ALL AUDIO STORY REQUESTS FOR CURRENT USER');
     return this.audioStoryRequestService.getAudioRequestsByUserId(user.id);
   }
 
-  @ApiOperation({ summary: 'Создание заявки на проверку озвучки |  todo' })
+  @ApiOperation({ summary: 'Создание заявки на проверку озвучки' })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Success',
@@ -62,6 +64,26 @@ export class AudioStoryRequestController {
   ): Promise<AudioStoryRequestEntity> {
     this.logger.debug('CREATE ADD AUDIO STORY REQUEST');
     return await this.audioStoryRequestService.createAddAudioRequest(dto);
+  }
+
+  @ApiOperation({ summary: 'редактирование заявки на проверку озвучки' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Success',
+    type: AudioStoryRequestEntity,
+  })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @Put('/edit/:audioStoryReqeustId')
+  async editAudioStoryRequest(
+    @Param('audioStoryReqeustId', ParseIntPipe) audioStoryReqeustId: number,
+    @Body() dto: EditAudioStoryRequestDto,
+  ): Promise<AudioRequestWithUserAudioDto> {
+    return await this.audioStoryRequestService.editAudioStoryRequest(
+      audioStoryReqeustId,
+      dto,
+    );
   }
 
   @ApiOperation({

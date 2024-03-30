@@ -6,7 +6,8 @@ import { DataBaseExceptionHandler } from '@/util/exception/DataBaseExceptionHand
 import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { Status } from '@prisma/client';
 import { AddAudioStoryRequestDto } from './dto/audio-story-request/AddAudioStoryRequestDto';
-import { AudioReqeustWithUserAudioDto } from './dto/audio-story-request/AudioReqeustWithUserAudioDto';
+import { AudioRequestWithUserAudioDto } from './dto/audio-story-request/AudioRequestWithUserAudioDto';
+import { EditAudioStoryRequestDto } from './dto/audio-story-request/EditAudioStoryRequestDto';
 import { AudioStoryRequestEntity } from './entity/AudioStoryRequestEntity';
 
 @Injectable()
@@ -49,6 +50,36 @@ export class AudioStoryRequestService {
       },
     });
   }
+
+  async editAudioStoryRequest(
+    id: number,
+    dto: EditAudioStoryRequestDto,
+  ): Promise<AudioRequestWithUserAudioDto> {
+    this.logger.debug('EDIT AUDIO STORY REQUEST');
+
+    return await this.prisma.storyAudioRequest
+      .update({
+        select: {
+          id: true,
+          userAudio: { select: { id: true, name: true } },
+          typeId: true,
+          status: true,
+          comment: true,
+        },
+        where: {
+          id: id,
+        },
+        data: {
+          status: Status[dto.status],
+          comment: dto.comment,
+        },
+      })
+      .catch((error) => {
+        PrintNameAndCodePrismaException(error, this.logger);
+        throw this.dbExceptionHandler.handleError(error);
+      });
+  }
+
   async deleteAudioStoryById(id: number) {
     this.logger.debug('DELETE AUDIO STORY BY ID');
     try {
@@ -65,7 +96,7 @@ export class AudioStoryRequestService {
 
   async getAudioRequestsByUserId(
     id: number,
-  ): Promise<AudioReqeustWithUserAudioDto[]> {
+  ): Promise<AudioRequestWithUserAudioDto[]> {
     this.logger.debug('GET AUDIO REQUESTS BY USER ID');
     return await this.prisma.storyAudioRequest
       .findMany({
