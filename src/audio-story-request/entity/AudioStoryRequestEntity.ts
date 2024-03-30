@@ -11,7 +11,7 @@ export class AudioStoryRequestEntity {
   userAudioId: number;
 
   @ApiProperty()
-  statusId: number;
+  status: string;
 
   @ApiProperty()
   typeId: number;

@@ -42,7 +42,7 @@ export const validateAudio = (req, file, callback) => {
   const audioPath = uploadsPath + req.user.sub + '/';
   if (allowedMimes.includes(fileMime)) {
     if (!fs.existsSync(audioPath)) {
-      fs.mkdirSync(uploadsPath, { recursive: true });
+      fs.mkdirSync(audioPath, { recursive: true });
     }
     if (
       fileUtils.fileWithParamsIsExists(

@@ -1,5 +1,4 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
-import { CodeMessage } from './types/CodeMessage';
 import { Prisma } from '@prisma/client';
 
 export class DataBaseExceptionHandler {

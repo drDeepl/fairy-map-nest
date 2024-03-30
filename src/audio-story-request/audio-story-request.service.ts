@@ -1,15 +1,13 @@
-import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
-import { TypeRequestDto } from '../request/dto/type-request/TypeRequestDto';
 import { PrismaService } from '@/prisma/prisma.service';
-import { AddTypeRequestDto } from '../request/dto/type-request/AddTypeRequestDto';
-import { PrintNameAndCodePrismaException } from '@/util/ExceptionUtils';
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
-import { MessageException } from '@/util/MessageException';
-import { EditTypeRequestDto } from '../request/dto/type-request/EditTypeRequestDto';
-import { DataBaseExceptionHandler } from '@/util/exception/DataBaseExceptionHandler';
-import { AddAudioStoryRequestDto } from './dto/audio-story-request/AddAudioStoryRequestDto';
-import { AudioStoryRequestEntity } from './entity/AudioStoryRequestEntity';
 import { PCodeMessages } from '@/util/Constants';
+import { PrintNameAndCodePrismaException } from '@/util/ExceptionUtils';
+import { MessageException } from '@/util/MessageException';
+import { DataBaseExceptionHandler } from '@/util/exception/DataBaseExceptionHandler';
+import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
+import { Status } from '@prisma/client';
+import { AddAudioStoryRequestDto } from './dto/audio-story-request/AddAudioStoryRequestDto';
+import { AudioReqeustWithUserAudioDto } from './dto/audio-story-request/AudioReqeustWithUserAudioDto';
+import { AudioStoryRequestEntity } from './entity/AudioStoryRequestEntity';
 
 @Injectable()
 export class AudioStoryRequestService {
@@ -26,6 +24,65 @@ export class AudioStoryRequestService {
   ): Promise<AudioStoryRequestEntity> {
     // FIX: CREATE ENUM STATUS OR STORE IN DB?
     this.logger.debug('CREATE ADD AUDIO REQUEST');
-    return;
+    console.log(Status);
+    const addAudioStory = await this.prisma.storyAudioRequest.findFirst({
+      where: {
+        userAudioId: dto.userAudioId,
+        userId: dto.userId,
+        typeId: dto.typeId,
+      },
+    });
+
+    if (addAudioStory) {
+      throw new HttpException(
+        'Заявка с выбранными параметрами уже создана',
+        HttpStatus.FORBIDDEN,
+      );
+    }
+
+    return await this.prisma.storyAudioRequest.create({
+      data: {
+        userId: dto.userId,
+        userAudioId: dto.userAudioId,
+        status: Status.SEND,
+        typeId: dto.typeId,
+      },
+    });
+  }
+  async deleteAudioStoryById(id: number) {
+    this.logger.debug('DELETE AUDIO STORY BY ID');
+    try {
+      await this.prisma.storyAudioRequest.delete({
+        where: {
+          id: id,
+        },
+      });
+    } catch (error) {
+      PrintNameAndCodePrismaException(error, this.logger);
+      throw this.dbExceptionHandler.handleError(error);
+    }
+  }
+
+  async getAudioRequestsByUserId(
+    id: number,
+  ): Promise<AudioReqeustWithUserAudioDto[]> {
+    this.logger.debug('GET AUDIO REQUESTS BY USER ID');
+    return await this.prisma.storyAudioRequest
+      .findMany({
+        select: {
+          id: true,
+          userAudio: { select: { id: true, name: true } },
+          typeId: true,
+          status: true,
+          comment: true,
+        },
+        where: {
+          userId: id,
+        },
+      })
+      .catch((error) => {
+        PrintNameAndCodePrismaException(error, this.logger);
+        throw this.dbExceptionHandler.handleError(error);
+      });
   }
 }

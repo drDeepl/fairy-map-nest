@@ -21,9 +21,6 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { RequestService } from './request.service';
-import { EntityStatusRequestDto } from './dto/status-request/EntityStatusRequestDto';
-import { AddStatusRequestDto } from './dto/status-request/AddStatusRequestDto';
-import { EditStatusRequestDto } from './dto/status-request/EditStatusRequestDto';
 
 @ApiTags('RequestController')
 @Controller('/api/request')
@@ -124,20 +121,5 @@ export class RequestController {
     return this.requestService
       .deleteTypeRequestById(typeRequestId)
       .then((result) => {});
-  }
-
-  @ApiOperation({ summary: 'получение списка статусов заявок' })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'Success',
-    type: [EntityStatusRequestDto],
-  })
-  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
-  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
-  @UseGuards(AuthGuard('jwt'), RoleGuard)
-  @HttpCode(HttpStatus.OK)
-  @Get('/status/all')
-  async getStatusRequestAll(): Promise<string[]> {
-    return await this.requestService.getStatusRequestAll();
   }
 }

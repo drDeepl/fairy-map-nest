@@ -175,7 +175,7 @@ model StoryAudioRequest{
   typeId        Int              @map("type_id")
   typeRequest   TypeRequest      @relation(fields: [typeId], references: [id])
   status        Status           @default(SEND)        
-  comment       String           @db.Text
+  comment       String           @db.Text @default("")
   userId        Int
   user          User             @relation(fields: [userId], references: [id])
 
@@ -184,7 +184,7 @@ model StoryAudioRequest{
 }
 
 enum Status {
-  SEND      @map("отправлено") 
+  SEND      @map("отправлено")
   SUCCESSED @map("одобрено")
   CANCELLED @map("отклонено")
 }

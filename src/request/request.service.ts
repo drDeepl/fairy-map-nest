@@ -1,17 +1,13 @@
 import { PrismaService } from '@/prisma/prisma.service';
+import { REQUEST_STATUS, statusCodeMessages } from '@/util/Constants';
 import { PrintNameAndCodePrismaException } from '@/util/ExceptionUtils';
 import { MessageException } from '@/util/MessageException';
+import { DataBaseExceptionHandler } from '@/util/exception/DataBaseExceptionHandler';
 import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { AddTypeRequestDto } from './dto/type-request/AddTypeRequestDto';
 import { EditTypeRequestDto } from './dto/type-request/EditTypeRequestDto';
 import { TypeRequestDto } from './dto/type-request/TypeRequestDto';
-import { EntityStatusRequestDto } from './dto/status-request/EntityStatusRequestDto';
-import { AddStatusRequestDto } from './dto/status-request/AddStatusRequestDto';
-import { EditStatusRequestDto } from './dto/status-request/EditStatusRequestDto';
-import { DataBaseExceptionHandler } from '@/util/exception/DataBaseExceptionHandler';
-import { REQUEST_STATUS, statusCodeMessages } from '@/util/Constants';
-import { Status } from '@prisma/client';
 
 @Injectable()
 export class RequestService {
@@ -127,17 +123,8 @@ export class RequestService {
       });
   }
 
-  async getStatusRequestAll(): Promise<string[]> {
+  async getStatusRequestAll(): Promise<object> {
     this.logger.debug('GET STATUS REQUEST ALL');
-
-    return Object.keys(Status).map((status) => {
-      if (REQUEST_STATUS[status] === undefined) {
-        throw new HttpException(
-          'Конфликт определения статусов',
-          HttpStatus.BAD_GATEWAY,
-        );
-      }
-      return REQUEST_STATUS[status];
-    });
+    return REQUEST_STATUS;
   }
 }
