@@ -1,6 +1,7 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
 import * as fs from 'node:fs';
 
+import { ConfigService } from '@nestjs/config';
 import { FileUtils } from './FileUtils';
 export const getUuid = require('uuid-by-string');
 
@@ -81,3 +82,11 @@ export enum REQUEST_STATUS {
   SUCCESSED = 'одобрено',
   CANCELLED = 'отклонено',
 }
+
+export const jwtFactory = {
+  useFactory: async (configService: ConfigService) => ({
+    secret: configService.get('JWT_SECRET'),
+    signOptions: { expiresIn: configService.get('JWT_EXP_H') },
+  }),
+  inject: [ConfigService],
+};

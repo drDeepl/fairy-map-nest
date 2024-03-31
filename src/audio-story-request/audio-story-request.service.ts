@@ -5,6 +5,7 @@ import { MessageException } from '@/util/MessageException';
 import { DataBaseExceptionHandler } from '@/util/exception/DataBaseExceptionHandler';
 import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { Status } from '@prisma/client';
+import { AudioStoryRequestGateway } from './audio-story-request.gateway';
 import { AddAudioStoryRequestDto } from './dto/audio-story-request/AddAudioStoryRequestDto';
 import { AudioRequestWithUserAudioDto } from './dto/audio-story-request/AudioRequestWithUserAudioDto';
 import { EditAudioStoryRequestDto } from './dto/audio-story-request/EditAudioStoryRequestDto';
@@ -18,7 +19,10 @@ export class AudioStoryRequestService {
     PCodeMessages,
   );
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly audioStoryRequestGateway: AudioStoryRequestGateway,
+  ) {}
 
   async createAddAudioRequest(
     dto: AddAudioStoryRequestDto,

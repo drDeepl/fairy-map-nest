@@ -1,21 +1,14 @@
 import { PrismaModule } from '@/prisma/prisma.module';
 import { UserModule } from '@/user/user.module';
+import { jwtFactory } from '@/util/Constants';
 import { Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigModule } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport/dist';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { AccessTokenStrategy } from './strategies/access.strategy';
 import { RefreshTokenStrategy } from './strategies/refresh.strategy';
-
-const jwtFactory = {
-  useFactory: async (configService: ConfigService) => ({
-    secret: configService.get('JWT_SECRET'),
-    signOptions: { expiresIn: configService.get('JWT_EXP_H') },
-  }),
-  inject: [ConfigService],
-};
 
 @Module({
   imports: [
