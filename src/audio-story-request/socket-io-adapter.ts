@@ -1,3 +1,5 @@
+import { UserDto } from '@/user/dto/UserDto';
+import { UserService } from '@/user/user.service';
 import { INestApplicationContext, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
@@ -5,7 +7,7 @@ import { IoAdapter } from '@nestjs/platform-socket.io';
 import { Server, ServerOptions, Socket } from 'socket.io';
 
 export type SocketWithAuth = {
-  user: any;
+  user: UserDto;
 } & Socket;
 
 export class SocketIOAdapter extends IoAdapter {
@@ -32,10 +34,16 @@ export class SocketIOAdapter extends IoAdapter {
     };
 
     const jwtService = this.app.get(JwtService);
+    const usersService = this.app.get(UserService);
     const server: Server = super.createIOServer(port, optionsWithCORS);
 
     server.use(
-      createTokenMiddleware(jwtService, this.logger, this.configService),
+      createTokenMiddleware(
+        jwtService,
+        usersService,
+        this.logger,
+        this.configService,
+      ),
     );
 
     return server;
@@ -43,15 +51,30 @@ export class SocketIOAdapter extends IoAdapter {
 }
 
 const createTokenMiddleware =
-  (jwtService: JwtService, logger: Logger, configService: ConfigService) =>
+  (
+    jwtService: JwtService,
+    usersService: UserService,
+    logger: Logger,
+    configService: ConfigService,
+  ) =>
   async (socket: SocketWithAuth, next) => {
     try {
-      const token = socket.handshake.auth.Authorization.split(' ')[1];
+      logger.warn('CREATE TOKEN MIDDLEWARE');
+      const token = socket.handshake.headers.authorization.split(' ')[1];
       logger.debug(`Validating auth token before connection: ${token}`);
-      const payload = jwtService.verify(token);
+      const payload = await jwtService.verify(token, {
+        secret: configService.get('JWT_ACCESS_SECRET'),
+      });
+
+      // //   const user = await usersService.findById(payload.sub);
+      //   if (!user) {
+      //     next(new Error('FORBIDDEN'));
+      //   }
+      //   socket.user = user;
       socket.user = payload;
       next();
-    } catch {
+    } catch (error) {
+      logger.error(error);
       next(new Error('FORBIDDEN'));
     }
   };

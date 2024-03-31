@@ -1,4 +1,4 @@
-import { Logger } from '@nestjs/common';
+import { Logger, UseGuards } from '@nestjs/common';
 import {
   ConnectedSocket,
   OnGatewayConnection,
@@ -11,10 +11,12 @@ import {
 
 import { Server, Socket } from 'socket.io';
 
+import { WsAuthGuard } from '@/util/guards/ws-auth.guard';
 import { AudioStoryRequestService } from './audio-story-request.service';
 import { SocketWithAuth } from './socket-io-adapter';
 
 @WebSocketGateway(3002, { cors: true, transports: ['websocket'] })
+@UseGuards(WsAuthGuard)
 export class AudioStoryRequestGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
@@ -39,7 +41,7 @@ export class AudioStoryRequestGateway
     console.log(client);
     this.logger.warn(`Client connected: ${client.id}`);
     this.logger.log(
-      `Notification Client id: ${client.id} ${client.user.sub} connected`,
+      `Notification Client id: ${client.id} ${client.user.id} connected`,
     );
     this.logger.debug(
       `Number of connected notification clients: ${sockets.size}`,

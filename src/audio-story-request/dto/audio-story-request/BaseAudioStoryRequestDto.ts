@@ -7,7 +7,10 @@ export class BaseAudioStoryRequestDto {
   @IsNumber()
   userAudioId: number;
 
-  @ApiProperty({ description: '', nullable: false })
+  @ApiProperty({
+    description: 'ид пользователя, создавшего заявку',
+    nullable: false,
+  })
   @IsNotEmpty()
   @IsNumber()
   userId: number;
