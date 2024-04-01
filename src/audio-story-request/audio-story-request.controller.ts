@@ -70,7 +70,11 @@ export class AudioStoryRequestController {
     return await this.audioStoryRequestService.createAddAudioRequest(dto);
   }
 
-  @ApiOperation({ summary: 'редактирование заявки на проверку озвучки' })
+  @ApiOperation({
+    description:
+      'после редактирования, отредактированная запись по вебсокету отправляется пользователю из userId(создавшему заявку) в событие с названием "statuses"',
+    summary: 'редактирование заявки на проверку озвучки',
+  })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Success',
