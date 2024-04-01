@@ -23,15 +23,19 @@ import { AddAudioStoryRequestDto } from './dto/audio-story-request/AddAudioStory
 import { AudioRequestWithUserAudioDto } from './dto/audio-story-request/AudioRequestWithUserAudioDto';
 import { EditAudioStoryRequestDto } from './dto/audio-story-request/EditAudioStoryRequestDto';
 import { AudioStoryRequestEntity } from './entity/AudioStoryRequestEntity';
+import { AudioStoryRequestGateway } from './audio-story-request.gateway';
 
 @ApiTags('AudioStoryRequestController')
 @Controller('api/audio-story-request')
 export class AudioStoryRequestController {
   private readonly logger = new Logger('RequestAudioStoryController');
-  constructor(private audioStoryRequestService: AudioStoryRequestService) {}
+  constructor(
+    private audioStoryRequestService: AudioStoryRequestService,
+    private readonly audioStoryRequestGateway: AudioStoryRequestGateway,
+  ) {}
 
   @ApiOperation({
-    summary: 'получение всех заявок для озвучек текущего пользователя',
+    summary: 'получение всех заявок на озвучки текущего пользователя',
   })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -80,10 +84,15 @@ export class AudioStoryRequestController {
     @Param('audioStoryReqeustId', ParseIntPipe) audioStoryReqeustId: number,
     @Body() dto: EditAudioStoryRequestDto,
   ): Promise<AudioRequestWithUserAudioDto> {
-    return await this.audioStoryRequestService.editAudioStoryRequest(
-      audioStoryReqeustId,
-      dto,
+    const editableAudioStoryRequest =
+      await this.audioStoryRequestService.editAudioStoryRequest(
+        audioStoryReqeustId,
+        dto,
+      );
+    await this.audioStoryRequestGateway.handleRequest(
+      editableAudioStoryRequest,
     );
+    return editableAudioStoryRequest;
   }
 
   @ApiOperation({

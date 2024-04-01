@@ -5,6 +5,7 @@ import { AudioStoryRequestService } from './audio-story-request.service';
 
 @Module({
   controllers: [AudioStoryRequestController],
-  providers: [AudioStoryRequestService, AudioStoryRequestGateway],
+
+  providers: [AudioStoryRequestGateway, AudioStoryRequestService],
 })
 export class AudioStoryRequestModule {}

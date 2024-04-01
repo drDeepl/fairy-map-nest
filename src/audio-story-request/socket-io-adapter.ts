@@ -1,3 +1,5 @@
+import { UserAccessInterface } from '@/auth/interface/UserAccessInterface';
+import { UserAccessDto } from '@/user/dto/UserAccessDto';
 import { UserDto } from '@/user/dto/UserDto';
 import { UserService } from '@/user/user.service';
 import { INestApplicationContext, Logger } from '@nestjs/common';
@@ -7,7 +9,7 @@ import { IoAdapter } from '@nestjs/platform-socket.io';
 import { Server, ServerOptions, Socket } from 'socket.io';
 
 export type SocketWithAuth = {
-  user: UserDto;
+  user: UserAccessDto;
 } & Socket;
 
 export class SocketIOAdapter extends IoAdapter {

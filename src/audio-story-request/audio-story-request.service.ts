@@ -9,6 +9,7 @@ import { AddAudioStoryRequestDto } from './dto/audio-story-request/AddAudioStory
 import { AudioRequestWithUserAudioDto } from './dto/audio-story-request/AudioRequestWithUserAudioDto';
 import { EditAudioStoryRequestDto } from './dto/audio-story-request/EditAudioStoryRequestDto';
 import { AudioStoryRequestEntity } from './entity/AudioStoryRequestEntity';
+import { AudioStoryRequestGateway } from './audio-story-request.gateway';
 
 @Injectable()
 export class AudioStoryRequestService {
@@ -40,15 +41,20 @@ export class AudioStoryRequestService {
         HttpStatus.FORBIDDEN,
       );
     }
-
-    return await this.prisma.storyAudioRequest.create({
-      data: {
-        userId: dto.userId,
-        userAudioId: dto.userAudioId,
-        status: Status.SEND,
-        typeId: dto.typeId,
-      },
-    });
+    return await this.prisma.storyAudioRequest
+      .create({
+        data: {
+          userId: dto.userId,
+          userAudioId: dto.userAudioId,
+          status: Status.SEND,
+          typeId: dto.typeId,
+          comment: '',
+        },
+      })
+      .catch((error) => {
+        PrintNameAndCodePrismaException(error, this.logger);
+        throw this.dbExceptionHandler.handleError(error);
+      });
   }
 
   async editAudioStoryRequest(
@@ -61,6 +67,7 @@ export class AudioStoryRequestService {
       .update({
         select: {
           id: true,
+          userId: true,
           userAudio: { select: { id: true, name: true } },
           typeId: true,
           status: true,
@@ -102,6 +109,7 @@ export class AudioStoryRequestService {
       .findMany({
         select: {
           id: true,
+          userId: true,
           userAudio: { select: { id: true, name: true } },
           typeId: true,
           status: true,
