@@ -1,17 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsNumber } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
 export class BaseAudioStoryRequestDto {
   @ApiProperty({ description: '', nullable: false })
-  @IsNotEmpty()
-  @IsNumber()
-  userAudioId: number;
+  @IsString()
+  comment: string;
 
-  @ApiProperty({
-    description: 'ид пользователя, создавшего заявку',
-    nullable: false,
-  })
+  @ApiProperty({ description: '', nullable: false })
   @IsNotEmpty()
-  @IsNumber()
-  userId: number;
+  status: string;
 }

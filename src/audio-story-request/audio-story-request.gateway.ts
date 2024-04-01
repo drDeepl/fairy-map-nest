@@ -52,12 +52,10 @@ export class AudioStoryRequestGateway
 
   @SubscribeMessage('statuses')
   async handleRequest(
-    // @ConnectedSocket() client: SocketWithAuth,
     audioRequestWithUserAudioDto: AudioRequestWithUserAudioDto,
   ): Promise<void> {
     this.logger.warn('STATUSES');
-    // console.log(client);
-    // console.log(payload);
+
     const { sockets } = this.server.sockets;
     for (const [, client] of sockets) {
       const user: UserAccessDto = (client as SocketWithAuth).user;
@@ -67,20 +65,6 @@ export class AudioStoryRequestGateway
           ...JSON.parse(JSON.stringify(audioRequestWithUserAudioDto)),
         });
       }
-
-      // if (
-      //   (client as SocketWithAuth).user.sub ===
-      //   audioRequestWithUserAudioDto.userId
-      // ) {
-      //   console.log(
-      //     `status request for user ${audioRequestWithUserAudioDto.userId}`,
-      //   );
-      // }
     }
-    // console.group('payload');
-    // console.log(payload);
-    // const user: User = (client?.handshake as any)?.user;
-    // const message = await this.chatsService.createMessage(payload, user);
-    // this.server.to(String(payload?.chatId)).emit('messageToClient', message);
   }
 }
