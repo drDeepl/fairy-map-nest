@@ -1,15 +1,28 @@
 import { PrismaService } from '@/prisma/prisma.service';
-import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
-import { AddStoryDto } from './dto/AddStoryDto';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  Logger,
+  StreamableFile,
+} from '@nestjs/common';
+import { AddStoryDto } from './dto/story/AddStoryDto';
 import { PrintNameAndCodePrismaException } from '@/util/ExceptionUtils';
 import { MessageException } from '@/util/MessageException';
-import { EditStoryDto } from './dto/EditStoryDto';
-import { StoryDto } from './dto/StoryDto';
-import { TextStoryDto } from './dto/TextStoryDto';
-import { AddTextStoryDto } from './dto/AddTextStoryDto';
+import { EditStoryDto } from './dto/story/EditStoryDto';
+import { StoryDto } from './dto/story/StoryDto';
+import { TextStoryDto } from './dto/text-story/TextStoryDto';
+import { AddTextStoryDto } from './dto/text-story/AddTextStoryDto';
 import { PCodeMessages } from '@/util/Constants';
 import { DataBaseExceptionHandler } from '@/util/exception/DataBaseExceptionHandler';
 import { AudioStoryRequestEntity } from '@/audio-story-request/entity/AudioStoryRequestEntity';
+import { AddAudioStoryDto } from './dto/audio-story/AddAudioStoryDto';
+import { AudioStoryEntity } from './dto/audio-story/entity/AudioStoryEntity';
+import { UserAudioService } from '@/user-audio/user-audio.service';
+import { UserAudioRepository } from '@/user-audio/user-audio.repository';
+import { UserAudioEntity } from '@/user-audio/entity/UserAudioEntity';
+import * as fs from 'node:fs';
+import { join } from 'path';
 
 @Injectable()
 export class StoryService {
@@ -178,28 +191,53 @@ export class StoryService {
   }
 
   async setUserAudioToStory(
-    audioStoryRequestId: number,
     storyId: number,
+    dto: AddAudioStoryDto,
   ): Promise<void> {
     this.logger.debug('SET USER AUDIO TO STORY');
     try {
-      const audioStoryRequest: AudioStoryRequestEntity =
-        await this.prisma.storyAudioRequest.findUnique({
-          where: {
-            id: audioStoryRequestId,
-          },
-        });
+      const audioStory: AudioStoryEntity = await this.prisma.storyAudio.create({
+        data: {
+          author: dto.userId,
+          userAudioId: dto.userAudioId,
+          moderateScore: dto.moderateScore,
+        },
+      });
+      await this.prisma.story.update({
+        where: {
+          id: storyId,
+        },
+        data: {
+          audioId: audioStory.id,
+        },
+      });
+    } catch (error) {
+      PrintNameAndCodePrismaException(error, this.logger);
+      throw this.dbExceptionHandler.handleError(error);
+    }
+  }
 
-      if (audioStoryRequest != undefined) {
-        await this.prisma.story.update({
+  async getAudioStoryById(audioId: number): Promise<StreamableFile> {
+    this.logger.debug('GET AUDIO BY AUDIO ID');
+    try {
+      const audioStory: AudioStoryEntity =
+        await this.prisma.storyAudio.findUnique({
+          where: { id: audioId },
+        });
+      // FIX after added UserAudioRepository
+      const userAudio: UserAudioEntity =
+        await this.prisma.userAudioStory.findUnique({
           where: {
-            id: storyId,
-          },
-          data: {
-            audioId: audioStoryRequest.userAudioId,
+            id: audioStory.userAudioId,
           },
         });
+      if (userAudio) {
+        const file = fs.createReadStream(
+          join(process.cwd(), userAudio.pathAudio),
+        );
+        return new StreamableFile(file);
       }
+      // FIX end =============================================
     } catch (error) {
       PrintNameAndCodePrismaException(error, this.logger);
       throw this.dbExceptionHandler.handleError(error);

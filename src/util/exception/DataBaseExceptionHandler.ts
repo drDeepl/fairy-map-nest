@@ -10,7 +10,7 @@ export class DataBaseExceptionHandler {
 
   handleError(error: Prisma.PrismaClientKnownRequestError): HttpException {
     if (this.codeMessage[error.code] === undefined) {
-      return new HttpException('Что-то пошло не так', HttpStatus.BAD_GATEWAY);
+      return new HttpException('Что-то пошло не так', HttpStatus.BAD_REQUEST);
     }
     return new HttpException(
       this.codeMessage[error.code],

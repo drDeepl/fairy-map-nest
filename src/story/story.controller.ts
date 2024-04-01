@@ -12,6 +12,7 @@ import {
   Post,
   Put,
   Query,
+  StreamableFile,
   UseGuards,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -21,11 +22,12 @@ import { Role } from '@/util/Constants';
 import { Roles } from '@/util/decorators/Roles';
 import { RoleGuard } from '@/util/guards/role.guard';
 import { AuthGuard } from '@nestjs/passport';
-import { AddStoryDto } from './dto/AddStoryDto';
-import { StoryDto } from './dto/StoryDto';
-import { EditStoryDto } from './dto/EditStoryDto';
-import { AddTextStoryDto } from './dto/AddTextStoryDto';
-import { TextStoryDto } from './dto/TextStoryDto';
+import { AddStoryDto } from './dto/story/AddStoryDto';
+import { StoryDto } from './dto/story/StoryDto';
+import { EditStoryDto } from './dto/story/EditStoryDto';
+import { AddTextStoryDto } from './dto/text-story/AddTextStoryDto';
+import { TextStoryDto } from './dto/text-story/TextStoryDto';
+import { AddAudioStoryDto } from './dto/audio-story/AddAudioStoryDto';
 
 @ApiTags('StoryController')
 @Controller('api/story')
@@ -144,9 +146,28 @@ export class StoryController {
   }
 
   @ApiOperation({
+    summary: 'получение одобренной озвучки по audioId',
+    description: 'возвращает StreamableFile',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Success',
+    type: StreamableFile,
+  })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  @Get('/audio/:audioId')
+  async getAudioStoryById(
+    // FIX: GET USER AUDIO FILE
+    @Param('audioId', ParseIntPipe) audioId: number,
+  ): Promise<StreamableFile> {
+    this.logger.debug('GET STORIES BY ETHNIC GROUP ID');
+    return this.storyService.getAudioStoryById(audioId);
+  }
+
+  @ApiOperation({
     summary: 'добавление озвучки к сказке',
-    description:
-      'пример запроса /api/audio/param?audioStoryRequestId=0&storyId=1',
+    description: 'пример запроса: /api/story/audio?storyId=8',
   })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -156,12 +177,12 @@ export class StoryController {
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
   @Roles(Role.admin)
   @UseGuards(AuthGuard('jwt'), RoleGuard)
-  @Put('/audio/param')
+  @Put('/audio')
   async setUserAudioToStory(
-    @Query('audioStoryRequestId', ParseIntPipe) audioStoryRequestId: number,
     @Query('storyId', ParseIntPipe) storyId: number,
+    @Body() dto: AddAudioStoryDto,
   ): Promise<void> {
     this.logger.debug('SET USER AUDIO TO STORY');
-    return this.storyService.setUserAudioToStory(audioStoryRequestId, storyId);
+    return this.storyService.setUserAudioToStory(storyId, dto);
   }
 }

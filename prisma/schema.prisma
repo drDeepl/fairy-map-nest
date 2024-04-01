@@ -109,6 +109,7 @@ model StoryAudio{
   author        Int
   authors       User            @relation(fields: [author], references: [id])
   story         Story?
+  moderateScore Int
   userAudioId   Int             @unique() @map("user_audio_id")
   userAudio     UserAudioStory  @relation(fields:[userAudioId], references: [id])
   ratings       RatingAudio[]
