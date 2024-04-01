@@ -30,7 +30,8 @@ export class FileUtils {
       console.log(files);
 
       const matchingFiles = files.filter((file) =>
-        new RegExp(`^[${languageId}]`).test(file),
+        // new RegExp(`^[${languageId}]`).test(file),
+        new RegExp(`${filename}`).test(file),
       );
       console.log(matchingFiles);
       return matchingFiles.length > 0;

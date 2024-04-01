@@ -5,11 +5,19 @@ import { PrintNameAndCodePrismaException } from '@/util/ExceptionUtils';
 import { MessageException } from '@/util/MessageException';
 import { EditStoryDto } from './dto/EditStoryDto';
 import { StoryDto } from './dto/StoryDto';
+import { TextStoryDto } from './dto/TextStoryDto';
+import { AddTextStoryDto } from './dto/AddTextStoryDto';
+import { PCodeMessages } from '@/util/Constants';
+import { DataBaseExceptionHandler } from '@/util/exception/DataBaseExceptionHandler';
+import { AudioStoryRequestEntity } from '@/audio-story-request/entity/AudioStoryRequestEntity';
 
 @Injectable()
 export class StoryService {
   private readonly logger = new Logger('StoryService');
   private readonly msgException = new MessageException();
+  private readonly dbExceptionHandler = new DataBaseExceptionHandler(
+    PCodeMessages,
+  );
 
   constructor(private prisma: PrismaService) {}
 
@@ -149,5 +157,52 @@ export class StoryService {
           );
         }
       });
+  }
+
+  async addTextStory(
+    storyId: number,
+    dto: AddTextStoryDto,
+  ): Promise<TextStoryDto> {
+    this.logger.debug('ADD TEXT STORY');
+    return this.prisma.textStory
+      .create({
+        data: {
+          storyId: storyId,
+          text: dto.text,
+        },
+      })
+      .catch((error) => {
+        PrintNameAndCodePrismaException(error, this.logger);
+        throw this.dbExceptionHandler.handleError(error);
+      });
+  }
+
+  async setUserAudioToStory(
+    audioStoryRequestId: number,
+    storyId: number,
+  ): Promise<void> {
+    this.logger.debug('SET USER AUDIO TO STORY');
+    try {
+      const audioStoryRequest: AudioStoryRequestEntity =
+        await this.prisma.storyAudioRequest.findUnique({
+          where: {
+            id: audioStoryRequestId,
+          },
+        });
+
+      if (audioStoryRequest != undefined) {
+        await this.prisma.story.update({
+          where: {
+            id: storyId,
+          },
+          data: {
+            audioId: audioStoryRequest.userAudioId,
+          },
+        });
+      }
+    } catch (error) {
+      PrintNameAndCodePrismaException(error, this.logger);
+      throw this.dbExceptionHandler.handleError(error);
+    }
   }
 }

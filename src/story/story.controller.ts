@@ -11,6 +11,7 @@ import {
   ParseIntPipe,
   Post,
   Put,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -23,6 +24,8 @@ import { AuthGuard } from '@nestjs/passport';
 import { AddStoryDto } from './dto/AddStoryDto';
 import { StoryDto } from './dto/StoryDto';
 import { EditStoryDto } from './dto/EditStoryDto';
+import { AddTextStoryDto } from './dto/AddTextStoryDto';
+import { TextStoryDto } from './dto/TextStoryDto';
 
 @ApiTags('StoryController')
 @Controller('api/story')
@@ -120,6 +123,45 @@ export class StoryController {
       .then((result) => {});
   }
 
+  @ApiOperation({ summary: 'добавление текста сказки' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Success',
+    type: TextStoryDto,
+  })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  @Roles(Role.admin)
+  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @HttpCode(HttpStatus.OK)
+  @Post('/text/add/:storyId')
+  async addTextStory(
+    @Param('storyId', ParseIntPipe) storyId,
+    @Body() dto: AddTextStoryDto,
+  ) {
+    this.logger.debug('ADD TEXT STORY');
+    return this.storyService.addTextStory(storyId, dto);
+  }
 
-  
+  @ApiOperation({
+    summary: 'добавление озвучки к сказке',
+    description:
+      'пример запроса /api/audio/param?audioStoryRequestId=0&storyId=1',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Success',
+  })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  @Roles(Role.admin)
+  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @Put('/audio/param')
+  async setUserAudioToStory(
+    @Query('audioStoryRequestId', ParseIntPipe) audioStoryRequestId: number,
+    @Query('storyId', ParseIntPipe) storyId: number,
+  ): Promise<void> {
+    this.logger.debug('SET USER AUDIO TO STORY');
+    return this.storyService.setUserAudioToStory(audioStoryRequestId, storyId);
+  }
 }

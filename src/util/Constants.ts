@@ -65,6 +65,7 @@ export const validateAudio = (req, file, callback) => {
     callback(new HttpException('Неправильный тип файла', HttpStatus.FORBIDDEN));
   }
   console.log('END VALIDATE');
+  return;
 };
 
 export const statusCodeMessages = {
