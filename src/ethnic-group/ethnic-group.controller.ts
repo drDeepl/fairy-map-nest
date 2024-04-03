@@ -54,7 +54,7 @@ export class EthnicGroupController {
     @Body() dto: AddEthnicGroupDto,
   ): Promise<EthnicGroupDto> {
     this.logger.warn('ADD ETHNIC GROUP');
-    return this.ethnicGroupService.addEthnicGroup(dto);
+    return await this.ethnicGroupService.addEthnicGroup(dto);
   }
 
   @ApiOperation({
@@ -70,7 +70,25 @@ export class EthnicGroupController {
   @Get('/all')
   async ethnicGroups(): Promise<EthnicGroupLanguageDto[]> {
     this.logger.debug('GET ALL ETHNIC GROUPS');
-    return this.ethnicGroupService.getEthnicGroups();
+    return await this.ethnicGroupService.getEthnicGroups();
+  }
+
+  @ApiOperation({
+    summary: 'получение этнической группы по ethnicGroupId',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Success',
+    type: [EthnicGroupLanguageDto],
+  })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
+  @HttpCode(HttpStatus.OK)
+  @Get('/:ethnicGroupId')
+  async getEthnicGroupById(
+    @Param('ethnicGroupId', ParseIntPipe) ethnicGroupId: number,
+  ): Promise<EthnicGroupDto> {
+    this.logger.debug('GET ETHNIC GROUP BY ID');
+    return await this.ethnicGroupService.getEthnicGroupById(ethnicGroupId);
   }
 
   @ApiOperation({
@@ -92,7 +110,7 @@ export class EthnicGroupController {
     @Body() dto: EditEthnicGroupDto,
   ): Promise<EthnicGroupDto> {
     this.logger.warn('EDIT ETHNIC GROUP');
-    return this.ethnicGroupService.editEthnicGroup(id, dto);
+    return await this.ethnicGroupService.editEthnicGroup(id, dto);
   }
 
   @ApiOperation({
@@ -130,7 +148,7 @@ export class EthnicGroupController {
   @Post('/language/add')
   async addLanguage(@Body() dto: AddLanguageDto): Promise<LanguageDto> {
     this.logger.debug('ADD LANGUAGE');
-    return this.ethnicGroupService.addLanguage(dto);
+    return await this.ethnicGroupService.addLanguage(dto);
   }
 
   @Get('/language/all')
@@ -145,7 +163,7 @@ export class EthnicGroupController {
   @ApiResponse({ status: HttpStatus.FORBIDDEN, description: 'Forbidden' })
   async getAllLanguage(): Promise<LanguageDto[]> {
     this.logger.debug('GET LANGUAGES');
-    return this.ethnicGroupService.getLanguages();
+    return await this.ethnicGroupService.getLanguages();
   }
 
   @ApiOperation({ summary: 'удаление языка по id' })
@@ -160,7 +178,7 @@ export class EthnicGroupController {
   @Delete('/language/:id')
   async deleteLanguageById(@Param('id', ParseIntPipe) id: number) {
     this.logger.debug('GET LANGUAGES');
-    return this.ethnicGroupService
+    return await this.ethnicGroupService
       .deleteLanguageById(id)
       .catch((error) => {
         throw new HttpException(error.message, error.status);

@@ -9,11 +9,16 @@ import { AddLanguageDto } from './dto/AddLanguageDto';
 import { LanguageDto } from './dto/LanguageDto';
 import { EditEthnicGroupDto } from './dto/EditEthnicGroupDto';
 import { EthnicGroupLanguageDto } from './dto/EthnicGroupLanguage';
+import { PCodeMessages } from '@/util/Constants';
+import { DataBaseExceptionHandler } from '@/util/exception/DataBaseExceptionHandler';
 
 @Injectable()
 export class EthnicGroupService {
   private readonly logger = new Logger('EthnicGroupService');
   private readonly msgException = new MessageException();
+  private readonly dbExceptionHandler = new DataBaseExceptionHandler(
+    PCodeMessages,
+  );
 
   constructor(private readonly prisma: PrismaService) {}
 
@@ -33,6 +38,20 @@ export class EthnicGroupService {
     //     languageId: false,
     //   },
     // });
+  }
+
+  async getEthnicGroupById(id: number): Promise<EthnicGroupDto> {
+    this.logger.debug('GET ETHNIC GROP BY ID');
+    try {
+      return await this.prisma.ethnicGroup.findUnique({
+        where: {
+          id: id,
+        },
+      });
+    } catch (error) {
+      PrintNameAndCodePrismaException(error, this.logger);
+      throw this.dbExceptionHandler.handleError(error);
+    }
   }
 
   async addEthnicGroup(dto: AddEthnicGroupDto): Promise<EthnicGroupDto> {
