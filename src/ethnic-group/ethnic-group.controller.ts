@@ -79,7 +79,7 @@ export class EthnicGroupController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Success',
-    type: [EthnicGroupLanguageDto],
+    type: EthnicGroupDto,
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @HttpCode(HttpStatus.OK)
