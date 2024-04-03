@@ -22,6 +22,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { AddEthnicGroupMapDto } from './dto/AddEthnicGroupMapDto';
 import { EthnicGroupMapDto } from './dto/EthnicGroupMapDto';
 import { EthnicGroupMapWithGroupDto } from './dto/EthnicGroupMapWithGroupDto';
+import { EthnicGroupMapPointEntity } from './entity/EthnicGroupMapPointEntity';
 
 @ApiTags('MapController')
 @Controller('api/map')
@@ -61,6 +62,23 @@ export class MapController {
   async getEthnicalGroupPoints(): Promise<EthnicGroupMapWithGroupDto[]> {
     this.logger.debug('GET ETHNIC GROUP POINTS');
     return this.mapService.getEthnicalGroupPoints();
+  }
+
+  @ApiOperation({
+    summary: 'получение точек этнических групп по номеру региона',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Success',
+    type: [EthnicGroupMapPointEntity],
+  })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
+  @Get('/ethnic-group/:constituentId')
+  async getEthnicalGroupPointsByConstituentId(
+    @Param('constituentId', ParseIntPipe) constituentId: number,
+  ): Promise<any> {
+    this.logger.debug('GET ETHNIC GROUP POINTS');
+    return this.mapService.getEthnicalGroupPointsByConstituentId(constituentId);
   }
 
   @ApiOperation({ summary: 'удаление точки этнической группы' })

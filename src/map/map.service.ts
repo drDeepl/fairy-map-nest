@@ -5,11 +5,17 @@ import { AddEthnicGroupMapDto } from './dto/AddEthnicGroupMapDto';
 import { EthnicGroupMapDto } from './dto/EthnicGroupMapDto';
 import { PrintNameAndCodePrismaException } from '@/util/ExceptionUtils';
 import { EthnicGroupMapWithGroupDto } from './dto/EthnicGroupMapWithGroupDto';
+import { EthnicGroupMapPointEntity } from './entity/EthnicGroupMapPointEntity';
+import { PCodeMessages } from '@/util/Constants';
+import { DataBaseExceptionHandler } from '@/util/exception/DataBaseExceptionHandler';
 
 @Injectable()
 export class MapService {
   private readonly logger = new Logger('MapService');
   private readonly msgException = new MessageException();
+  private readonly dbExceptionHandler = new DataBaseExceptionHandler(
+    PCodeMessages,
+  );
 
   constructor(private prisma: PrismaService) {}
 
@@ -52,6 +58,32 @@ export class MapService {
       },
     });
   }
+
+  async getEthnicalGroupPointsByConstituentId(
+    constituentId: number,
+  ): Promise<EthnicGroupMapPointEntity[]> {
+    this.logger.debug('GET ETHNICAL GROUP POINT BY COSTITUENT ID');
+    try {
+      const ethnicGroupsId =
+        await this.prisma.constituentsRFOnEthnicGroup.findMany({
+          select: { ethnicGroupId: true },
+          where: {
+            constituentRfId: constituentId,
+          },
+        });
+
+      const ids = ethnicGroupsId.map((item) => item.ethnicGroupId);
+      return await this.prisma.ethnicGroupMapPoint.findMany({
+        where: {
+          ethnicGroupId: { in: ids },
+        },
+      });
+    } catch (error) {
+      PrintNameAndCodePrismaException(error, this.logger);
+      throw this.dbExceptionHandler.handleError(error);
+    }
+  }
+
   async deleteEthnicalGroupPoint(id: number) {
     this.logger.debug('DELETE ETHNICAL GROUP POINT');
     return this.prisma.ethnicGroupMapPoint
