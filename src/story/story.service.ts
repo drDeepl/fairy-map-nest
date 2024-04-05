@@ -13,7 +13,7 @@ import { EditStoryDto } from './dto/story/EditStoryDto';
 import { StoryDto } from './dto/story/StoryDto';
 import { TextStoryDto } from './dto/text-story/TextStoryDto';
 import { AddTextStoryDto } from './dto/text-story/AddTextStoryDto';
-import { PCodeMessages } from '@/util/Constants';
+import { MAX_STORIES_FOR_ETHNIC_GROUP, PCodeMessages } from '@/util/Constants';
 import { DataBaseExceptionHandler } from '@/util/exception/DataBaseExceptionHandler';
 import { AudioStoryRequestEntity } from '@/audio-story-request/entity/AudioStoryRequestEntity';
 import { AddAudioStoryDto } from './dto/audio-story/AddAudioStoryDto';
@@ -63,7 +63,7 @@ export class StoryService {
 
   async addStory(dto: AddStoryDto): Promise<StoryDto> {
     this.logger.debug('ADD STORY');
-    const maxCountStories = 10;
+    const maxCountStories = MAX_STORIES_FOR_ETHNIC_GROUP;
     return this.prisma.story
       .count({
         where: {

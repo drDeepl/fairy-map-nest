@@ -35,7 +35,7 @@ model ConstituentsRF {
   id        Int       @id @default(autoincrement())
   name      String    @unique @db.VarChar(255)
   ethnicGroups ConstituentsRFOnEthnicGroup[]
-  
+    
   @@map("constituents_rf")
 
 }
@@ -61,6 +61,7 @@ model ConstituentsRFOnEthnicGroup{
 
   @@map("constituents_rf_ethnic_groups")
 }
+
 
 model Language{
   id            Int       @id @default(autoincrement())

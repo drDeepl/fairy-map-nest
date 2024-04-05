@@ -25,6 +25,7 @@ import { RoleGuard } from '@/util/guards/role.guard';
 import { AddEthnicGroupToConstituentDto } from './dto/AddEthnicGroupToConstituentDto';
 import { EthnicGroupToConstituentDto } from './dto/EthnicGroupToConstituentDto';
 import { DeleteEthnicGroupToConstituentDto } from './dto/DeleteEthnicGroupToConstituentDto';
+import { ConstituentFilledDto } from './dto/ConstituentFilledDto';
 
 @ApiTags('ConstituentController')
 @Controller('api/constituent')
@@ -124,6 +125,26 @@ export class ConstituentsController {
   async getConstituents(): Promise<ConstituentDto[]> {
     this.logger.warn('GET CONSTITUENTS');
     return this.constituentService.getConstituents();
+  }
+
+  // TODO: WORK IN PROGRESS
+  @ApiOperation({
+    summary: 'получение списка заполненности субъектов',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Success',
+    type: [ConstituentFilledDto],
+  })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
+  @HttpCode(HttpStatus.OK)
+  @Get('/percent-of-filled')
+  async getPercentsFilledStoriesByConstituentId(): Promise<
+    ConstituentFilledDto[]
+  > {
+    this.logger.warn('GET CONSTITUENTS');
+
+    return await this.constituentService.getPercentOfFilledConstituent();
   }
 
   @HttpCode(HttpStatus.OK)

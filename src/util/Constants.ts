@@ -7,6 +7,8 @@ export const getUuid = require('uuid-by-string');
 
 const fileUtils = new FileUtils();
 
+export const MAX_STORIES_FOR_ETHNIC_GROUP: number = 5;
+
 export enum Role {
   admin = 'admin',
   moder = 'moder',
