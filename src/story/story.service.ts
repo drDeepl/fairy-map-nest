@@ -23,6 +23,8 @@ import { UserAudioRepository } from '@/user-audio/user-audio.repository';
 import { UserAudioEntity } from '@/user-audio/entity/UserAudioEntity';
 import * as fs from 'node:fs';
 import { join } from 'path';
+import { ImageStoryEntity } from './dto/image-story/entity/ImageStoryEntity';
+import { File } from 'multer';
 
 @Injectable()
 export class StoryService {
@@ -242,5 +244,30 @@ export class StoryService {
       PrintNameAndCodePrismaException(error, this.logger);
       throw this.dbExceptionHandler.handleError(error);
     }
+  }
+
+  async setImgForStory(storyId: number, file: File) {
+    throw new HttpException(
+      'Ведутся технические работы',
+      HttpStatus.BAD_REQUEST,
+    );
+    try {
+      this.logger.debug('SET IMG FOR STORY');
+      await this.prisma.imgStory.create({
+        data: {
+          filename: file.originalname,
+          path: file.path,
+          storyId: storyId,
+        },
+      });
+    } catch (error) {
+      PrintNameAndCodePrismaException(error, this.logger);
+      fs.unlinkSync(file.path);
+      throw this.dbExceptionHandler.handleError(error);
+    }
+  }
+
+  async deleteStoryImgByStoryId() {
+    this.logger.debug('DELETE STORY IMG BY STORY ID');
   }
 }

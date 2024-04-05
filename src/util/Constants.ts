@@ -3,6 +3,7 @@ import * as fs from 'node:fs';
 
 import { ConfigService } from '@nestjs/config';
 import { FileUtils } from './FileUtils';
+import { extname } from 'path';
 export const getUuid = require('uuid-by-string');
 
 const fileUtils = new FileUtils();
@@ -14,6 +15,7 @@ export enum Role {
   moder = 'moder',
   user = 'user',
 }
+const basePathUpload = './static/uploads';
 export const uploadsPath = './static/uploads/audio/';
 
 export const diskStorageOptionsAudio = {
@@ -34,6 +36,24 @@ export const diskStorageOptionsAudio = {
     const extens = file.originalname.split('.')[1];
     const filename = `${req.params.languageId}@${getUuid(file.originalname)}.${extens}`;
 
+    return callback(null, filename);
+  },
+};
+
+export const diskStorageImg = {
+  destination: (req, file, callback) => {
+    console.warn('DESTINATION');
+    console.error(file);
+    console.log(Object.keys(req));
+    const path = `${basePathUpload}/img/${req.params.storyId}`;
+    if (!fs.existsSync(path)) {
+      fs.mkdirSync(path, { recursive: true });
+    }
+    return callback(null, path);
+  },
+  filename: (req, file, callback) => {
+    console.warn('FILENAME');
+    const filename = `${getUuid(file.originalname)}${extname(file.originalname)}`;
     return callback(null, filename);
   },
 };
@@ -76,6 +96,7 @@ export const statusCodeMessages = {
 };
 
 export const PCodeMessages = {
+  P2003: 'не найдена запись, указанная в параметре',
   P2002: 'выбранная запись уже существует',
   P2025: 'выбранной записи не существует',
 };

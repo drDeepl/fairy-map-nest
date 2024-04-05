@@ -35,7 +35,7 @@ model ConstituentsRF {
   id        Int       @id @default(autoincrement())
   name      String    @unique @db.VarChar(255)
   ethnicGroups ConstituentsRFOnEthnicGroup[]
-    
+
   @@map("constituents_rf")
 
 }
@@ -92,6 +92,14 @@ model TextStory{
   
 }
 
+model ImgStory {
+  id            Int         @id @default(autoincrement())
+  filename      String      @db.Text
+  path          String      @db.Text
+  storyId       Int         @unique @map("story_id")
+  story         Story       @relation(fields: [storyId], references: [id])
+}
+
 model Story{
   id                  Int         @id @default(autoincrement())
   name                String      @unique @db.VarChar(255)
@@ -99,7 +107,10 @@ model Story{
   ethnicGroup         EthnicGroup @relation(fields: [ethnicGroupId], references: [id])
   audioId             Int?         @map("audio_id") @unique
   audio               StoryAudio?  @relation(fields: [audioId], references: [id])
-  texts               TextStory?
+  text                TextStory?
+  img                 ImgStory?
+
+
 
   @@map("stories")
   

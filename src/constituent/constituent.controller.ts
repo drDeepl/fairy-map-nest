@@ -127,7 +127,6 @@ export class ConstituentsController {
     return this.constituentService.getConstituents();
   }
 
-  // TODO: WORK IN PROGRESS
   @ApiOperation({
     summary: 'получение списка заполненности субъектов',
   })

@@ -54,7 +54,7 @@ export class UserAudioController {
   }
 
   @ApiOperation({
-    summary: 'добавление озвучки пользователя для выбранного языка',
+    summary: 'загрузка озвучки пользователя для выбранного языка',
   })
   @ApiResponse({
     status: HttpStatus.OK,

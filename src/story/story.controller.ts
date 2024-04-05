@@ -12,13 +12,16 @@ import {
   Post,
   Put,
   Query,
+  Req,
   StreamableFile,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { StoryService } from './story.service';
 
-import { Role } from '@/util/Constants';
+import { Role, diskStorageImg } from '@/util/Constants';
 import { Roles } from '@/util/decorators/Roles';
 import { RoleGuard } from '@/util/guards/role.guard';
 import { AuthGuard } from '@nestjs/passport';
@@ -28,6 +31,8 @@ import { EditStoryDto } from './dto/story/EditStoryDto';
 import { AddTextStoryDto } from './dto/text-story/AddTextStoryDto';
 import { TextStoryDto } from './dto/text-story/TextStoryDto';
 import { AddAudioStoryDto } from './dto/audio-story/AddAudioStoryDto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage, File } from 'multer';
 
 @ApiTags('StoryController')
 @Controller('api/story')
@@ -184,5 +189,34 @@ export class StoryController {
   ): Promise<void> {
     this.logger.debug('SET USER AUDIO TO STORY');
     return this.storyService.setUserAudioToStory(storyId, dto);
+  }
+
+  @ApiOperation({
+    summary: 'загрузка обложки для выбранной сказки',
+    description: 'Если обложка уже существует, то она будет перезаписана',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Success',
+  })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  @Roles(Role.admin)
+  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @HttpCode(HttpStatus.OK)
+  @Put('/image/upload/:storyId')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage(diskStorageImg),
+    }),
+  )
+  async uploadStoryImage(
+    @UploadedFile() file: File,
+    @Req() req,
+    @Param('storyId', ParseIntPipe) storyId: number,
+  ) {
+    // TODO: add row in DB
+    this.logger.debug('UPLOAD STORY IMAGE');
+    await this.storyService.setImgForStory(storyId, file);
   }
 }

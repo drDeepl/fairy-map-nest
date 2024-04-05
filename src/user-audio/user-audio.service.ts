@@ -14,7 +14,7 @@ import { File } from 'multer';
 import { BaseUserAudioDto } from './dto/BaseUserAudioDto';
 import { UploadedUserAudioDto } from './dto/UploadedUserAudioDto';
 import { UserAudioDto } from './dto/UserAudioDto';
-import { join } from 'path';
+import { extname, join } from 'path';
 import { getUuid, uploadsPath } from '@/util/Constants';
 
 @Injectable()
@@ -77,7 +77,7 @@ export class UserAudioService {
   ): Promise<UploadedUserAudioDto> {
     this.logger.debug('SAVE AUDIO');
     const filename = file.originalname;
-    const extens = this.fileUtils.getFileExtenstion(filename);
+    const extens = extname(filename);
     const filenameFolder = `${languageId}@${getUuid(filename)}.${extens}`;
     const destination = `${uploadsPath}${userId}`;
     const pathAudio = `${destination}/${filenameFolder}`;
