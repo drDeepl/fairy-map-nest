@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus } from '@nestjs/common';
+import { HttpException, HttpStatus, NotFoundException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 
 export class DataBaseExceptionHandler {
@@ -9,6 +9,9 @@ export class DataBaseExceptionHandler {
   }
 
   handleError(error: Prisma.PrismaClientKnownRequestError): HttpException {
+    if (error.name === 'NotFoundException') {
+      throw new NotFoundException();
+    }
     if (this.codeMessage[error.code] === undefined) {
       return new HttpException('Что-то пошло не так', HttpStatus.BAD_REQUEST);
     }

@@ -15,7 +15,7 @@ export enum Role {
   moder = 'moder',
   user = 'user',
 }
-const basePathUpload = './static/uploads';
+export const basePathUpload = './static/uploads';
 export const uploadsPath = './static/uploads/audio/';
 
 export const diskStorageOptionsAudio = {

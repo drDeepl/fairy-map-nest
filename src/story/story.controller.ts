@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  Header,
   HttpCode,
   HttpException,
   HttpStatus,
@@ -13,6 +14,7 @@ import {
   Put,
   Query,
   Req,
+  Res,
   StreamableFile,
   UploadedFile,
   UseGuards,
@@ -32,7 +34,10 @@ import { AddTextStoryDto } from './dto/text-story/AddTextStoryDto';
 import { TextStoryDto } from './dto/text-story/TextStoryDto';
 import { AddAudioStoryDto } from './dto/audio-story/AddAudioStoryDto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage, File } from 'multer';
+import { memoryStorage, File } from 'multer';
+import { validatorImgFile } from '@/util/validators/validators';
+import { CreatedImageStoryDto } from './dto/image-story/CreatedImageStory';
+import { ImageStoryDto } from './dto/image-story/ImageStoryDto';
 
 @ApiTags('StoryController')
 @Controller('api/story')
@@ -192,8 +197,65 @@ export class StoryController {
   }
 
   @ApiOperation({
+    summary: 'получение обложки для сказки по storyId',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Success',
+    type: CreatedImageStoryDto,
+  })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Image not found' })
+  @HttpCode(HttpStatus.OK)
+  @Get('/image/:storyId')
+  async getImgStoryById(
+    @Param('storyId', ParseIntPipe) storyId: number,
+    @Res() response,
+  ) {
+    this.logger.debug('GET IMAGE STORY BY ID');
+    try {
+      const file = await this.storyService.getImgStoryById(storyId);
+      response.set({
+        'Content-Disposition': `attachment; filename=${file.filename}`,
+      });
+      response.send(file.buffer);
+    } catch (error) {
+      response.send(new HttpException(error.message, error.status));
+    }
+  }
+
+  @ApiOperation({
     summary: 'загрузка обложки для выбранной сказки',
-    description: 'Если обложка уже существует, то она будет перезаписана',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Success',
+    type: CreatedImageStoryDto,
+  })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  @Roles(Role.admin)
+  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @HttpCode(HttpStatus.OK)
+  @Put('/image/upload/:storyId')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: memoryStorage(),
+      fileFilter: validatorImgFile,
+    }),
+  )
+  async uploadStoryImage(
+    @UploadedFile() file: File,
+    @Req() req,
+    @Param('storyId', ParseIntPipe) storyId: number,
+  ) {
+    this.logger.debug('UPLOAD STORY IMAGE');
+    return await this.storyService.setImgForStory(storyId, file);
+  }
+
+  @ApiOperation({
+    summary: 'удаление обложки для выбранной сказки по storyId',
   })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -204,19 +266,11 @@ export class StoryController {
   @Roles(Role.admin)
   @UseGuards(AuthGuard('jwt'), RoleGuard)
   @HttpCode(HttpStatus.OK)
-  @Put('/image/upload/:storyId')
-  @UseInterceptors(
-    FileInterceptor('file', {
-      storage: diskStorage(diskStorageImg),
-    }),
-  )
-  async uploadStoryImage(
-    @UploadedFile() file: File,
-    @Req() req,
+  @Delete('/image/delete/:storyId')
+  async deleteStoryImgByStoryId(
     @Param('storyId', ParseIntPipe) storyId: number,
-  ) {
-    // TODO: add row in DB
-    this.logger.debug('UPLOAD STORY IMAGE');
-    await this.storyService.setImgForStory(storyId, file);
+  ): Promise<void> {
+    this.logger.debug('DELETE STORY IMG BY STORY ID');
+    await this.storyService.deleteStoryImgByStoryId(storyId);
   }
 }

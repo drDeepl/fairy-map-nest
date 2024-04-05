@@ -19,8 +19,8 @@ import {
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UserAudioService } from './user-audio.service';
 
-import { Role, diskStorageOptionsAudio, validateAudio } from '@/util/Constants';
-import { File, diskStorage, memoryStorage } from 'multer';
+import { Role, validateAudio } from '@/util/Constants';
+import { File, memoryStorage } from 'multer';
 import { Roles } from '@/util/decorators/Roles';
 import { RoleGuard } from '@/util/guards/role.guard';
 import { Get } from '@nestjs/common';
@@ -81,7 +81,7 @@ export class UserAudioController {
     console.log(file);
     // .saveAudio(file.originalname, file.path, req.user.sub, languageId, file)
     if (file != undefined) {
-      return this.userAudioService
+      return await this.userAudioService
         .saveAudio(req.user.sub, languageId, file)
         .catch((error) => {
           throw new HttpException(error.message, HttpStatus.FORBIDDEN);

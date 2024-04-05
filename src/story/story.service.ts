@@ -4,6 +4,7 @@ import {
   HttpStatus,
   Injectable,
   Logger,
+  NotFoundException,
   StreamableFile,
 } from '@nestjs/common';
 import { AddStoryDto } from './dto/story/AddStoryDto';
@@ -13,7 +14,12 @@ import { EditStoryDto } from './dto/story/EditStoryDto';
 import { StoryDto } from './dto/story/StoryDto';
 import { TextStoryDto } from './dto/text-story/TextStoryDto';
 import { AddTextStoryDto } from './dto/text-story/AddTextStoryDto';
-import { MAX_STORIES_FOR_ETHNIC_GROUP, PCodeMessages } from '@/util/Constants';
+import {
+  MAX_STORIES_FOR_ETHNIC_GROUP,
+  PCodeMessages,
+  basePathUpload,
+  getUuid,
+} from '@/util/Constants';
 import { DataBaseExceptionHandler } from '@/util/exception/DataBaseExceptionHandler';
 import { AudioStoryRequestEntity } from '@/audio-story-request/entity/AudioStoryRequestEntity';
 import { AddAudioStoryDto } from './dto/audio-story/AddAudioStoryDto';
@@ -25,6 +31,11 @@ import * as fs from 'node:fs';
 import { join } from 'path';
 import { ImageStoryEntity } from './dto/image-story/entity/ImageStoryEntity';
 import { File } from 'multer';
+import { basename, extname } from 'node:path';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
+import { CreatedImageStoryDto } from './dto/image-story/CreatedImageStory';
+import { create } from 'node:domain';
+import { ImageStoryDto } from './dto/image-story/ImageStoryDto';
 
 @Injectable()
 export class StoryService {
@@ -246,28 +257,67 @@ export class StoryService {
     }
   }
 
-  async setImgForStory(storyId: number, file: File) {
-    throw new HttpException(
-      'Ведутся технические работы',
-      HttpStatus.BAD_REQUEST,
-    );
+  async getImgStoryById(storyId: number): Promise<ImageStoryDto> {
+    this.logger.debug('GET IMG STORY BY ID');
     try {
-      this.logger.debug('SET IMG FOR STORY');
-      await this.prisma.imgStory.create({
-        data: {
-          filename: file.originalname,
-          path: file.path,
+      const imgStoryData = await this.prisma.imgStory.findUnique({
+        where: {
           storyId: storyId,
         },
       });
+      console.log(imgStoryData);
+      if (imgStoryData) {
+        const imgStoryDto: ImageStoryDto = new ImageStoryDto();
+        imgStoryDto.filename = basename(imgStoryData.path);
+        imgStoryDto.buffer = fs.readFileSync(imgStoryData.path);
+        console.log(imgStoryDto);
+        return imgStoryDto;
+      }
+      throw new NotFoundException();
     } catch (error) {
       PrintNameAndCodePrismaException(error, this.logger);
-      fs.unlinkSync(file.path);
       throw this.dbExceptionHandler.handleError(error);
     }
   }
 
-  async deleteStoryImgByStoryId() {
+  async setImgForStory(storyId: number, file: File) {
+    this.logger.debug('Setting image for story');
+    console.log(file);
+    const path = `${basePathUpload}/img/${storyId}/${getUuid(file.originalname)}${extname(file.originalname)}`;
+    this.logger.debug('SET IMG FOR STORY');
+    return this.prisma.imgStory
+      .create({
+        data: {
+          filename: file.originalname,
+          path: path,
+          storyId: storyId,
+        },
+      })
+      .then((createdImg: ImageStoryEntity) => {
+        fs.writeFileSync(createdImg.path, file.buffer);
+        const createdImgDto: CreatedImageStoryDto = new CreatedImageStoryDto();
+        createdImgDto.id = createdImg.id;
+        createdImgDto.storyId = createdImg.storyId;
+        return createdImgDto;
+      })
+      .catch((error) => {
+        PrintNameAndCodePrismaException(error, this.logger);
+        throw this.dbExceptionHandler.handleError(error);
+      });
+  }
+
+  async deleteStoryImgByStoryId(storyId: number): Promise<void> {
     this.logger.debug('DELETE STORY IMG BY STORY ID');
+    try {
+      const deletedStoryImg = await this.prisma.imgStory.delete({
+        where: {
+          storyId: storyId,
+        },
+      });
+      fs.unlinkSync(deletedStoryImg.path);
+      console.log(deletedStoryImg);
+    } catch (error) {
+      this.logger.error(error);
+    }
   }
 }
