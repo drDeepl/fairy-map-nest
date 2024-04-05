@@ -177,7 +177,7 @@ export class StoryService {
     dto: AddTextStoryDto,
   ): Promise<TextStoryDto> {
     this.logger.debug('ADD TEXT STORY');
-    return this.prisma.textStory
+    return await this.prisma.textStory
       .create({
         data: {
           storyId: storyId,

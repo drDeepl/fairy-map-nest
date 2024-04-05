@@ -9,14 +9,18 @@ import { EditConstituentDto } from './dto/EditConstituentDto';
 import { AddEthnicGroupToConstituentDto } from './dto/AddEthnicGroupToConstituentDto';
 import { EthnicGroupToConstituentDto } from './dto/EthnicGroupToConstituentDto';
 import { DeleteEthnicGroupToConstituentDto } from './dto/DeleteEthnicGroupToConstituentDto';
-import { MAX_STORIES_FOR_ETHNIC_GROUP } from '@/util/Constants';
+import { MAX_STORIES_FOR_ETHNIC_GROUP, PCodeMessages } from '@/util/Constants';
 import { Prisma } from '@prisma/client';
 import { ConstituentFilledDto } from './dto/ConstituentFilledDto';
+import { DataBaseExceptionHandler } from '@/util/exception/DataBaseExceptionHandler';
 
 @Injectable()
 export class ConstituentsService {
   private readonly logger = new Logger('ConstituentsService');
   private readonly msgException = new MessageException();
+  private readonly dbExceptionHandler = new DataBaseExceptionHandler(
+    PCodeMessages,
+  );
 
   constructor(private prisma: PrismaService) {}
 
@@ -124,28 +128,32 @@ export class ConstituentsService {
   }
 
   async getPercentOfFilledConstituent(): Promise<ConstituentFilledDto[]> {
-    this.logger.debug('GET PERCENT OF FILLED CONSTITUENT');
-    const maxStoriesForOneGroup = MAX_STORIES_FOR_ETHNIC_GROUP;
-    const constituentsFilled: {
-      constituent_rf_id: number;
-      count_ethnic_groups: number;
-      filled_area: number;
-    }[] = await this.prisma
-      .$queryRaw`SELECT cerf.constituent_rf_id, COUNT(DISTINCT stories.ethnic_group_id) as count_ethnic_groups, COUNT(DISTINCT stories.audio_id)/(COUNT(DISTINCT stories.ethnic_group_id) * ${maxStoriesForOneGroup}) as filled_area
+    try {
+      this.logger.debug('GET PERCENT OF FILLED CONSTITUENT');
+      const maxStoriesForOneGroup = MAX_STORIES_FOR_ETHNIC_GROUP;
+      const constituentsFilled: {
+        constituent_rf_id: number;
+        count_ethnic_groups: number;
+        filled_area: number;
+      }[] = await this.prisma
+        .$queryRaw`SELECT cerf.constituent_rf_id, COUNT(DISTINCT stories.ethnic_group_id) as count_ethnic_groups, COUNT(DISTINCT stories.audio_id)/(COUNT(DISTINCT stories.ethnic_group_id) * ${maxStoriesForOneGroup}) as filled_area
     FROM constituents_rf_ethnic_groups as cerf INNER JOIN stories ON cerf.ethnic_group_id = stories.ethnic_group_id
     GROUP BY cerf.constituent_rf_id`;
-    // { constituent_rf_id: 76, count_ethnic_groups: 1n, filled_area: 0n }
-    const constituents: ConstituentFilledDto[] = constituentsFilled.map(
-      (item) => {
-        console.log(item);
-        return new ConstituentFilledDto(
-          Number(item['constituent_rf_id']),
-          Number(item['count_ethnic_groups']),
-          Number(item['filled_area']),
-        );
-      },
-    );
-    return constituents;
+      const constituents: ConstituentFilledDto[] = constituentsFilled.map(
+        (item) => {
+          console.log(item);
+          return new ConstituentFilledDto(
+            Number(item['constituent_rf_id']),
+            Number(item['count_ethnic_groups']),
+            Number(item['filled_area']),
+          );
+        },
+      );
+      return constituents;
+    } catch (error) {
+      PrintNameAndCodePrismaException(error, this.logger);
+      throw this.dbExceptionHandler.handleError(error);
+    }
   }
 
   async editConstituentById(id: number, dto: EditConstituentDto) {
