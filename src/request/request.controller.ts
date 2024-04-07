@@ -122,4 +122,19 @@ export class RequestController {
       .deleteTypeRequestById(typeRequestId)
       .then((result) => {});
   }
+
+  @ApiOperation({ summary: 'получение существующих статусов для заявок' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Success',
+    type: [String],
+  })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  @HttpCode(HttpStatus.OK)
+  @Get('/status/all')
+  async getRequestStatuses() {
+    this.logger.debug('GET REQUEST STATUTES');
+    return await this.requestService.getStatusRequestAll();
+  }
 }

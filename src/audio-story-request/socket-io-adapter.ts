@@ -1,6 +1,4 @@
-import { UserAccessInterface } from '@/auth/interface/UserAccessInterface';
 import { UserAccessDto } from '@/user/dto/UserAccessDto';
-import { UserDto } from '@/user/dto/UserDto';
 import { UserService } from '@/user/user.service';
 import { INestApplicationContext, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -67,12 +65,6 @@ const createTokenMiddleware =
       const payload = await jwtService.verify(token, {
         secret: configService.get('JWT_ACCESS_SECRET'),
       });
-
-      // //   const user = await usersService.findById(payload.sub);
-      //   if (!user) {
-      //     next(new Error('FORBIDDEN'));
-      //   }
-      //   socket.user = user;
       socket.user = payload;
       next();
     } catch (error) {

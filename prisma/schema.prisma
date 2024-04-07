@@ -172,7 +172,7 @@ model AddStoryRequest{
   id            Int             @id @default(autoincrement())
   storyName     String          @map("story_name") @db.VarChar(255)
   status        Status          @default(SEND)    
-  comment       String          @db.Text
+  comment       String          @db.Text @default("")
   userId        Int             @map("user_id")
   user          User            @relation(fields: [userId], references: [id])
   

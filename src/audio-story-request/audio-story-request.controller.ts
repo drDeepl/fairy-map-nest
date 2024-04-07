@@ -18,12 +18,12 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { AudioStoryRequestGateway } from './audio-story-request.gateway';
 import { AudioStoryRequestService } from './audio-story-request.service';
 import { AddAudioStoryRequestDto } from './dto/audio-story-request/AddAudioStoryRequestDto';
 import { AudioRequestWithUserAudioDto } from './dto/audio-story-request/AudioRequestWithUserAudioDto';
 import { EditAudioStoryRequestDto } from './dto/audio-story-request/EditAudioStoryRequestDto';
 import { AudioStoryRequestEntity } from './entity/AudioStoryRequestEntity';
-import { AudioStoryRequestGateway } from './audio-story-request.gateway';
 
 @ApiTags('AudioStoryRequestController')
 @Controller('api/audio-story-request')
@@ -50,7 +50,7 @@ export class AudioStoryRequestController {
     @User() user: UserAccessInterface,
   ): Promise<AudioRequestWithUserAudioDto[]> {
     this.logger.debug('GET ALL AUDIO STORY REQUESTS FOR CURRENT USER');
-    return this.audioStoryRequestService.getAudioRequestsByUserId(user.id);
+    return this.audioStoryRequestService.getAudioRequestsByUserId(user.sub);
   }
 
   @ApiOperation({ summary: 'Создание заявки на проверку озвучки' })
@@ -82,6 +82,7 @@ export class AudioStoryRequestController {
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  @Roles(Role.moder)
   @UseGuards(AuthGuard('jwt'), RoleGuard)
   @Put('/edit/:audioStoryReqeustId')
   async editAudioStoryRequest(

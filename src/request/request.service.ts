@@ -123,8 +123,8 @@ export class RequestService {
       });
   }
 
-  async getStatusRequestAll(): Promise<object> {
+  async getStatusRequestAll(): Promise<string[]> {
     this.logger.debug('GET STATUS REQUEST ALL');
-    return REQUEST_STATUS;
+    return Object.keys(REQUEST_STATUS);
   }
 }

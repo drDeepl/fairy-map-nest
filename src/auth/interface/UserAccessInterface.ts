@@ -1,5 +1,5 @@
 export interface UserAccessInterface {
-  id: number;
+  sub: number;
   role: string;
   iat: number;
   exp: number;
