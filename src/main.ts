@@ -2,7 +2,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
-import { SocketIOAdapter } from './audio-story-request/socket-io-adapter';
+import { SocketIOAdapter } from './ws-story-request/socket-io-adapter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);

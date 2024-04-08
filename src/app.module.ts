@@ -13,6 +13,7 @@ import { RequestModule } from './request/request.module';
 import { StoryModule } from './story/story.module';
 import { UserAudioModule } from './user-audio/user-audio.module';
 import { AddStoryRequestModule } from './add-story-request/add-story-request.module';
+import { WsStoryRequestModule } from './ws-story-request/ws-story-request.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { AddStoryRequestModule } from './add-story-request/add-story-request.mod
     AudioStoryRequestModule,
     RequestModule,
     AddStoryRequestModule,
+    WsStoryRequestModule,
   ],
   controllers: [AppController],
   providers: [AppService],

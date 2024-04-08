@@ -5,6 +5,10 @@ export class AddStoryRequestEntity {
   id: number;
   @ApiProperty({ description: 'название истории', nullable: false })
   storyName: string;
+
+  @ApiProperty({ description: 'статус заявки', nullable: false })
+  status: string;
+
   @ApiProperty({ description: 'комментарий проверяющего', nullable: false })
   comment: string;
   @ApiProperty({

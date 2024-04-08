@@ -18,7 +18,7 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { AudioStoryRequestGateway } from './audio-story-request.gateway';
+import { StoryRequestGateway } from '@/ws-story-request/ws-story-request.gateway';
 import { AudioStoryRequestService } from './audio-story-request.service';
 import { AddAudioStoryRequestDto } from './dto/audio-story-request/AddAudioStoryRequestDto';
 import { AudioRequestWithUserAudioDto } from './dto/audio-story-request/AudioRequestWithUserAudioDto';
@@ -31,7 +31,7 @@ export class AudioStoryRequestController {
   private readonly logger = new Logger('RequestAudioStoryController');
   constructor(
     private audioStoryRequestService: AudioStoryRequestService,
-    private readonly audioStoryRequestGateway: AudioStoryRequestGateway,
+    private readonly audioStoryRequestGateway: StoryRequestGateway,
   ) {}
 
   @ApiOperation({
@@ -82,7 +82,7 @@ export class AudioStoryRequestController {
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
-  @Roles(Role.moder)
+  @Roles(Role.admin)
   @UseGuards(AuthGuard('jwt'), RoleGuard)
   @Put('/edit/:audioStoryReqeustId')
   async editAudioStoryRequest(
@@ -94,7 +94,7 @@ export class AudioStoryRequestController {
         audioStoryReqeustId,
         dto,
       );
-    await this.audioStoryRequestGateway.handleRequest(
+    await this.audioStoryRequestGateway.handleRequestAudioStory(
       editableAudioStoryRequest,
     );
     return editableAudioStoryRequest;

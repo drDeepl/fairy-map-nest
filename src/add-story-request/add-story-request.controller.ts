@@ -7,6 +7,7 @@ import {
   Body,
   Controller,
   Get,
+  HttpException,
   HttpStatus,
   Logger,
   Param,
@@ -23,13 +24,17 @@ import { AddStoryRequestDto } from './dto/AddStoryRequestDto';
 import { CreateAddStoryRequestDto } from './dto/CreateAddStoryRequestDto';
 import { EditAddStoryRequestDto } from './dto/EditAddStoryRequestDto';
 import { AddStoryRequestEntity } from './entity/AddStoryRequestEntity';
+import { StoryRequestGateway } from '@/ws-story-request/ws-story-request.gateway';
 
 @ApiTags('AddStoryRequestController')
 @Controller('api/add-story-request')
 export class AddStoryRequestController {
   private readonly logger = new Logger(AddStoryRequestController.name);
 
-  constructor(private readonly addStoryReqService: AddStoryRequestService) {}
+  constructor(
+    private readonly addStoryReqService: AddStoryRequestService,
+    private readonly addStoryRequestGateway: StoryRequestGateway,
+  ) {}
 
   @ApiOperation({
     summary: 'получение всех заявок на добавление сказки',
@@ -81,7 +86,7 @@ export class AddStoryRequestController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Success',
-    type: [AddStoryRequestDto],
+    type: AddStoryRequestDto,
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
@@ -98,24 +103,29 @@ export class AddStoryRequestController {
 
   @ApiOperation({
     summary: 'изменение статуса заявки',
-    description: `статус заявки берется из /api/request/status/all. Необходима роль ${Role.moder}`,
+    description: `статус заявки берется из /api/request/status/all | Необходима роль ${Role.moder} | После успешного редактирования данные заявки так же передаются пользователю с userId по веб-сокету`,
   })
   @ApiResponse({
     status: HttpStatus.OK,
-    description: 'Success',
-    type: [AddStoryRequestDto],
+    description: 'Успешное редактирование.',
+    type: AddStoryRequestEntity,
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
-  @Roles(Role.moder)
+  @Roles(Role.admin)
   @UseGuards(AuthGuard('jwt'), RoleGuard)
   @Put('/edit/:addStoryRequestId')
   async editStatusAddStoryReqeust(
     @Param('addStoryRequestId', ParseIntPipe) addStoryRequestId: number,
     @Body() dto: EditAddStoryRequestDto,
-  ): Promise<EditAddStoryRequestDto> {
-    return await this.addStoryReqService.editStatusById(addStoryRequestId, dto);
+  ): Promise<AddStoryRequestEntity> {
+    try {
+      const editedRequest: AddStoryRequestEntity =
+        await this.addStoryReqService.editStatusById(addStoryRequestId, dto);
+      await this.addStoryRequestGateway.handleRequestAddStory(editedRequest);
+      return editedRequest;
+    } catch (error) {
+      throw new HttpException(error.message, error.status);
+    }
   }
 }
-//  TODO: ADDED GET STATUS THROUGH SOCKET
-// TODO: ADD GATEWAY

@@ -67,7 +67,7 @@ export class AddStoryRequestService {
   async editStatusById(
     id: number,
     dto: EditAddStoryRequestDto,
-  ): Promise<EditAddStoryRequestDto> {
+  ): Promise<AddStoryRequestEntity> {
     this.logger.debug('EDIt StATUS BY ID');
     try {
       return this.repository.editStatusRequestById(id, dto);

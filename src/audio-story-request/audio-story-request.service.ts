@@ -9,7 +9,6 @@ import { AddAudioStoryRequestDto } from './dto/audio-story-request/AddAudioStory
 import { AudioRequestWithUserAudioDto } from './dto/audio-story-request/AudioRequestWithUserAudioDto';
 import { EditAudioStoryRequestDto } from './dto/audio-story-request/EditAudioStoryRequestDto';
 import { AudioStoryRequestEntity } from './entity/AudioStoryRequestEntity';
-import { AudioStoryRequestGateway } from './audio-story-request.gateway';
 
 @Injectable()
 export class AudioStoryRequestService {
