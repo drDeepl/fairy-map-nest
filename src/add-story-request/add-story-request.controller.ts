@@ -6,6 +6,7 @@ import { RoleGuard } from '@/util/guards/role.guard';
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpException,
   HttpStatus,
@@ -102,12 +103,12 @@ export class AddStoryRequestController {
   }
 
   @ApiOperation({
-    summary: 'изменение статуса заявки',
+    summary: 'обновление заявки',
     description: `статус заявки берется из /api/request/status/all | Необходима роль ${Role.moder} | После успешного редактирования данные заявки так же передаются пользователю с userId по веб-сокету`,
   })
   @ApiResponse({
     status: HttpStatus.OK,
-    description: 'Успешное редактирование.',
+    description: 'Success',
     type: AddStoryRequestEntity,
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
@@ -127,5 +128,27 @@ export class AddStoryRequestController {
     } catch (error) {
       throw new HttpException(error.message, error.status);
     }
+  }
+
+  @ApiOperation({
+    summary: 'удаление заявки',
+    description: `Необходима роль ${Role.admin}`,
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Success',
+  })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  @Roles(Role.admin)
+  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @Delete('delete/:addStoryRequestId')
+  async deleteAddStoryRequestById(
+    @Param('addStoryRequestId', ParseIntPipe) addStoryRequestId: number,
+  ) {
+    this.logger.debug('DELETE ADD STORY REQUEST BY ID');
+    return await this.addStoryReqService.deleteAddStoryRequestById(
+      addStoryRequestId,
+    );
   }
 }

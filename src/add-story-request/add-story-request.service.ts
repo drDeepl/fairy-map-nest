@@ -76,4 +76,9 @@ export class AddStoryRequestService {
       throw this.dbExceptionHandler.handleError(error);
     }
   }
+
+  async deleteAddStoryRequestById(id: number): Promise<void> {
+    this.logger.debug('DELETE ADD STORY REQUEST BY ID');
+    return await this.repository.deleteById(id);
+  }
 }

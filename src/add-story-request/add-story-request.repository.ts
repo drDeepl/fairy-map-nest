@@ -40,4 +40,17 @@ export class AddStoryRequestRepository {
     }
     throw new NotFoundException('Неверный статус');
   }
+  async deleteById(id: number): Promise<void> {
+    this.logger.debug('DELETE BY ID');
+    await this.prisma.addStoryRequest
+      .delete({
+        where: {
+          id: id,
+        },
+      })
+      .catch((error) => {
+        PrintNameAndCodePrismaException(error, this.logger);
+        throw this.dbExceptionHandler.handleError(error);
+      });
+  }
 }
