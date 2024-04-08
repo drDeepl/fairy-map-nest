@@ -279,7 +279,7 @@ export class StoryController {
     await this.storyService.deleteStoryImgByStoryId(storyId);
   }
 
-  // TODO: add controller for delete rating
+  // TODO: add request for delete rating
   @ApiOperation({
     summary: 'получение оценки для выбранной озвучки',
   })
