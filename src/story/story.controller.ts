@@ -38,6 +38,11 @@ import { memoryStorage, File } from 'multer';
 import { validatorImgFile } from '@/util/validators/validators';
 import { CreatedImageStoryDto } from './dto/image-story/CreatedImageStory';
 import { ImageStoryDto } from './dto/image-story/ImageStoryDto';
+import { UserAccessInterface } from '@/auth/interface/UserAccessInterface';
+import { User } from '@/util/decorators/User';
+import { AddedRatingAudioStoryDto } from './dto/rating-audio-story/AddedRatingAudioStoryDto';
+import { AddRatingAudioStoryDto } from './dto/rating-audio-story/AddRatingAudioStoryDto';
+import { RatingAudioStoryDto } from './dto/rating-audio-story/RatingAudioStoryDto';
 
 @ApiTags('StoryController')
 @Controller('api/story')
@@ -272,5 +277,44 @@ export class StoryController {
   ): Promise<void> {
     this.logger.debug('DELETE STORY IMG BY STORY ID');
     await this.storyService.deleteStoryImgByStoryId(storyId);
+  }
+
+  // TODO: add controller for delete rating
+  @ApiOperation({
+    summary: 'получение оценки для выбранной озвучки',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Success',
+    type: RatingAudioStoryDto,
+  })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  @HttpCode(HttpStatus.OK)
+  @Get('/rating/:audioId')
+  async getRatingByAudioId(
+    @Param('audioId', ParseIntPipe) audioId: number,
+  ): Promise<RatingAudioStoryDto> {
+    this.logger.debug('GET RATING BY AUDIO ID');
+    return await this.storyService.getRatingByAudioId(audioId);
+  }
+  @ApiOperation({
+    summary: 'добавление текущим пользователем оценки к озвучке по audioId',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Success',
+  })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @HttpCode(HttpStatus.OK)
+  @Put('/rating/add')
+  async addRatingForStoryByCurrentUser(
+    @User() user: UserAccessInterface,
+    @Body() dto: AddRatingAudioStoryDto,
+  ): Promise<AddedRatingAudioStoryDto> {
+    this.logger.debug('ADD RATING FOR STORY BY CURRENT USER');
+    return await this.storyService.addRatingAudioStoryById(user.sub, dto);
   }
 }

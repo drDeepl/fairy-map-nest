@@ -36,6 +36,9 @@ import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { CreatedImageStoryDto } from './dto/image-story/CreatedImageStory';
 import { create } from 'node:domain';
 import { ImageStoryDto } from './dto/image-story/ImageStoryDto';
+import { AddedRatingAudioStoryDto } from './dto/rating-audio-story/AddedRatingAudioStoryDto';
+import { AddRatingAudioStoryDto } from './dto/rating-audio-story/AddRatingAudioStoryDto';
+import { RatingAudioStoryDto } from './dto/rating-audio-story/RatingAudioStoryDto';
 
 @Injectable()
 export class StoryService {
@@ -319,5 +322,67 @@ export class StoryService {
     } catch (error) {
       this.logger.error(error);
     }
+  }
+
+  async getRatingByAudioId(id: number): Promise<RatingAudioStoryDto> {
+    this.logger.debug('GET RATING BY AUDIO ID');
+    try {
+      const avgRatingAudio = await this.prisma.ratingAudio.aggregate({
+        _avg: {
+          rating: true,
+        },
+        where: {
+          storyAudioId: id,
+        },
+      });
+      return new RatingAudioStoryDto(id, avgRatingAudio._avg.rating);
+    } catch (error) {
+      PrintNameAndCodePrismaException(error, this.logger);
+      throw this.dbExceptionHandler.handleError(error);
+    }
+  }
+
+  async addRatingAudioStoryById(
+    userId: number,
+    dto: AddRatingAudioStoryDto,
+  ): Promise<AddedRatingAudioStoryDto> {
+    this.logger.debug('ADD RATING AUDIO STORY BY ID');
+    const currentRating = await this.prisma.ratingAudio.findFirst({
+      where: {
+        storyAudioId: dto.audioId,
+        userId: userId,
+      },
+    });
+    if (currentRating === null) {
+      try {
+        await this.prisma.ratingAudio.create({
+          data: {
+            storyAudioId: dto.audioId,
+            userId: userId,
+            rating: dto.rating,
+          },
+        });
+        const totalRatingAudio = await this.prisma.ratingAudio.aggregate({
+          _avg: {
+            rating: true,
+          },
+          where: {
+            storyAudioId: dto.audioId,
+          },
+        });
+        console.log(totalRatingAudio);
+        return new AddedRatingAudioStoryDto(
+          dto.rating,
+          totalRatingAudio._avg.rating,
+        );
+      } catch (error) {
+        PrintNameAndCodePrismaException(error, this.logger);
+        throw this.dbExceptionHandler.handleError(error);
+      }
+    }
+    throw new HttpException(
+      'Пользователь уже выставил оценку для выбранной озвучки',
+      HttpStatus.BAD_REQUEST,
+    );
   }
 }

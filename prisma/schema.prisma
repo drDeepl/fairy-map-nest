@@ -152,6 +152,8 @@ model RatingAudio{
   user          User       @relation(fields: [userId], references: [id])
   storyAudioId  Int        @map("story_audio_id")
   storyAudio    StoryAudio @relation(fields: [storyAudioId], references: [id])
+  rating        Float
+
 
   @@map("audios_rating")
 
