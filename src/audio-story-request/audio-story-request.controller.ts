@@ -45,12 +45,33 @@ export class AudioStoryRequestController {
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
   @UseGuards(AuthGuard('jwt'), RoleGuard)
-  @Get('/my-audio-story-requests')
+  @Get('/my-requests')
   async getAllAudioStoryRequestsCurrentUser(
     @User() user: UserAccessInterface,
   ): Promise<AudioRequestWithUserAudioDto[]> {
     this.logger.debug('GET ALL AUDIO STORY REQUESTS FOR CURRENT USER');
     return this.audioStoryRequestService.getAudioRequestsByUserId(user.sub);
+  }
+
+  @ApiOperation({
+    summary: 'получение всех заявок на озвучки для выбранного пользователя.',
+    description: 'Необходима роль модератора',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Success',
+    type: [AudioStoryRequestEntity],
+  })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  @Roles(Role.moder)
+  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @Get('/by-user/:userId')
+  async getAllAudioStoryReqeustsByUserId(
+    @Param('userId', ParseIntPipe) userId: number,
+  ): Promise<AudioRequestWithUserAudioDto[]> {
+    this.logger.debug('GET ALL AUDIO STORY REQEUSTS BY USER ID');
+    return await this.audioStoryRequestService.getAudioRequestsByUserId(userId);
   }
 
   @ApiOperation({ summary: 'Создание заявки на проверку озвучки' })

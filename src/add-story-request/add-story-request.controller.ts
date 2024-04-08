@@ -82,6 +82,26 @@ export class AddStoryRequestController {
   }
 
   @ApiOperation({
+    summary:
+      'получение всех заявок на добавление сказки для выбранного пользователя',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Success',
+    type: [AddStoryRequestDto],
+  })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @Get('/by-user/:userId')
+  async getAddStoryRequestByUserId(
+    @Param('userId', ParseIntPipe) userId: number,
+  ): Promise<AddStoryRequestDto[]> {
+    this.logger.debug('GET ADD STORY REQUEST BY USER');
+    return await this.addStoryReqService.getAddStoryRequestsByUserId(userId);
+  }
+
+  @ApiOperation({
     summary: 'создание заявки на добавление сказки',
   })
   @ApiResponse({

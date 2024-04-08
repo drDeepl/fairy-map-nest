@@ -353,8 +353,8 @@ export class StoryService {
         userId: userId,
       },
     });
-    if (currentRating === null) {
-      try {
+    try {
+      if (currentRating === null) {
         await this.prisma.ratingAudio.create({
           data: {
             storyAudioId: dto.audioId,
@@ -362,27 +362,32 @@ export class StoryService {
             rating: dto.rating,
           },
         });
-        const totalRatingAudio = await this.prisma.ratingAudio.aggregate({
-          _avg: {
-            rating: true,
-          },
+      } else {
+        await this.prisma.ratingAudio.update({
           where: {
-            storyAudioId: dto.audioId,
+            id: currentRating.id,
+          },
+          data: {
+            rating: dto.rating,
           },
         });
-        console.log(totalRatingAudio);
-        return new AddedRatingAudioStoryDto(
-          dto.rating,
-          totalRatingAudio._avg.rating,
-        );
-      } catch (error) {
-        PrintNameAndCodePrismaException(error, this.logger);
-        throw this.dbExceptionHandler.handleError(error);
       }
+      const totalRatingAudio = await this.prisma.ratingAudio.aggregate({
+        _avg: {
+          rating: true,
+        },
+        where: {
+          storyAudioId: dto.audioId,
+        },
+      });
+      console.log(totalRatingAudio);
+      return new AddedRatingAudioStoryDto(
+        dto.rating,
+        totalRatingAudio._avg.rating,
+      );
+    } catch (error) {
+      PrintNameAndCodePrismaException(error, this.logger);
+      throw this.dbExceptionHandler.handleError(error);
     }
-    throw new HttpException(
-      'Пользователь уже выставил оценку для выбранной озвучки',
-      HttpStatus.BAD_REQUEST,
-    );
   }
 }

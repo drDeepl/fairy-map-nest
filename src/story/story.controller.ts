@@ -298,6 +298,7 @@ export class StoryController {
     this.logger.debug('GET RATING BY AUDIO ID');
     return await this.storyService.getRatingByAudioId(audioId);
   }
+
   @ApiOperation({
     summary: 'добавление текущим пользователем оценки к озвучке по audioId',
   })
