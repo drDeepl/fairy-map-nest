@@ -206,6 +206,20 @@ export class StoryService {
       });
   }
 
+  async getTextByStoryId(storyId: number): Promise<TextStoryDto> {
+    this.logger.debug('GET TEXT STORY BY ID');
+    return await this.prisma.textStory
+      .findUnique({
+        where: {
+          storyId: storyId,
+        },
+      })
+      .catch((error) => {
+        PrintNameAndCodePrismaException(error, this.logger);
+        throw this.dbExceptionHandler.handleError(error);
+      });
+  }
+
   async setUserAudioToStory(
     storyId: number,
     dto: AddAudioStoryDto,

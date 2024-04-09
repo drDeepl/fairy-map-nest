@@ -160,6 +160,22 @@ export class StoryController {
     return this.storyService.addTextStory(storyId, dto);
   }
 
+  @ApiOperation({ summary: 'получение текста сказки' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Success',
+    type: TextStoryDto,
+  })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
+  @HttpCode(HttpStatus.OK)
+  @Get('/text/:storyId')
+  async getTextStoryByStoryId(
+    @Param('storyId', ParseIntPipe) storyId: number,
+  ): Promise<TextStoryDto> {
+    this.logger.debug('GET TEXT STORY BY ID');
+    return await this.storyService.getTextByStoryId(storyId);
+  }
+
   @ApiOperation({
     summary: 'получение одобренной озвучки по audioId',
     description: 'возвращает StreamableFile',
@@ -279,7 +295,6 @@ export class StoryController {
     await this.storyService.deleteStoryImgByStoryId(storyId);
   }
 
-  // TODO: add request for delete rating
   @ApiOperation({
     summary: 'получение оценки для выбранной озвучки',
   })
