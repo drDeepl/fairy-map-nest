@@ -39,6 +39,7 @@ import { ImageStoryDto } from './dto/image-story/ImageStoryDto';
 import { AddedRatingAudioStoryDto } from './dto/rating-audio-story/AddedRatingAudioStoryDto';
 import { AddRatingAudioStoryDto } from './dto/rating-audio-story/AddRatingAudioStoryDto';
 import { RatingAudioStoryDto } from './dto/rating-audio-story/RatingAudioStoryDto';
+import { AudioStoryLanguageDto } from './dto/audio-story/AudioStoryLanguageDto';
 
 @Injectable()
 export class StoryService {
@@ -95,16 +96,32 @@ export class StoryService {
         throw this.dbExceptionHandler.handleError(error);
       });
   }
-  async getLanguagesForStory(storyId: number): Promise<any> {
+  async getLanguagesForStory(
+    storyId: number,
+  ): Promise<AudioStoryLanguageDto[]> {
     this.logger.debug('GET LANGUAGES FOR STORY');
-    return await this.prisma.story.findUnique({
+    const story = await this.prisma.story.findUnique({
       where: {
         id: storyId,
       },
-      include: {
-        ethnicGroup: true,
-      },
     });
+    if (story.audioId === null) {
+      return [];
+    }
+    try {
+      return await this.prisma.storyAudio.findMany({
+        select: {
+          id: true,
+          languageId: true,
+        },
+        where: {
+          id: story.audioId,
+        },
+      });
+    } catch (error) {
+      PrintNameAndCodePrismaException(error, this.logger);
+      throw this.dbExceptionHandler.handleError(error);
+    }
   }
 
   async addStory(dto: AddStoryDto): Promise<StoryDto> {

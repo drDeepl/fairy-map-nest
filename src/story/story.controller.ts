@@ -43,6 +43,7 @@ import { User } from '@/util/decorators/User';
 import { AddedRatingAudioStoryDto } from './dto/rating-audio-story/AddedRatingAudioStoryDto';
 import { AddRatingAudioStoryDto } from './dto/rating-audio-story/AddRatingAudioStoryDto';
 import { RatingAudioStoryDto } from './dto/rating-audio-story/RatingAudioStoryDto';
+import { AudioStoryLanguageDto } from './dto/audio-story/AudioStoryLanguageDto';
 
 @ApiTags('StoryController')
 @Controller('api/story')
@@ -80,18 +81,21 @@ export class StoryController {
     return await this.storyService.getStoryById(storyId);
   }
 
-  @ApiOperation({ summary: 'получение всех языков для выбранной сказки' })
+  @ApiOperation({
+    summary: 'получение доступных языков озвучки для выбранной сказки',
+  })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Success',
-    type: StoryDto,
+    type: AudioStoryLanguageDto,
+    isArray: true,
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
-  @Get('language/:storyId')
+  @Get('languages/:storyId')
   async getLanguagesForCurrentStory(
     @Param('storyId', ParseIntPipe) storyId: number,
-  ): Promise<any> {
+  ): Promise<AudioStoryLanguageDto[]> {
     this.logger.debug('GET LANGUAGES FOR CURRENT STORY BY STORY ID');
     return await this.storyService.getLanguagesForStory(storyId);
   }
