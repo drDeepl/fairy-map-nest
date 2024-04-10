@@ -5,5 +5,8 @@ export class AudioStoryLanguageDto {
   id: number;
 
   @ApiProperty({ description: 'languageId ', nullable: false })
+  userAudioId: number;
+
+  @ApiProperty({ description: 'languageId ', nullable: false })
   languageId: number;
 }

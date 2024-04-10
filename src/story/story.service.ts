@@ -112,6 +112,7 @@ export class StoryService {
       return await this.prisma.storyAudio.findMany({
         select: {
           id: true,
+          userAudioId: true,
           languageId: true,
         },
         where: {
