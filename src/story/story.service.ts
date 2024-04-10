@@ -95,6 +95,17 @@ export class StoryService {
         throw this.dbExceptionHandler.handleError(error);
       });
   }
+  async getLanguagesForStory(storyId: number): Promise<any> {
+    this.logger.debug('GET LANGUAGES FOR STORY');
+    return await this.prisma.story.findUnique({
+      where: {
+        id: storyId,
+      },
+      include: {
+        ethnicGroup: true,
+      },
+    });
+  }
 
   async addStory(dto: AddStoryDto): Promise<StoryDto> {
     this.logger.debug('ADD STORY');
@@ -244,12 +255,25 @@ export class StoryService {
     dto: AddAudioStoryDto,
   ): Promise<void> {
     this.logger.debug('SET USER AUDIO TO STORY');
+    const userAudio = await this.prisma.userAudioStory.findUnique({
+      where: {
+        id: dto.userAudioId,
+      },
+    });
+
+    if (userAudio === null) {
+      throw new HttpException(
+        'Выбранной аудиозаписи не существует',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
     try {
       const audioStory: AudioStoryEntity = await this.prisma.storyAudio.create({
         data: {
           author: dto.userId,
           userAudioId: dto.userAudioId,
           moderateScore: dto.moderateScore,
+          languageId: userAudio.languageId,
         },
       });
       await this.prisma.story.update({

@@ -68,6 +68,7 @@ model Language{
   name          String    @unique @db.VarChar(255)
   ethnicGroup   EthnicGroup?
   userStories   UserAudioStory[]
+  storiesAudio  StoryAudio[]
 
   @@map("languages")
 }
@@ -121,6 +122,8 @@ model StoryAudio{
   author        Int
   authors       User            @relation(fields: [author], references: [id])
   story         Story?
+  languageId    Int             @map("language_id")
+  language      Language        @relation(fields:[languageId], references: [id])
   moderateScore Int
   userAudioId   Int             @unique() @map("user_audio_id")
   userAudio     UserAudioStory  @relation(fields:[userAudioId], references: [id])

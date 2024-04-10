@@ -76,7 +76,24 @@ export class StoryController {
   async getStoryById(
     @Param('storyId', ParseIntPipe) storyId: number,
   ): Promise<StoryDto> {
+    this.logger.debug('GET STORY BY ID');
     return await this.storyService.getStoryById(storyId);
+  }
+
+  @ApiOperation({ summary: 'получение всех языков для выбранной сказки' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Success',
+    type: StoryDto,
+  })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  @Get('language/:storyId')
+  async getLanguagesForCurrentStory(
+    @Param('storyId', ParseIntPipe) storyId: number,
+  ): Promise<any> {
+    this.logger.debug('GET LANGUAGES FOR CURRENT STORY BY STORY ID');
+    return await this.storyService.getLanguagesForStory(storyId);
   }
 
   @ApiOperation({
