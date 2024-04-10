@@ -77,6 +77,25 @@ export class StoryService {
     });
   }
 
+  async getStoryById(storyId: number): Promise<StoryDto> {
+    return await this.prisma.story
+      .findUnique({
+        select: {
+          id: true,
+          name: true,
+          ethnicGroup: true,
+          audioId: true,
+        },
+        where: {
+          id: storyId,
+        },
+      })
+      .catch((error) => {
+        PrintNameAndCodePrismaException(error, this.logger);
+        throw this.dbExceptionHandler.handleError(error);
+      });
+  }
+
   async addStory(dto: AddStoryDto): Promise<StoryDto> {
     this.logger.debug('ADD STORY');
     const maxCountStories = MAX_STORIES_FOR_ETHNIC_GROUP;

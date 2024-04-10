@@ -64,6 +64,21 @@ export class StoryController {
     return this.storyService.getStories();
   }
 
+  @ApiOperation({ summary: 'получение общей информации о выбранной сказке' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Success',
+    type: StoryDto,
+  })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  @Get('/:storyId')
+  async getStoryById(
+    @Param('storyId', ParseIntPipe) storyId: number,
+  ): Promise<StoryDto> {
+    return await this.storyService.getStoryById(storyId);
+  }
+
   @ApiOperation({
     summary: 'получение всех сказок выбранной этнической группы',
   })
