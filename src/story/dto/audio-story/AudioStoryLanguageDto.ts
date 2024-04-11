@@ -9,6 +9,9 @@ export class AudioStoryLanguageDto {
   @ApiProperty({ description: 'ид озвучки пользователя', nullable: false })
   userAudioId: number;
 
+  @ApiProperty({ description: 'средняя оценка озвучки', nullable: false })
+  moderateScore: number;
+
   @ApiProperty({ description: 'информация о языке', nullable: false })
   language: LanguageDto;
 

@@ -113,6 +113,7 @@ export class StoryService {
         select: {
           id: true,
           userAudioId: true,
+          moderateScore: true,
           language: {
             select: {
               id: true,
@@ -441,6 +442,7 @@ export class StoryService {
     userId: number,
     dto: AddRatingAudioStoryDto,
   ): Promise<AddedRatingAudioStoryDto> {
+    // TODO: create transaction for adding rating audio
     this.logger.debug('ADD RATING AUDIO STORY BY ID');
     const currentRating = await this.prisma.ratingAudio.findFirst({
       where: {
