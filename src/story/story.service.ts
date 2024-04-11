@@ -114,6 +114,13 @@ export class StoryService {
           id: true,
           userAudioId: true,
           languageId: true,
+          authors: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+            },
+          },
         },
         where: {
           id: story.audioId,
