@@ -124,7 +124,7 @@ model StoryAudio{
   story         Story?
   languageId    Int             @map("language_id")
   language      Language        @relation(fields:[languageId], references: [id])
-  moderateScore Int
+  moderateScore Float
   userAudioId   Int             @unique() @map("user_audio_id")
   userAudio     UserAudioStory  @relation(fields:[userAudioId], references: [id])
   ratings       RatingAudio[]

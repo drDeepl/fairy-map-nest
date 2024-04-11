@@ -281,6 +281,7 @@ export class StoryService {
   }
 
   async setUserAudioToStory(
+    moderatorId: number,
     storyId: number,
     dto: AddAudioStoryDto,
   ): Promise<void> {
@@ -304,6 +305,13 @@ export class StoryService {
           userAudioId: dto.userAudioId,
           moderateScore: dto.moderateScore,
           languageId: userAudio.languageId,
+        },
+      });
+      await this.prisma.ratingAudio.create({
+        data: {
+          userId: moderatorId,
+          storyAudioId: audioStory.id,
+          rating: dto.moderateScore,
         },
       });
       await this.prisma.story.update({
@@ -465,6 +473,14 @@ export class StoryService {
         },
         where: {
           storyAudioId: dto.audioId,
+        },
+      });
+      await this.prisma.storyAudio.update({
+        where: {
+          id: dto.audioId,
+        },
+        data: {
+          moderateScore: totalRatingAudio._avg.rating,
         },
       });
       console.log(totalRatingAudio);

@@ -248,9 +248,10 @@ export class StoryController {
   async setUserAudioToStory(
     @Query('storyId', ParseIntPipe) storyId: number,
     @Body() dto: AddAudioStoryDto,
+    @User() user: UserAccessInterface,
   ): Promise<void> {
     this.logger.debug('SET USER AUDIO TO STORY');
-    return this.storyService.setUserAudioToStory(storyId, dto);
+    return this.storyService.setUserAudioToStory(user.sub, storyId, dto);
   }
 
   @ApiOperation({
