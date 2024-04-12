@@ -38,7 +38,7 @@ export class UserAudioController {
 
   constructor(private readonly userAudioService: UserAudioService) {}
 
-  @ApiOperation({ summary: 'получение файла озвучки пользователя' })
+  @ApiOperation({ summary: 'получение озвучек текущего пользователя' })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Success',
