@@ -442,7 +442,6 @@ export class StoryService {
     userId: number,
     dto: AddRatingAudioStoryDto,
   ): Promise<AddedRatingAudioStoryDto> {
-    // TODO: create transaction for adding rating audio
     this.logger.debug('ADD RATING AUDIO STORY BY ID');
     const currentRating = await this.prisma.ratingAudio.findFirst({
       where: {
@@ -451,45 +450,47 @@ export class StoryService {
       },
     });
     try {
-      if (currentRating === null) {
-        await this.prisma.ratingAudio.create({
-          data: {
-            storyAudioId: dto.audioId,
-            userId: userId,
-            rating: dto.rating,
+      return await this.prisma.$transaction(async (transactionClient) => {
+        if (currentRating === null) {
+          await transactionClient.ratingAudio.create({
+            data: {
+              storyAudioId: dto.audioId,
+              userId: userId,
+              rating: dto.rating,
+            },
+          });
+        } else {
+          await transactionClient.ratingAudio.update({
+            where: {
+              id: currentRating.id,
+            },
+            data: {
+              rating: dto.rating,
+            },
+          });
+        }
+        const totalRatingAudio = await transactionClient.ratingAudio.aggregate({
+          _avg: {
+            rating: true,
           },
-        });
-      } else {
-        await this.prisma.ratingAudio.update({
           where: {
-            id: currentRating.id,
-          },
-          data: {
-            rating: dto.rating,
+            storyAudioId: dto.audioId,
           },
         });
-      }
-      const totalRatingAudio = await this.prisma.ratingAudio.aggregate({
-        _avg: {
-          rating: true,
-        },
-        where: {
-          storyAudioId: dto.audioId,
-        },
+        await transactionClient.storyAudio.update({
+          where: {
+            id: dto.audioId,
+          },
+          data: {
+            moderateScore: totalRatingAudio._avg.rating,
+          },
+        });
+        console.log(totalRatingAudio);
+        return new AddedRatingAudioStoryDto(
+          dto.rating,
+          totalRatingAudio._avg.rating,
+        );
       });
-      await this.prisma.storyAudio.update({
-        where: {
-          id: dto.audioId,
-        },
-        data: {
-          moderateScore: totalRatingAudio._avg.rating,
-        },
-      });
-      console.log(totalRatingAudio);
-      return new AddedRatingAudioStoryDto(
-        dto.rating,
-        totalRatingAudio._avg.rating,
-      );
     } catch (error) {
       PrintNameAndCodePrismaException(error, this.logger);
       throw this.dbExceptionHandler.handleError(error);
