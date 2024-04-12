@@ -100,6 +100,25 @@ export class AudioStoryRequestService {
     }
   }
 
+  async getAudioRequests(): Promise<AudioRequestWithUserAudioDto[]> {
+    this.logger.debug('GET AUDIO REQUESTS');
+    return await this.prisma.storyAudioRequest
+      .findMany({
+        select: {
+          id: true,
+          userId: true,
+          userAudio: { select: { id: true, name: true } },
+          typeId: true,
+          status: true,
+          comment: true,
+        },
+      })
+      .catch((error) => {
+        PrintNameAndCodePrismaException(error, this.logger);
+        throw this.dbExceptionHandler.handleError(error);
+      });
+  }
+
   async getAudioRequestsByUserId(
     id: number,
   ): Promise<AudioRequestWithUserAudioDto[]> {

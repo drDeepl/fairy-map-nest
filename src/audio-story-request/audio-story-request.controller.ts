@@ -54,6 +54,26 @@ export class AudioStoryRequestController {
   }
 
   @ApiOperation({
+    summary: 'получение всех заявок на озвучки',
+    description: 'необходимы права модератора',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Success',
+    type: AudioStoryRequestEntity,
+    isArray: true,
+  })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  @Roles(Role.moder)
+  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @Get('/all')
+  async getAllAudioStoryRequests(): Promise<AudioRequestWithUserAudioDto[]> {
+    this.logger.debug('GET ALL AUDIO STORY REQUESTS FOR CURRENT USER');
+    return this.audioStoryRequestService.getAudioRequests();
+  }
+
+  @ApiOperation({
     summary: 'получение всех заявок на озвучки для выбранного пользователя.',
     description: 'Необходима роль модератора',
   })
