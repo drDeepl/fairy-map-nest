@@ -15,13 +15,17 @@ import { BaseUserAudioDto } from './dto/BaseUserAudioDto';
 import { UploadedUserAudioDto } from './dto/UploadedUserAudioDto';
 import { UserAudioDto } from './dto/UserAudioDto';
 import { extname, join } from 'path';
-import { getUuid, uploadsPath } from '@/util/Constants';
+import { PCodeMessages, getUuid, uploadsPath } from '@/util/Constants';
+import { DataBaseExceptionHandler } from '@/util/exception/DataBaseExceptionHandler';
 
 @Injectable()
 export class UserAudioService {
   private readonly logger = new Logger('UserAudioService');
   private readonly msgException = new MessageException();
   private readonly fileUtils = new FileUtils();
+  private readonly dbExceptionHandler = new DataBaseExceptionHandler(
+    PCodeMessages,
+  );
 
   constructor(private prisma: PrismaService) {}
 
@@ -53,6 +57,25 @@ export class UserAudioService {
           );
           return new StreamableFile(file);
         }
+      });
+  }
+
+  async getAudiosByUserId(userId: number): Promise<UserAudioDto[]> {
+    this.logger.debug('GET AUDIOS BY USER ID');
+    return await this.prisma.userAudioStory
+      .findMany({
+        select: {
+          id: true,
+          name: true,
+          languageId: true,
+        },
+        where: {
+          userId: userId,
+        },
+      })
+      .catch((error) => {
+        PrintNameAndCodePrismaException(error, this.logger);
+        throw this.dbExceptionHandler.handleError(error);
       });
   }
 

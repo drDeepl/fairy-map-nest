@@ -27,6 +27,9 @@ import { Get } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { BaseUserAudioDto } from './dto/BaseUserAudioDto';
+import { UserAccessInterface } from '@/auth/interface/UserAccessInterface';
+import { User } from '@/util/decorators/User';
+import { UserAudioDto } from './dto/UserAudioDto';
 
 @ApiTags('UserAudioController')
 @Controller('api/user-audio')
@@ -35,7 +38,26 @@ export class UserAudioController {
 
   constructor(private readonly userAudioService: UserAudioService) {}
 
-  @ApiOperation({ summary: 'получение озвучки пользователя' })
+  @ApiOperation({ summary: 'получение файла озвучки пользователя' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Success',
+    type: UserAudioDto,
+    isArray: true,
+  })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
+  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  // @Header('Content-Type', 'application/json')
+  @HttpCode(HttpStatus.OK)
+  @Get('/my-audios')
+  async getCurrentUserAudios(
+    @User() user: UserAccessInterface,
+  ): Promise<UserAudioDto[]> {
+    this.logger.debug('GET CURRENT USER AUDIOS');
+    return await this.userAudioService.getAudiosByUserId(user.sub);
+  }
+
+  @ApiOperation({ summary: 'получение файла озвучки пользователя' })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Success',
