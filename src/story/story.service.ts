@@ -1,4 +1,15 @@
+import { EthnicGroupDto } from '@/ethnic-group/dto/EthnicGroupDto';
 import { PrismaService } from '@/prisma/prisma.service';
+import { UserAudioEntity } from '@/user-audio/entity/UserAudioEntity';
+import {
+  MAX_STORIES_FOR_ETHNIC_GROUP,
+  PCodeMessages,
+  basePathUpload,
+  getUuid,
+} from '@/util/Constants';
+import { PrintNameAndCodePrismaException } from '@/util/ExceptionUtils';
+import { MessageException } from '@/util/MessageException';
+import { DataBaseExceptionHandler } from '@/util/exception/DataBaseExceptionHandler';
 import {
   HttpException,
   HttpStatus,
@@ -7,39 +18,24 @@ import {
   NotFoundException,
   StreamableFile,
 } from '@nestjs/common';
+import { File } from 'multer';
+import * as fs from 'node:fs';
+import { basename, extname } from 'node:path';
+import { join } from 'path';
+import { AddAudioStoryDto } from './dto/audio-story/AddAudioStoryDto';
+import { AudioStoryLanguageDto } from './dto/audio-story/AudioStoryLanguageDto';
+import { AudioStoryEntity } from './dto/audio-story/entity/AudioStoryEntity';
+import { CreatedImageStoryDto } from './dto/image-story/CreatedImageStory';
+import { ImageStoryDto } from './dto/image-story/ImageStoryDto';
+import { ImageStoryEntity } from './dto/image-story/entity/ImageStoryEntity';
+import { AddRatingAudioStoryDto } from './dto/rating-audio-story/AddRatingAudioStoryDto';
+import { AddedRatingAudioStoryDto } from './dto/rating-audio-story/AddedRatingAudioStoryDto';
+import { RatingAudioStoryDto } from './dto/rating-audio-story/RatingAudioStoryDto';
 import { AddStoryDto } from './dto/story/AddStoryDto';
-import { PrintNameAndCodePrismaException } from '@/util/ExceptionUtils';
-import { MessageException } from '@/util/MessageException';
 import { EditStoryDto } from './dto/story/EditStoryDto';
 import { StoryDto } from './dto/story/StoryDto';
-import { TextStoryDto } from './dto/text-story/TextStoryDto';
 import { AddTextStoryDto } from './dto/text-story/AddTextStoryDto';
-import {
-  MAX_STORIES_FOR_ETHNIC_GROUP,
-  PCodeMessages,
-  basePathUpload,
-  getUuid,
-} from '@/util/Constants';
-import { DataBaseExceptionHandler } from '@/util/exception/DataBaseExceptionHandler';
-import { AudioStoryRequestEntity } from '@/audio-story-request/entity/AudioStoryRequestEntity';
-import { AddAudioStoryDto } from './dto/audio-story/AddAudioStoryDto';
-import { AudioStoryEntity } from './dto/audio-story/entity/AudioStoryEntity';
-import { UserAudioService } from '@/user-audio/user-audio.service';
-import { UserAudioRepository } from '@/user-audio/user-audio.repository';
-import { UserAudioEntity } from '@/user-audio/entity/UserAudioEntity';
-import * as fs from 'node:fs';
-import { join } from 'path';
-import { ImageStoryEntity } from './dto/image-story/entity/ImageStoryEntity';
-import { File } from 'multer';
-import { basename, extname } from 'node:path';
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
-import { CreatedImageStoryDto } from './dto/image-story/CreatedImageStory';
-import { create } from 'node:domain';
-import { ImageStoryDto } from './dto/image-story/ImageStoryDto';
-import { AddedRatingAudioStoryDto } from './dto/rating-audio-story/AddedRatingAudioStoryDto';
-import { AddRatingAudioStoryDto } from './dto/rating-audio-story/AddRatingAudioStoryDto';
-import { RatingAudioStoryDto } from './dto/rating-audio-story/RatingAudioStoryDto';
-import { AudioStoryLanguageDto } from './dto/audio-story/AudioStoryLanguageDto';
+import { TextStoryDto } from './dto/text-story/TextStoryDto';
 
 @Injectable()
 export class StoryService {
@@ -61,6 +57,38 @@ export class StoryService {
         audioId: true,
       },
     });
+  }
+
+  async getStoryByName(name: string): Promise<StoryDto[]> {
+    this.logger.debug('GET STORY BY NAME');
+    try {
+      const stories = await this.prisma.$queryRaw<StoryDto[]>`
+      SELECT stories.id,
+      stories.name,
+      stories.audio_id as audioId,
+      ethnic_groups.id as ethnicGroupId,
+      ethnic_groups.name as ethnicGroupName,
+      ethnic_groups.language_id as ethnicGroupLanguageId
+       FROM stories INNER JOIN ethnic_groups ON stories.ethnic_group_id = ethnic_groups.id
+       WHERE stories.name ~* ${name}`;
+      console.log(stories);
+      return stories.map(
+        (story) =>
+          new StoryDto(
+            story['id'],
+            story['name'],
+            story['audioid'],
+            new EthnicGroupDto(
+              story['ethnicgroupid'],
+              story['ethnicgroupname'],
+              story['ethnicgrouplanguageid'],
+            ),
+          ),
+      );
+    } catch (error) {
+      PrintNameAndCodePrismaException(error, this.logger);
+      throw this.dbExceptionHandler.handleError(error);
+    }
   }
 
   async getStoriesByEthnicGroup(ethnicGroupId: number): Promise<StoryDto[]> {

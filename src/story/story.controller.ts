@@ -3,7 +3,6 @@ import {
   Controller,
   Delete,
   Get,
-  Header,
   HttpCode,
   HttpException,
   HttpStatus,
@@ -23,27 +22,26 @@ import {
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { StoryService } from './story.service';
 
-import { Role, diskStorageImg } from '@/util/Constants';
+import { UserAccessInterface } from '@/auth/interface/UserAccessInterface';
+import { Role } from '@/util/Constants';
 import { Roles } from '@/util/decorators/Roles';
+import { User } from '@/util/decorators/User';
 import { RoleGuard } from '@/util/guards/role.guard';
+import { validatorImgFile } from '@/util/validators/validators';
 import { AuthGuard } from '@nestjs/passport';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { File, memoryStorage } from 'multer';
+import { AddAudioStoryDto } from './dto/audio-story/AddAudioStoryDto';
+import { AudioStoryLanguageDto } from './dto/audio-story/AudioStoryLanguageDto';
+import { CreatedImageStoryDto } from './dto/image-story/CreatedImageStory';
+import { AddRatingAudioStoryDto } from './dto/rating-audio-story/AddRatingAudioStoryDto';
+import { AddedRatingAudioStoryDto } from './dto/rating-audio-story/AddedRatingAudioStoryDto';
+import { RatingAudioStoryDto } from './dto/rating-audio-story/RatingAudioStoryDto';
 import { AddStoryDto } from './dto/story/AddStoryDto';
-import { StoryDto } from './dto/story/StoryDto';
 import { EditStoryDto } from './dto/story/EditStoryDto';
+import { StoryDto } from './dto/story/StoryDto';
 import { AddTextStoryDto } from './dto/text-story/AddTextStoryDto';
 import { TextStoryDto } from './dto/text-story/TextStoryDto';
-import { AddAudioStoryDto } from './dto/audio-story/AddAudioStoryDto';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { memoryStorage, File } from 'multer';
-import { validatorImgFile } from '@/util/validators/validators';
-import { CreatedImageStoryDto } from './dto/image-story/CreatedImageStory';
-import { ImageStoryDto } from './dto/image-story/ImageStoryDto';
-import { UserAccessInterface } from '@/auth/interface/UserAccessInterface';
-import { User } from '@/util/decorators/User';
-import { AddedRatingAudioStoryDto } from './dto/rating-audio-story/AddedRatingAudioStoryDto';
-import { AddRatingAudioStoryDto } from './dto/rating-audio-story/AddRatingAudioStoryDto';
-import { RatingAudioStoryDto } from './dto/rating-audio-story/RatingAudioStoryDto';
-import { AudioStoryLanguageDto } from './dto/audio-story/AudioStoryLanguageDto';
 
 @ApiTags('StoryController')
 @Controller('api/story')
@@ -63,6 +61,21 @@ export class StoryController {
   async getAllStories() {
     this.logger.debug('GET ALL STORIES');
     return this.storyService.getStories();
+  }
+
+  @ApiOperation({ summary: 'получение сказок в которых есть подстрока name' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Success',
+    type: StoryDto,
+    isArray: true,
+  })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  @Get('/by-name/:name')
+  async getStoryByName(@Param('name') storyName: string): Promise<StoryDto[]> {
+    this.logger.debug('GET STORY BY NAME');
+    return await this.storyService.getStoryByName(storyName);
   }
 
   @ApiOperation({ summary: 'получение общей информации о выбранной сказке' })

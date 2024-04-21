@@ -11,4 +11,9 @@ export class BaseEthnicGroupDto {
   @ApiProperty({ description: '', nullable: false })
   @IsNumber()
   languageId: number;
+
+  constructor(name: string, languageId: number) {
+    this.name = name;
+    this.languageId = languageId;
+  }
 }
