@@ -1,3 +1,6 @@
+import { Role } from '@/util/Constants';
+import { Roles } from '@/util/decorators/Roles';
+import { RoleGuard } from '@/util/guards/role.guard';
 import {
   Body,
   Controller,
@@ -12,17 +15,13 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { MapService } from './map.service';
-import { ConstituentDto } from '@/constituent/dto/ConstituentDto';
-import { Role } from '@/util/Constants';
-import { Roles } from '@/util/decorators/Roles';
-import { RoleGuard } from '@/util/guards/role.guard';
 import { AuthGuard } from '@nestjs/passport';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AddEthnicGroupMapDto } from './dto/AddEthnicGroupMapDto';
 import { EthnicGroupMapDto } from './dto/EthnicGroupMapDto';
 import { EthnicGroupMapWithGroupDto } from './dto/EthnicGroupMapWithGroupDto';
 import { EthnicGroupMapPointEntity } from './entity/EthnicGroupMapPointEntity';
+import { MapService } from './map.service';
 
 @ApiTags('MapController')
 @Controller('api/map')
@@ -79,6 +78,22 @@ export class MapController {
   ): Promise<any> {
     this.logger.debug('GET ETHNIC GROUP POINTS');
     return this.mapService.getEthnicalGroupPointsByConstituentId(constituentId);
+  }
+
+  @ApiOperation({
+    summary: 'получение точек этнических групп по названию этнической группы',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Success',
+    type: [EthnicGroupMapPointEntity],
+  })
+  @Get('/ethnic-group/by-name-ethnic-group/:name')
+  async getEthnicGroupPointsByName(
+    @Param('name') nameEthnicGroup: string,
+  ): Promise<EthnicGroupMapPointEntity[]> {
+    this.logger.debug('GET ETHNIC GROUP POINTS BY GROUP NAME');
+    return this.mapService.getPointsByNameEthnicGroup(nameEthnicGroup);
   }
 
   @ApiOperation({ summary: 'удаление точки этнической группы' })

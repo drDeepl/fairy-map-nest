@@ -1,13 +1,13 @@
 import { PrismaService } from '@/prisma/prisma.service';
+import { PCodeMessages } from '@/util/Constants';
+import { PrintNameAndCodePrismaException } from '@/util/ExceptionUtils';
 import { MessageException } from '@/util/MessageException';
+import { DataBaseExceptionHandler } from '@/util/exception/DataBaseExceptionHandler';
 import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { AddEthnicGroupMapDto } from './dto/AddEthnicGroupMapDto';
 import { EthnicGroupMapDto } from './dto/EthnicGroupMapDto';
-import { PrintNameAndCodePrismaException } from '@/util/ExceptionUtils';
 import { EthnicGroupMapWithGroupDto } from './dto/EthnicGroupMapWithGroupDto';
 import { EthnicGroupMapPointEntity } from './entity/EthnicGroupMapPointEntity';
-import { PCodeMessages } from '@/util/Constants';
-import { DataBaseExceptionHandler } from '@/util/exception/DataBaseExceptionHandler';
 
 @Injectable()
 export class MapService {
@@ -82,6 +82,25 @@ export class MapService {
       PrintNameAndCodePrismaException(error, this.logger);
       throw this.dbExceptionHandler.handleError(error);
     }
+  }
+
+  async getPointsByNameEthnicGroup(
+    name: string,
+  ): Promise<EthnicGroupMapPointEntity[]> {
+    this.logger.debug('GET POINTS BY NAME ETHNIC GROUP');
+
+    const ethnicGroups: Array<{ id: number }> = await this.prisma
+      .$queryRaw`SELECT DISTINCT id FROM ethnic_groups WHERE name ~* ${name}`;
+    return await this.prisma.ethnicGroupMapPoint
+      .findMany({
+        where: {
+          ethnicGroupId: { in: ethnicGroups.map((item) => item.id) },
+        },
+      })
+      .catch((error) => {
+        PrintNameAndCodePrismaException(error, this.logger);
+        throw this.dbExceptionHandler.handleError(error);
+      });
   }
 
   async deleteEthnicalGroupPoint(id: number) {
