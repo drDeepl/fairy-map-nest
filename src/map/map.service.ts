@@ -30,6 +30,7 @@ export class MapService {
           ethnicGroupId: id,
           longitude: dto.longitude,
           latitude: dto.latitude,
+          constituentId: dto.constituentId,
         },
       })
       .catch((error) => {
@@ -55,6 +56,7 @@ export class MapService {
         id: true,
         longitude: true,
         latitude: true,
+        constituentId: true,
         ethnicGroup: true,
       },
     });
@@ -95,30 +97,19 @@ export class MapService {
       const ethnicGroupIds = ethnicGroups.map((item) => item.id);
       const ethnicGroupMapPoints =
         await this.prisma.ethnicGroupMapPoint.findMany({
+          select: {
+            id: true,
+            ethnicGroupId: true,
+            longitude: true,
+            latitude: true,
+            constituent: true,
+          },
           where: {
             ethnicGroupId: { in: ethnicGroupIds },
           },
-          include: {
-            ethnicGroup: {
-              select: {
-                id: true,
-                constituents: {
-                  select: { constituentRfId: true },
-                },
-              },
-            },
-          },
         });
-      return ethnicGroupMapPoints.map(
-        (point) =>
-          new EthnicGroupMapPointEntityWithConstituents(
-            point.id,
-            point.ethnicGroupId,
-            point.longitude,
-            point.latitude,
-            point.ethnicGroup.constituents.map((item) => item.constituentRfId),
-          ),
-      );
+      console.log(ethnicGroupMapPoints);
+      return ethnicGroupMapPoints;
     } catch (error) {
       PrintNameAndCodePrismaException(error, this.logger);
       throw this.dbExceptionHandler.handleError(error);

@@ -5,19 +5,19 @@ import { ConstituentMinimalDto } from '../dto/ConstituentMinimalDto';
 
 export class EthnicGroupMapPointEntityWithConstituents extends EthnicGroupMapPointEntity {
   @ApiProperty({
-    description: 'массив регионов в котором есть этническая группа',
+    description: 'объект региона',
     nullable: false,
   })
-  constituents: Array<number>;
+  constituent: ConstituentDto;
 
   constructor(
     id: number,
     ethnicGroupId: number,
     longitude: number,
     latitude: number,
-    constituents: Array<number>,
+    constituent: ConstituentDto,
   ) {
     super(id, ethnicGroupId, longitude, latitude);
-    this.constituents = constituents;
+    this.constituent = constituent;
   }
 }

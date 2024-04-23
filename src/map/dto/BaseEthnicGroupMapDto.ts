@@ -2,11 +2,11 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsNumber } from 'class-validator';
 
 export class BaseEthnicGroupMapDto {
-  @ApiProperty({ description: '', nullable: false })
+  @ApiProperty({ description: 'географическая долгота', nullable: false })
   @IsNumber()
   longitude: number;
 
-  @ApiProperty({ description: '', nullable: false })
+  @ApiProperty({ description: 'географическая широта', nullable: false })
   @IsNumber()
   latitude: number;
 }
