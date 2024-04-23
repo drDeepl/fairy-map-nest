@@ -47,7 +47,6 @@ export class UserAudioController {
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @UseGuards(AuthGuard('jwt'), RoleGuard)
-  // @Header('Content-Type', 'application/json')
   @HttpCode(HttpStatus.OK)
   @Get('/my-audios')
   async getCurrentUserAudios(

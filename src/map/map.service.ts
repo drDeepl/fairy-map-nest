@@ -8,6 +8,7 @@ import { AddEthnicGroupMapDto } from './dto/AddEthnicGroupMapDto';
 import { EthnicGroupMapDto } from './dto/EthnicGroupMapDto';
 import { EthnicGroupMapWithGroupDto } from './dto/EthnicGroupMapWithGroupDto';
 import { EthnicGroupMapPointEntity } from './entity/EthnicGroupMapPointEntity';
+import { EthnicGroupMapPointEntityWithConstituents } from './entity/EthnicGroupMapPointEntityWithConstituents';
 
 @Injectable()
 export class MapService {
@@ -86,21 +87,42 @@ export class MapService {
 
   async getPointsByNameEthnicGroup(
     name: string,
-  ): Promise<EthnicGroupMapPointEntity[]> {
+  ): Promise<EthnicGroupMapPointEntityWithConstituents[]> {
     this.logger.debug('GET POINTS BY NAME ETHNIC GROUP');
-
-    const ethnicGroups: Array<{ id: number }> = await this.prisma
-      .$queryRaw`SELECT DISTINCT id FROM ethnic_groups WHERE name ~* ${name}`;
-    return await this.prisma.ethnicGroupMapPoint
-      .findMany({
-        where: {
-          ethnicGroupId: { in: ethnicGroups.map((item) => item.id) },
-        },
-      })
-      .catch((error) => {
-        PrintNameAndCodePrismaException(error, this.logger);
-        throw this.dbExceptionHandler.handleError(error);
-      });
+    try {
+      const ethnicGroups: Array<{ id: number }> = await this.prisma
+        .$queryRaw`SELECT DISTINCT id FROM ethnic_groups WHERE name ~* ${name}`;
+      const ethnicGroupIds = ethnicGroups.map((item) => item.id);
+      const ethnicGroupMapPoints =
+        await this.prisma.ethnicGroupMapPoint.findMany({
+          where: {
+            ethnicGroupId: { in: ethnicGroupIds },
+          },
+          include: {
+            ethnicGroup: {
+              select: {
+                id: true,
+                constituents: {
+                  select: { constituentRfId: true },
+                },
+              },
+            },
+          },
+        });
+      return ethnicGroupMapPoints.map(
+        (point) =>
+          new EthnicGroupMapPointEntityWithConstituents(
+            point.id,
+            point.ethnicGroupId,
+            point.longitude,
+            point.latitude,
+            point.ethnicGroup.constituents.map((item) => item.constituentRfId),
+          ),
+      );
+    } catch (error) {
+      PrintNameAndCodePrismaException(error, this.logger);
+      throw this.dbExceptionHandler.handleError(error);
+    }
   }
 
   async deleteEthnicalGroupPoint(id: number) {

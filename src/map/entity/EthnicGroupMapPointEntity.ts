@@ -10,4 +10,16 @@ export class EthnicGroupMapPointEntity {
   longitude: number;
   @ApiProperty({ description: '', nullable: false })
   latitude: number;
+
+  constructor(
+    id: number,
+    ethnicGroupId: number,
+    longitude: number,
+    latitude: number,
+  ) {
+    this.id = id;
+    this.ethnicGroupId = ethnicGroupId;
+    this.longitude = longitude;
+    this.latitude = latitude;
+  }
 }

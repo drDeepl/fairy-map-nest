@@ -22,6 +22,7 @@ import { EthnicGroupMapDto } from './dto/EthnicGroupMapDto';
 import { EthnicGroupMapWithGroupDto } from './dto/EthnicGroupMapWithGroupDto';
 import { EthnicGroupMapPointEntity } from './entity/EthnicGroupMapPointEntity';
 import { MapService } from './map.service';
+import { EthnicGroupMapPointEntityWithConstituents } from './entity/EthnicGroupMapPointEntityWithConstituents';
 
 @ApiTags('MapController')
 @Controller('api/map')
@@ -82,16 +83,19 @@ export class MapController {
 
   @ApiOperation({
     summary: 'получение точек этнических групп по названию этнической группы',
+    description:
+      'constituents хранит массив с номерами регионов(constituentRfid) в которых есть этническая группа ',
   })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Success',
-    type: [EthnicGroupMapPointEntity],
+    type: EthnicGroupMapPointEntityWithConstituents,
+    isArray: true,
   })
   @Get('/ethnic-group/by-name-ethnic-group/:name')
   async getEthnicGroupPointsByName(
     @Param('name') nameEthnicGroup: string,
-  ): Promise<EthnicGroupMapPointEntity[]> {
+  ): Promise<EthnicGroupMapPointEntityWithConstituents[]> {
     this.logger.debug('GET ETHNIC GROUP POINTS BY GROUP NAME');
     return this.mapService.getPointsByNameEthnicGroup(nameEthnicGroup);
   }
