@@ -83,8 +83,6 @@ export class MapController {
 
   @ApiOperation({
     summary: 'получение точек этнических групп по названию этнической группы',
-    description:
-      'constituents хранит массив с номерами регионов(constituentRfid) в которых есть этническая группа ',
   })
   @ApiResponse({
     status: HttpStatus.OK,
