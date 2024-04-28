@@ -76,6 +76,7 @@ export class UserAudioController {
 
   @ApiOperation({
     summary: 'загрузка озвучки пользователя для выбранного языка',
+    description: 'в теле запроса(body) файл прикрепляется к полю file',
   })
   @ApiResponse({
     status: HttpStatus.OK,
