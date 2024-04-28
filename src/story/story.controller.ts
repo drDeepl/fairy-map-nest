@@ -42,6 +42,7 @@ import { EditStoryDto } from './dto/story/EditStoryDto';
 import { StoryDto } from './dto/story/StoryDto';
 import { AddTextStoryDto } from './dto/text-story/AddTextStoryDto';
 import { TextStoryDto } from './dto/text-story/TextStoryDto';
+import { ImageStoryDto } from './dto/image-story/ImageStoryDto';
 
 @ApiTags('StoryController')
 @Controller('api/story')
@@ -238,7 +239,6 @@ export class StoryController {
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
   @Get('/audio/:audioId')
   async getAudioStoryById(
-    // FIX: GET USER AUDIO FILE
     @Param('audioId', ParseIntPipe) audioId: number,
   ): Promise<StreamableFile> {
     this.logger.debug('GET STORIES BY ETHNIC GROUP ID');
@@ -273,7 +273,7 @@ export class StoryController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Success',
-    type: CreatedImageStoryDto,
+    type: ImageStoryDto,
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })

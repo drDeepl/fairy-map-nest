@@ -71,7 +71,7 @@ export class ConstituentsController {
     return this.constituentService.addEthnicGroupToConstituent(dto);
   }
 
-  @ApiOperation({ summary: 'добавление этнической группы к субъекту рф' })
+  @ApiOperation({ summary: 'удаление этнической группы у субъекта рф' })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Success',
