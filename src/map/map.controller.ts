@@ -16,13 +16,13 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiHeader, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AddEthnicGroupMapDto } from './dto/AddEthnicGroupMapDto';
 import { EthnicGroupMapDto } from './dto/EthnicGroupMapDto';
 import { EthnicGroupMapWithGroupDto } from './dto/EthnicGroupMapWithGroupDto';
 import { EthnicGroupMapPointEntity } from './entity/EthnicGroupMapPointEntity';
-import { MapService } from './map.service';
 import { EthnicGroupMapPointEntityWithConstituents } from './entity/EthnicGroupMapPointEntityWithConstituents';
+import { MapService } from './map.service';
 
 @ApiTags('MapController')
 @Controller('api/map')
@@ -31,7 +31,10 @@ export class MapController {
 
   constructor(private readonly mapService: MapService) {}
 
-  @ApiOperation({ summary: 'добавление точки этнической группы на карту' })
+  @ApiOperation({
+    summary: 'добавление точки этнической группы на карту',
+    description: 'необходима роль администратора',
+  })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Success',
@@ -39,6 +42,10 @@ export class MapController {
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  @ApiHeader({
+    name: 'authorization',
+    description: 'Пример: Bearer accessToken',
+  })
   @Roles(Role.admin)
   @UseGuards(AuthGuard('jwt'), RoleGuard)
   @HttpCode(HttpStatus.OK)
@@ -98,7 +105,10 @@ export class MapController {
     return this.mapService.getPointsByNameEthnicGroup(nameEthnicGroup);
   }
 
-  @ApiOperation({ summary: 'удаление точки этнической группы' })
+  @ApiOperation({
+    summary: 'удаление точки этнической группы',
+    description: 'необходима роль администратора',
+  })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Success',
@@ -106,6 +116,10 @@ export class MapController {
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  @ApiHeader({
+    name: 'authorization',
+    description: 'Пример: Bearer accessToken',
+  })
   @Roles(Role.admin)
   @UseGuards(AuthGuard('jwt'), RoleGuard)
   @HttpCode(HttpStatus.OK)

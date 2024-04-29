@@ -12,7 +12,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiHeader, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 import { AuthService } from './auth.service';
 import { SignInDto } from './dto/signIn.dto';
@@ -62,13 +62,17 @@ export class AuthController {
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED })
+  @ApiHeader({
+    name: 'authorization',
+    description: 'Пример: Bearer refreshToken',
+  })
   @UseGuards(AuthGuard('jwt-refresh'))
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
   refresh(@Req() req: Request) {
     this.logger.verbose('refresh');
     const user = req.user;
-    return this.authService.refreshTokens(user['id'], user['refreshToken']);
+    return this.authService.refreshTokens(user['sub'], user['refreshToken']);
   }
 
   @ApiOperation({ summary: 'запрос на удаление refresh token у пользователя' })
@@ -86,12 +90,16 @@ export class AuthController {
     description: 'Unauthorized',
     type: BaseRequestExceptionDto,
   })
+  @ApiHeader({
+    name: 'authorization',
+    description: 'Пример: Bearer accessToken',
+  })
   @UseGuards(AuthGuard('jwt'))
   @Post('logout')
   @HttpCode(HttpStatus.OK)
-  logout(@UserAccess() userAccessData) {
+  async logout(@UserAccess() userAccessData) {
     this.logger.verbose('logout');
     this.logger.verbose(userAccessData);
-    this.authService.logout(userAccessData['id']);
+    return await this.authService.logout(userAccessData['sub']);
   }
 }

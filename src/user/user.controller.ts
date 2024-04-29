@@ -10,9 +10,12 @@ import {
   ParseIntPipe,
   UseGuards,
 } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiHeader, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 import { MessageDto } from '@/dto/MessageDto';
+import { Role } from '@/util/Constants';
+import { Roles } from '@/util/decorators/Roles';
+import { RoleGuard } from '@/util/guards/role.guard';
 import { AuthGuard } from '@nestjs/passport';
 import { UserAccess } from './decorators/user.decorator';
 import { UserDto } from './dto/UserDto';
@@ -32,6 +35,11 @@ export class UserController {
   @ApiResponse({ status: HttpStatus.BAD_REQUEST })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED })
   @ApiResponse({ status: HttpStatus.NOT_FOUND })
+  @ApiHeader({
+    name: 'authorization',
+    description: 'Пример: Bearer accessToken',
+  })
+  @UseGuards(AuthGuard('jwt'), RoleGuard)
   @HttpCode(HttpStatus.OK)
   @HttpCode(HttpStatus.FORBIDDEN)
   getCurrentUserInfo(@UserAccess() userAccessTokenData): Promise<UserDto> {
@@ -41,11 +49,20 @@ export class UserController {
   }
 
   @Get('/:userId')
-  @ApiOperation({ summary: 'get user by id' })
+  @ApiOperation({
+    summary: 'получение информации о пользователе по его id',
+    description: 'необходима роль администратора',
+  })
   @ApiResponse({ status: HttpStatus.OK, type: UserDto })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED })
   @ApiResponse({ status: HttpStatus.NOT_FOUND })
+  @ApiHeader({
+    name: 'authorization',
+    description: 'Пример: Bearer accessToken',
+  })
+  @Roles(Role.admin)
+  @UseGuards(AuthGuard('jwt'), RoleGuard)
   @HttpCode(HttpStatus.OK)
   @HttpCode(HttpStatus.NOT_FOUND)
   findUserById(@Param('userId') userId: number): Promise<UserDto> {
@@ -54,11 +71,16 @@ export class UserController {
   }
 
   @Delete('delete/:userId')
-  @ApiOperation({ summary: 'delete user by id' })
+  @ApiOperation({
+    summary: 'удаленеи пользователя по его id',
+    description: 'необходима роль администратора',
+  })
   @ApiResponse({ status: HttpStatus.OK, type: UserDto })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED })
   @ApiResponse({ status: HttpStatus.NOT_FOUND })
+  @Roles(Role.admin)
+  @UseGuards(AuthGuard('jwt'), RoleGuard)
   @HttpCode(HttpStatus.OK)
   @HttpCode(HttpStatus.NOT_FOUND)
   deleteUser(
