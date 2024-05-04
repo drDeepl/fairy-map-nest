@@ -114,6 +114,7 @@ model Story{
   audio               StoryAudio?  @relation(fields: [audioId], references: [id])
   text                TextStory?
   img                 ImgStory?
+  storyAudioRequest   StoryAudioRequest[]
 
 
 
@@ -148,6 +149,8 @@ model UserAudioStory{
   pathAudio          String      @db.VarChar(255)
   storyAudio         StoryAudio?
   storyAudioRequests StoryAudioRequest[]
+
+  @@map("user_audio_story")
   
 }
 
@@ -200,6 +203,8 @@ model StoryAudioRequest{
   comment       String           @db.Text @default("")
   userId        Int
   user          User             @relation(fields: [userId], references: [id])
+  storyId       Int              
+  story         Story            @relation(fields: [storyId], references: [id])
 
   @@map("story_audio_requests")
   

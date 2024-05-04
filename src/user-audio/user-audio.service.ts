@@ -1,7 +1,9 @@
 import { PrismaService } from '@/prisma/prisma.service';
+import { PCodeMessages, getUuid, uploadsPath } from '@/util/Constants';
 import { PrintNameAndCodePrismaException } from '@/util/ExceptionUtils';
 import { FileUtils } from '@/util/FileUtils';
 import { MessageException } from '@/util/MessageException';
+import { DataBaseExceptionHandler } from '@/util/exception/DataBaseExceptionHandler';
 import {
   HttpException,
   HttpStatus,
@@ -9,14 +11,11 @@ import {
   Logger,
   StreamableFile,
 } from '@nestjs/common';
-import * as fs from 'node:fs';
 import { File } from 'multer';
-import { BaseUserAudioDto } from './dto/BaseUserAudioDto';
+import * as fs from 'node:fs';
+import { extname, join } from 'path';
 import { UploadedUserAudioDto } from './dto/UploadedUserAudioDto';
 import { UserAudioDto } from './dto/UserAudioDto';
-import { extname, join } from 'path';
-import { PCodeMessages, getUuid, uploadsPath } from '@/util/Constants';
-import { DataBaseExceptionHandler } from '@/util/exception/DataBaseExceptionHandler';
 
 @Injectable()
 export class UserAudioService {
@@ -158,7 +157,7 @@ export class UserAudioService {
       .then((userAudio) => {
         if (userAudio) {
           try {
-            fs.unlinkSync(userAudio.pathAudio);
+            // fs.unlinkSync(userAudio.pathAudio);
             this.prisma.userAudioStory
               .delete({
                 where: {

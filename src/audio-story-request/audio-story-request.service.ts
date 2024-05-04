@@ -26,6 +26,7 @@ export class AudioStoryRequestService {
     // FIX: CREATE ENUM STATUS OR STORE IN DB?
     this.logger.debug('CREATE ADD AUDIO REQUEST');
     console.log(Status);
+    console.log(dto);
     const addAudioStory = await this.prisma.storyAudioRequest.findFirst({
       where: {
         userAudioId: dto.userAudioId,
@@ -47,6 +48,7 @@ export class AudioStoryRequestService {
           userAudioId: dto.userAudioId,
           status: Status.SEND,
           typeId: dto.typeId,
+          storyId: dto.storyId,
           comment: '',
         },
       })
@@ -70,6 +72,7 @@ export class AudioStoryRequestService {
           userAudio: { select: { id: true, name: true } },
           typeId: true,
           status: true,
+          storyId: true,
           comment: true,
         },
         where: {
@@ -110,6 +113,7 @@ export class AudioStoryRequestService {
           userAudio: { select: { id: true, name: true } },
           typeId: true,
           status: true,
+          storyId: true,
           comment: true,
         },
       })
@@ -131,6 +135,7 @@ export class AudioStoryRequestService {
           userAudio: { select: { id: true, name: true } },
           typeId: true,
           status: true,
+          storyId: true,
           comment: true,
         },
         where: {

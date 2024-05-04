@@ -17,5 +17,8 @@ export class AudioStoryRequestEntity {
   typeId: number;
 
   @ApiProperty()
+  storyId: number;
+
+  @ApiProperty()
   comment: string;
 }
