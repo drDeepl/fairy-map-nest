@@ -103,6 +103,8 @@ model ImgStory {
   path          String      @db.Text
   storyId       Int         @unique @map("story_id")
   story         Story       @relation(fields: [storyId], references: [id])
+
+  @@map("img_story")
 }
 
 model Story{
@@ -187,8 +189,6 @@ model AddStoryRequest{
   comment       String          @db.Text @default("")
   userId        Int             @map("user_id")
   user          User            @relation(fields: [userId], references: [id])
-  
-
   @@map("add_story_requests")
 }
 

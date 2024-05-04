@@ -34,6 +34,7 @@ import { Get } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { File, memoryStorage } from 'multer';
+import { ApprovedUserAudioDto } from './dto/ApprovedUserAudioDto';
 import { BaseUserAudioDto } from './dto/BaseUserAudioDto';
 import { UserAudioDto } from './dto/UserAudioDto';
 
@@ -64,6 +65,32 @@ export class UserAudioController {
   ): Promise<UserAudioDto[]> {
     this.logger.debug('GET CURRENT USER AUDIOS');
     return await this.userAudioService.getAudiosByUserId(user.sub);
+  }
+
+  @ApiOperation({
+    summary: 'получение одобренных озвучек текущего пользователя',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Success',
+    type: ApprovedUserAudioDto,
+    isArray: true,
+  })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
+  @ApiHeader({
+    name: 'authorization',
+    description: 'Пример: Bearer accessToken',
+  })
+  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @HttpCode(HttpStatus.OK)
+  @Get('/my-audios/approved')
+  async getApprovedUserAudiosCurrentUser(
+    @User() user: UserAccessInterface,
+  ): Promise<ApprovedUserAudioDto[]> {
+    this.logger.debug('GET CURRENT USER AUDIOS');
+    return await this.userAudioService.getApprovedUserAudiosCurrentUser(
+      user.sub,
+    );
   }
 
   @ApiOperation({ summary: 'получение файла озвучки пользователя' })
