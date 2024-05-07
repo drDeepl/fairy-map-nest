@@ -9,4 +9,9 @@ export class BaseEthnicGroupMapDto {
   @ApiProperty({ description: '', nullable: false })
   @IsNumber()
   latitude: number;
+
+  constructor(longitude: number, latitude: number) {
+    this.latitude = latitude;
+    this.longitude = longitude;
+  }
 }
