@@ -19,7 +19,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiHeader, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { RequestService } from './request.service';
 
 @ApiTags('RequestController')
@@ -54,6 +54,10 @@ export class RequestController {
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  @ApiHeader({
+    name: 'authorization',
+    description: 'Пример: Bearer accessToken',
+  })
   @UseGuards(AuthGuard('jwt'), RoleGuard)
   @HttpCode(HttpStatus.OK)
   @Get('/type/:typeRequestId')
@@ -64,7 +68,10 @@ export class RequestController {
     return this.requestService.getTypeRequestById(typeRequestId);
   }
 
-  @ApiOperation({ summary: 'добавление типа заявки' })
+  @ApiOperation({
+    summary: 'добавление типа заявки',
+    description: 'необходима роль администратора',
+  })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Success',
@@ -72,6 +79,10 @@ export class RequestController {
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  @ApiHeader({
+    name: 'authorization',
+    description: 'Пример: Bearer accessToken',
+  })
   @Roles(Role.admin)
   @UseGuards(AuthGuard('jwt'), RoleGuard)
   @HttpCode(HttpStatus.OK)
@@ -83,7 +94,10 @@ export class RequestController {
     return this.requestService.addTypeRequest(dto);
   }
 
-  @ApiOperation({ summary: 'редактирование типа заявки' })
+  @ApiOperation({
+    summary: 'редактирование типа заявки',
+    description: 'необходима роль администратора',
+  })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Success',
@@ -91,6 +105,10 @@ export class RequestController {
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  @ApiHeader({
+    name: 'authorization',
+    description: 'Пример: Bearer accessToken',
+  })
   @Roles(Role.admin)
   @UseGuards(AuthGuard('jwt'), RoleGuard)
   @HttpCode(HttpStatus.OK)
@@ -103,13 +121,20 @@ export class RequestController {
     return this.requestService.editTypeRequest(typeRequestId, dto);
   }
 
-  @ApiOperation({ summary: 'удаление типа заявки' })
+  @ApiOperation({
+    summary: 'удаление типа заявки',
+    description: 'необходима роль администратора',
+  })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Success',
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  @ApiHeader({
+    name: 'authorization',
+    description: 'Пример: Bearer accessToken',
+  })
   @Roles(Role.admin)
   @UseGuards(AuthGuard('jwt'), RoleGuard)
   @HttpCode(HttpStatus.OK)

@@ -19,7 +19,7 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiHeader, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { StoryService } from './story.service';
 
 import { UserAccessInterface } from '@/auth/interface/UserAccessInterface';
@@ -34,6 +34,7 @@ import { File, memoryStorage } from 'multer';
 import { AddAudioStoryDto } from './dto/audio-story/AddAudioStoryDto';
 import { AudioStoryLanguageDto } from './dto/audio-story/AudioStoryLanguageDto';
 import { CreatedImageStoryDto } from './dto/image-story/CreatedImageStory';
+import { ImageStoryDto } from './dto/image-story/ImageStoryDto';
 import { AddRatingAudioStoryDto } from './dto/rating-audio-story/AddRatingAudioStoryDto';
 import { AddedRatingAudioStoryDto } from './dto/rating-audio-story/AddedRatingAudioStoryDto';
 import { RatingAudioStoryDto } from './dto/rating-audio-story/RatingAudioStoryDto';
@@ -131,7 +132,10 @@ export class StoryController {
     return this.storyService.getStoriesByEthnicGroup(ethnicGroupId);
   }
 
-  @ApiOperation({ summary: 'добавление сказки' })
+  @ApiOperation({
+    summary: 'добавление сказки',
+    description: 'необходима роль администратора',
+  })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Success',
@@ -139,6 +143,10 @@ export class StoryController {
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  @ApiHeader({
+    name: 'authorization',
+    description: 'Пример: Bearer accessToken',
+  })
   @Roles(Role.admin)
   @UseGuards(AuthGuard('jwt'), RoleGuard)
   @HttpCode(HttpStatus.OK)
@@ -148,7 +156,10 @@ export class StoryController {
     return this.storyService.addStory(dto);
   }
 
-  @ApiOperation({ summary: 'редактирование сказки' })
+  @ApiOperation({
+    summary: 'редактирование сказки',
+    description: 'необходима роль администратора',
+  })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Success',
@@ -156,6 +167,10 @@ export class StoryController {
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  @ApiHeader({
+    name: 'authorization',
+    description: 'Пример: Bearer accessToken',
+  })
   @Roles(Role.admin)
   @UseGuards(AuthGuard('jwt'), RoleGuard)
   @HttpCode(HttpStatus.OK)
@@ -168,13 +183,20 @@ export class StoryController {
     return this.storyService.editStory(storyId, dto);
   }
 
-  @ApiOperation({ summary: 'удаление сказки' })
+  @ApiOperation({
+    summary: 'удаление сказки',
+    description: 'необходима роль администратора',
+  })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Success',
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  @ApiHeader({
+    name: 'authorization',
+    description: 'Пример: Bearer accessToken',
+  })
   @Roles(Role.admin)
   @UseGuards(AuthGuard('jwt'), RoleGuard)
   @HttpCode(HttpStatus.OK)
@@ -189,7 +211,10 @@ export class StoryController {
       .then((result) => {});
   }
 
-  @ApiOperation({ summary: 'добавление текста сказки' })
+  @ApiOperation({
+    summary: 'добавление текста сказки',
+    description: 'небходима роль администратора',
+  })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Success',
@@ -197,6 +222,10 @@ export class StoryController {
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  @ApiHeader({
+    name: 'authorization',
+    description: 'Пример: Bearer accessToken',
+  })
   @Roles(Role.admin)
   @UseGuards(AuthGuard('jwt'), RoleGuard)
   @HttpCode(HttpStatus.OK)
@@ -238,7 +267,6 @@ export class StoryController {
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
   @Get('/audio/:audioId')
   async getAudioStoryById(
-    // FIX: GET USER AUDIO FILE
     @Param('audioId', ParseIntPipe) audioId: number,
   ): Promise<StreamableFile> {
     this.logger.debug('GET STORIES BY ETHNIC GROUP ID');
@@ -247,7 +275,8 @@ export class StoryController {
 
   @ApiOperation({
     summary: 'добавление озвучки к сказке',
-    description: 'пример запроса: /api/story/audio?storyId=8',
+    description:
+      'пример запроса: /api/story/audio?storyId=8 | необходима роль администратора',
   })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -255,6 +284,10 @@ export class StoryController {
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  @ApiHeader({
+    name: 'authorization',
+    description: 'Пример: Bearer accessToken',
+  })
   @Roles(Role.admin)
   @UseGuards(AuthGuard('jwt'), RoleGuard)
   @Put('/audio')
@@ -273,7 +306,7 @@ export class StoryController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Success',
-    type: CreatedImageStoryDto,
+    type: ImageStoryDto,
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
@@ -298,6 +331,7 @@ export class StoryController {
 
   @ApiOperation({
     summary: 'загрузка обложки для выбранной сказки',
+    description: 'необходима роль администратора',
   })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -306,6 +340,10 @@ export class StoryController {
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  @ApiHeader({
+    name: 'authorization',
+    description: 'Пример: Bearer accessToken',
+  })
   @Roles(Role.admin)
   @UseGuards(AuthGuard('jwt'), RoleGuard)
   @HttpCode(HttpStatus.OK)
@@ -327,6 +365,7 @@ export class StoryController {
 
   @ApiOperation({
     summary: 'удаление обложки для выбранной сказки по storyId',
+    description: 'необходима роль администратора',
   })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -334,6 +373,10 @@ export class StoryController {
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  @ApiHeader({
+    name: 'authorization',
+    description: 'Пример: Bearer accessToken',
+  })
   @Roles(Role.admin)
   @UseGuards(AuthGuard('jwt'), RoleGuard)
   @HttpCode(HttpStatus.OK)
@@ -373,6 +416,10 @@ export class StoryController {
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  @ApiHeader({
+    name: 'authorization',
+    description: 'Пример: Bearer accessToken',
+  })
   @UseGuards(AuthGuard('jwt'), RoleGuard)
   @HttpCode(HttpStatus.OK)
   @Put('/rating/add')

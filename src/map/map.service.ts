@@ -30,6 +30,7 @@ export class MapService {
           ethnicGroupId: id,
           longitude: dto.longitude,
           latitude: dto.latitude,
+          constituentId: dto.constituentId,
         },
       })
       .catch((error) => {
@@ -382,6 +383,7 @@ export class MapService {
         id: true,
         longitude: true,
         latitude: true,
+        constituentId: true,
         ethnicGroup: true,
       },
     });
@@ -392,18 +394,23 @@ export class MapService {
   ): Promise<EthnicGroupMapPointEntity[]> {
     this.logger.debug('GET ETHNICAL GROUP POINT BY COSTITUENT ID');
     try {
-      const ethnicGroupsId =
-        await this.prisma.constituentsRFOnEthnicGroup.findMany({
-          select: { ethnicGroupId: true },
-          where: {
-            constituentRfId: constituentId,
-          },
-        });
+      // const ethnicGroupsId =
+      //   await this.prisma.constituentsRFOnEthnicGroup.findMany({
+      //     select: { ethnicGroupId: true },
+      //     where: {
+      //       constituentRfId: constituentId,
+      //     },
+      //   });
 
-      const ids = ethnicGroupsId.map((item) => item.ethnicGroupId);
+      // const ids = ethnicGroupsId.map((item) => item.ethnicGroupId);
+      // return await this.prisma.ethnicGroupMapPoint.findMany({
+      //   where: {
+      //     ethnicGroupId: { in: ids },
+      //   },
+      // });
       return await this.prisma.ethnicGroupMapPoint.findMany({
         where: {
-          ethnicGroupId: { in: ids },
+          constituentId: constituentId,
         },
       });
     } catch (error) {
@@ -422,30 +429,19 @@ export class MapService {
       const ethnicGroupIds = ethnicGroups.map((item) => item.id);
       const ethnicGroupMapPoints =
         await this.prisma.ethnicGroupMapPoint.findMany({
+          select: {
+            id: true,
+            ethnicGroupId: true,
+            longitude: true,
+            latitude: true,
+            constituent: true,
+          },
           where: {
             ethnicGroupId: { in: ethnicGroupIds },
           },
-          include: {
-            ethnicGroup: {
-              select: {
-                id: true,
-                constituents: {
-                  select: { constituentRfId: true },
-                },
-              },
-            },
-          },
         });
-      return ethnicGroupMapPoints.map(
-        (point) =>
-          new EthnicGroupMapPointEntityWithConstituents(
-            point.id,
-            point.ethnicGroupId,
-            point.longitude,
-            point.latitude,
-            point.ethnicGroup.constituents.map((item) => item.constituentRfId),
-          ),
-      );
+      console.log(ethnicGroupMapPoints);
+      return ethnicGroupMapPoints;
     } catch (error) {
       PrintNameAndCodePrismaException(error, this.logger);
       throw this.dbExceptionHandler.handleError(error);

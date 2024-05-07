@@ -3,6 +3,7 @@ import { Role } from '@/util/Constants';
 import { Roles } from '@/util/decorators/Roles';
 import { User } from '@/util/decorators/User';
 import { RoleGuard } from '@/util/guards/role.guard';
+import { StoryRequestGateway } from '@/ws-story-request/ws-story-request.gateway';
 import {
   Body,
   Controller,
@@ -17,8 +18,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { StoryRequestGateway } from '@/ws-story-request/ws-story-request.gateway';
+import { ApiHeader, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AudioStoryRequestService } from './audio-story-request.service';
 import { AddAudioStoryRequestDto } from './dto/audio-story-request/AddAudioStoryRequestDto';
 import { AudioRequestWithUserAudioDto } from './dto/audio-story-request/AudioRequestWithUserAudioDto';
@@ -44,6 +44,10 @@ export class AudioStoryRequestController {
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  @ApiHeader({
+    name: 'authorization',
+    description: 'Пример: Bearer accessToken',
+  })
   @UseGuards(AuthGuard('jwt'), RoleGuard)
   @Get('/my-requests')
   async getAllAudioStoryRequestsCurrentUser(
@@ -55,7 +59,7 @@ export class AudioStoryRequestController {
 
   @ApiOperation({
     summary: 'получение всех заявок на озвучки',
-    description: 'необходимы права модератора',
+    description: 'необходимы роль модератора',
   })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -65,6 +69,10 @@ export class AudioStoryRequestController {
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  @ApiHeader({
+    name: 'authorization',
+    description: 'Пример: Bearer accessToken',
+  })
   @Roles(Role.moder)
   @UseGuards(AuthGuard('jwt'), RoleGuard)
   @Get('/all')
@@ -84,6 +92,10 @@ export class AudioStoryRequestController {
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  @ApiHeader({
+    name: 'authorization',
+    description: 'Пример: Bearer accessToken',
+  })
   @Roles(Role.moder)
   @UseGuards(AuthGuard('jwt'), RoleGuard)
   @Get('/by-user/:userId')
@@ -102,6 +114,10 @@ export class AudioStoryRequestController {
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  @ApiHeader({
+    name: 'authorization',
+    description: 'Пример: Bearer accessToken',
+  })
   @UseGuards(AuthGuard('jwt'), RoleGuard)
   @Post('/add')
   async createAddAudioRequest(
@@ -113,7 +129,7 @@ export class AudioStoryRequestController {
 
   @ApiOperation({
     description:
-      'после редактирования, отредактированная запись по вебсокету отправляется пользователю из userId(создавшему заявку) в событие с названием "statuses"',
+      'необходима роль модератора. после редактирования, отредактированная запись по вебсокету отправляется пользователю из userId(создавшему заявку) в событие с названием "statuses"',
     summary: 'редактирование заявки на проверку озвучки',
   })
   @ApiResponse({
@@ -123,6 +139,10 @@ export class AudioStoryRequestController {
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  @ApiHeader({
+    name: 'authorization',
+    description: 'Пример: Bearer accessToken',
+  })
   @Roles(Role.admin)
   @UseGuards(AuthGuard('jwt'), RoleGuard)
   @Put('/edit/:audioStoryReqeustId')
@@ -143,7 +163,7 @@ export class AudioStoryRequestController {
 
   @ApiOperation({
     summary: 'удаление заявки на проверку озвучки',
-    description: 'Требования: пользователь является администратором',
+    description: 'необходима роль администратора',
   })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -151,6 +171,10 @@ export class AudioStoryRequestController {
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  @ApiHeader({
+    name: 'authorization',
+    description: 'Пример: Bearer accessToken',
+  })
   @Roles(Role.admin)
   @UseGuards(AuthGuard('jwt'), RoleGuard)
   @Delete('/delete/:audioStoryRequestId')

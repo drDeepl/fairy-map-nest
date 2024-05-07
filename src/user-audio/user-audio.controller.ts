@@ -8,7 +8,6 @@ import {
   Logger,
   Param,
   ParseIntPipe,
-  Post,
   Put,
   Req,
   StreamableFile,
@@ -16,19 +15,27 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBody,
+  ApiConsumes,
+  ApiHeader,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { UserAudioService } from './user-audio.service';
 
+import { UserAccessInterface } from '@/auth/interface/UserAccessInterface';
 import { Role, validateAudio } from '@/util/Constants';
-import { File, memoryStorage } from 'multer';
 import { Roles } from '@/util/decorators/Roles';
+import { User } from '@/util/decorators/User';
 import { RoleGuard } from '@/util/guards/role.guard';
 import { Get } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { File, memoryStorage } from 'multer';
+import { ApprovedUserAudioDto } from './dto/ApprovedUserAudioDto';
 import { BaseUserAudioDto } from './dto/BaseUserAudioDto';
-import { UserAccessInterface } from '@/auth/interface/UserAccessInterface';
-import { User } from '@/util/decorators/User';
 import { UserAudioDto } from './dto/UserAudioDto';
 
 @ApiTags('UserAudioController')
@@ -46,6 +53,10 @@ export class UserAudioController {
     isArray: true,
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
+  @ApiHeader({
+    name: 'authorization',
+    description: 'Пример: Bearer accessToken',
+  })
   @UseGuards(AuthGuard('jwt'), RoleGuard)
   @HttpCode(HttpStatus.OK)
   @Get('/my-audios')
@@ -54,6 +65,32 @@ export class UserAudioController {
   ): Promise<UserAudioDto[]> {
     this.logger.debug('GET CURRENT USER AUDIOS');
     return await this.userAudioService.getAudiosByUserId(user.sub);
+  }
+
+  @ApiOperation({
+    summary: 'получение одобренных озвучек текущего пользователя',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Success',
+    type: ApprovedUserAudioDto,
+    isArray: true,
+  })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
+  @ApiHeader({
+    name: 'authorization',
+    description: 'Пример: Bearer accessToken',
+  })
+  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @HttpCode(HttpStatus.OK)
+  @Get('/my-audios/approved')
+  async getApprovedUserAudiosCurrentUser(
+    @User() user: UserAccessInterface,
+  ): Promise<ApprovedUserAudioDto[]> {
+    this.logger.debug('GET CURRENT USER AUDIOS');
+    return await this.userAudioService.getApprovedUserAudiosCurrentUser(
+      user.sub,
+    );
   }
 
   @ApiOperation({ summary: 'получение файла озвучки пользователя' })
@@ -76,6 +113,7 @@ export class UserAudioController {
 
   @ApiOperation({
     summary: 'загрузка озвучки пользователя для выбранного языка',
+    description: 'в теле запроса(body) файл прикрепляется к полю file',
   })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -84,6 +122,22 @@ export class UserAudioController {
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
+  @ApiHeader({
+    name: 'authorization',
+    description: 'Пример: Bearer accessToken',
+  })
   @UseGuards(AuthGuard('jwt'), RoleGuard)
   @HttpCode(HttpStatus.OK)
   @Put('/upload/:languageId')
@@ -115,7 +169,10 @@ export class UserAudioController {
     }
   }
 
-  @ApiOperation({ summary: 'удаление озвучки пользователя' })
+  @ApiOperation({
+    summary: 'удаление озвучки пользователя',
+    description: 'необходима роль администратора',
+  })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Success',
@@ -123,11 +180,16 @@ export class UserAudioController {
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  @ApiHeader({
+    name: 'authorization',
+    description: 'Пример: Bearer accessToken',
+  })
   @Roles(Role.admin)
   @UseGuards(AuthGuard('jwt'), RoleGuard)
   @HttpCode(HttpStatus.OK)
   @Delete('/delete/:userAudioId')
   async deleteUserAudioById(
+    @Req() req,
     @Param('userAudioId', ParseIntPipe) userAudioId: number,
   ) {
     this.logger.debug('DELETE USER AUDIO BY ID');

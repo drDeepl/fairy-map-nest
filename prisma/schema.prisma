@@ -32,9 +32,10 @@ model User {
 }
 
 model ConstituentsRF {
-  id        Int       @id @default(autoincrement())
-  name      String    @unique @db.VarChar(255)
-  ethnicGroups ConstituentsRFOnEthnicGroup[]
+  id                  Int       @id @default(autoincrement())
+  name                String    @unique @db.VarChar(255)
+  ethnicGroupMapPoint EthnicGroupMapPoint[]
+  ethnicGroups        ConstituentsRFOnEthnicGroup[]
 
   @@map("constituents_rf")
 
@@ -52,6 +53,19 @@ model EthnicGroup{
   @@map("ethnic_groups")
 }
 
+model EthnicGroupMapPoint {
+  id        Int       @id @default(autoincrement())
+  ethnicGroupId Int   @map("ethnic_group_id") 
+  ethnicGroup EthnicGroup @relation(fields: [ethnicGroupId], references: [id])
+  constituentId Int   @map("constituent_id") 
+  constituent ConstituentsRF @relation(fields: [constituentId], references: [id])
+  longitude Float
+  latitude Float
+    @@map("ethnic_group_map_points")
+
+}
+
+
 model ConstituentsRFOnEthnicGroup{
   id        Int       @id @default(autoincrement())
   ethnicGroupId Int @map("ethnic_group_id")
@@ -61,7 +75,6 @@ model ConstituentsRFOnEthnicGroup{
 
   @@map("constituents_rf_ethnic_groups")
 }
-
 
 model Language{
   id            Int       @id @default(autoincrement())
@@ -73,15 +86,6 @@ model Language{
   @@map("languages")
 }
 
-model EthnicGroupMapPoint {
-  id        Int       @id @default(autoincrement())
-  ethnicGroupId Int   @map("ethnic_group_id")
-  ethnicGroup EthnicGroup @relation(fields: [ethnicGroupId], references: [id])
-  longitude Float
-  latitude Float
-  @@map("ethnic_group_map_points")
-
-}
 
 model TextStory{
   id            Int         @id @default(autoincrement())
@@ -99,6 +103,8 @@ model ImgStory {
   path          String      @db.Text
   storyId       Int         @unique @map("story_id")
   story         Story       @relation(fields: [storyId], references: [id])
+
+  @@map("img_story")
 }
 
 model Story{
@@ -110,6 +116,7 @@ model Story{
   audio               StoryAudio?  @relation(fields: [audioId], references: [id])
   text                TextStory?
   img                 ImgStory?
+  storyAudioRequest   StoryAudioRequest[]
 
 
 
@@ -144,6 +151,8 @@ model UserAudioStory{
   pathAudio          String      @db.VarChar(255)
   storyAudio         StoryAudio?
   storyAudioRequests StoryAudioRequest[]
+
+  @@map("user_audio_story")
   
 }
 
@@ -180,8 +189,6 @@ model AddStoryRequest{
   comment       String          @db.Text @default("")
   userId        Int             @map("user_id")
   user          User            @relation(fields: [userId], references: [id])
-  
-
   @@map("add_story_requests")
 }
 
@@ -196,6 +203,8 @@ model StoryAudioRequest{
   comment       String           @db.Text @default("")
   userId        Int
   user          User             @relation(fields: [userId], references: [id])
+  storyId       Int              
+  story         Story            @relation(fields: [storyId], references: [id])
 
   @@map("story_audio_requests")
   

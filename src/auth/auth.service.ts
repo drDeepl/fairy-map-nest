@@ -1,6 +1,8 @@
 import { PrismaService } from '@/prisma/prisma.service';
+import { PCodeMessages, Role } from '@/util/Constants';
 import { PrintNameAndCodePrismaException } from '@/util/ExceptionUtils';
 import { MessageException } from '@/util/MessageException';
+import { DataBaseExceptionHandler } from '@/util/exception/DataBaseExceptionHandler';
 import {
   ForbiddenException,
   HttpException,
@@ -16,12 +18,15 @@ import * as bcrypt from 'bcrypt';
 import { SignInDto } from './dto/signIn.dto';
 import { SignUpDto } from './dto/signUp.dto';
 import { Tokens } from './types';
-import { Role } from '@/util/Constants';
 
 @Injectable()
 export class AuthService {
   private readonly logger = new Logger('AuthService');
   private readonly msgException = new MessageException();
+  private readonly dbExceptionHandler = new DataBaseExceptionHandler(
+    PCodeMessages,
+  );
+
   constructor(
     private jwtService: JwtService,
     private configService: ConfigService,
@@ -135,19 +140,25 @@ export class AuthService {
 
   async logout(userId: number) {
     this.logger.verbose('logout');
-    await this.prisma.user.update({
-      where: {
-        id: userId,
-      },
-      data: {
-        refreshTokenHash: null,
-      },
-    });
+    return this.prisma.user
+      .update({
+        where: {
+          id: userId,
+        },
+        data: {
+          refreshTokenHash: null,
+        },
+      })
+      .catch((error) => {
+        PrintNameAndCodePrismaException(error, this.logger);
+        throw this.dbExceptionHandler.handleError(error);
+      })
+      .then((result) => {});
   }
 
   async refreshTokens(userId: number, refreshToken: string): Promise<Tokens> {
     this.logger.verbose('refreshTokens');
-
+    this.logger.verbose(`${userId}`);
     const user = await this.prisma.user.findUnique({
       where: {
         id: userId,
@@ -170,7 +181,7 @@ export class AuthService {
       throw new ForbiddenException('Не соответствие токена');
     }
 
-    const tokens = await this.getTokens(user.id, user.email);
+    const tokens = await this.getTokens(user.id, user.role);
     this.updateHashRefreshToken(userId, tokens.refreshToken);
     return tokens;
   }

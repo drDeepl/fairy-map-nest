@@ -1,3 +1,6 @@
+import { Role } from '@/util/Constants';
+import { Roles } from '@/util/decorators/Roles';
+import { RoleGuard } from '@/util/guards/role.guard';
 import {
   Body,
   Controller,
@@ -14,18 +17,15 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiHeader, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ConstituentsService } from './constituent.service';
 import { AddConstituentDto } from './dto/AddConstituentDto';
-import { ConstituentDto } from './dto/ConstituentDto';
-import { EditConstituentDto } from './dto/EditConstituentDto';
-import { Role } from '@/util/Constants';
-import { Roles } from '@/util/decorators/Roles';
-import { RoleGuard } from '@/util/guards/role.guard';
 import { AddEthnicGroupToConstituentDto } from './dto/AddEthnicGroupToConstituentDto';
-import { EthnicGroupToConstituentDto } from './dto/EthnicGroupToConstituentDto';
-import { DeleteEthnicGroupToConstituentDto } from './dto/DeleteEthnicGroupToConstituentDto';
+import { ConstituentDto } from './dto/ConstituentDto';
 import { ConstituentFilledDto } from './dto/ConstituentFilledDto';
+import { DeleteEthnicGroupToConstituentDto } from './dto/DeleteEthnicGroupToConstituentDto';
+import { EditConstituentDto } from './dto/EditConstituentDto';
+import { EthnicGroupToConstituentDto } from './dto/EthnicGroupToConstituentDto';
 
 @ApiTags('ConstituentController')
 @Controller('api/constituent')
@@ -33,7 +33,10 @@ export class ConstituentsController {
   private readonly logger = new Logger('ConstituentsController');
   constructor(private readonly constituentService: ConstituentsService) {}
 
-  @ApiOperation({ summary: 'добавление субъекта РФ' })
+  @ApiOperation({
+    summary: 'добавление субъекта РФ',
+    description: 'необходима роль администратора',
+  })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Success',
@@ -41,6 +44,10 @@ export class ConstituentsController {
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  @ApiHeader({
+    name: 'authorization',
+    description: 'Пример: Bearer accessToken',
+  })
   @Roles(Role.admin)
   @UseGuards(AuthGuard('jwt'), RoleGuard)
   @HttpCode(HttpStatus.OK)
@@ -52,7 +59,10 @@ export class ConstituentsController {
     return this.constituentService.addNewConstituent(dto);
   }
 
-  @ApiOperation({ summary: 'добавление этнической группы к субъекту рф' })
+  @ApiOperation({
+    summary: 'добавление этнической группы к субъекту рф',
+    description: 'небходима роль администратора',
+  })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Success',
@@ -60,6 +70,10 @@ export class ConstituentsController {
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  @ApiHeader({
+    name: 'authorization',
+    description: 'Пример: Bearer accessToken',
+  })
   @Roles(Role.admin)
   @UseGuards(AuthGuard('jwt'), RoleGuard)
   @HttpCode(HttpStatus.OK)
@@ -71,7 +85,10 @@ export class ConstituentsController {
     return this.constituentService.addEthnicGroupToConstituent(dto);
   }
 
-  @ApiOperation({ summary: 'добавление этнической группы к субъекту рф' })
+  @ApiOperation({
+    summary: 'удаление этнической группы у субъекта рф',
+    description: 'необходима роль администратора',
+  })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Success',
@@ -79,6 +96,10 @@ export class ConstituentsController {
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  @ApiHeader({
+    name: 'authorization',
+    description: 'Пример: Bearer accessToken',
+  })
   @Roles(Role.admin)
   @UseGuards(AuthGuard('jwt'), RoleGuard)
   @HttpCode(HttpStatus.OK)
@@ -147,13 +168,20 @@ export class ConstituentsController {
   }
 
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'редактирование субъекта' })
+  @ApiOperation({
+    summary: 'редактирование субъекта',
+    description: 'небходима роль администратора',
+  })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Success',
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  @ApiHeader({
+    name: 'authorization',
+    description: 'Пример: Bearer accessToken',
+  })
   @Roles(Role.admin)
   @UseGuards(AuthGuard('jwt'), RoleGuard)
   @Put('/edit/:id')
@@ -166,13 +194,20 @@ export class ConstituentsController {
   }
 
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'удаление данных субъекта' })
+  @ApiOperation({
+    summary: 'удаление данных субъекта',
+    description: 'необходима роль администратора',
+  })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Success',
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  @ApiHeader({
+    name: 'authorization',
+    description: 'Пример: Bearer accessToken',
+  })
   @Roles(Role.admin)
   @UseGuards(AuthGuard('jwt'), RoleGuard)
   @Delete('/:id')

@@ -3,6 +3,7 @@ import { Role } from '@/util/Constants';
 import { Roles } from '@/util/decorators/Roles';
 import { User } from '@/util/decorators/User';
 import { RoleGuard } from '@/util/guards/role.guard';
+import { StoryRequestGateway } from '@/ws-story-request/ws-story-request.gateway';
 import {
   Body,
   Controller,
@@ -19,13 +20,18 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiHeader,
+  ApiOperation,
+  ApiQuery,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { AddStoryRequestService } from './add-story-request.service';
 import { AddStoryRequestDto } from './dto/AddStoryRequestDto';
 import { CreateAddStoryRequestDto } from './dto/CreateAddStoryRequestDto';
 import { EditAddStoryRequestDto } from './dto/EditAddStoryRequestDto';
 import { AddStoryRequestEntity } from './entity/AddStoryRequestEntity';
-import { StoryRequestGateway } from '@/ws-story-request/ws-story-request.gateway';
 
 @ApiTags('AddStoryRequestController')
 @Controller('api/add-story-request')
@@ -39,7 +45,8 @@ export class AddStoryRequestController {
 
   @ApiOperation({
     summary: 'получение всех заявок на добавление сказки',
-    description: 'пример запроса: /api/add-story-request/all?start=1&count=10',
+    description:
+      'необходима роль администратора. пример запроса: /api/add-story-request/all?start=1&count=10',
   })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -50,6 +57,10 @@ export class AddStoryRequestController {
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
   @ApiQuery({ name: 'start', description: 'номер первого элемента' })
   @ApiQuery({ name: 'count', description: 'количество элементов' })
+  @ApiHeader({
+    name: 'authorization',
+    description: 'Пример: Bearer accessToken',
+  })
   @Roles(Role.admin)
   @UseGuards(AuthGuard('jwt'), RoleGuard)
   @Get('/all')
@@ -72,6 +83,10 @@ export class AddStoryRequestController {
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  @ApiHeader({
+    name: 'authorization',
+    description: 'Пример: Bearer accessToken',
+  })
   @UseGuards(AuthGuard('jwt'), RoleGuard)
   @Get('/my-requests')
   async getAddStoryRequestForCurrentUser(
@@ -92,6 +107,10 @@ export class AddStoryRequestController {
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  @ApiHeader({
+    name: 'authorization',
+    description: 'Пример: Bearer accessToken',
+  })
   @UseGuards(AuthGuard('jwt'), RoleGuard)
   @Get('/by-user/:userId')
   async getAddStoryRequestByUserId(
@@ -111,6 +130,10 @@ export class AddStoryRequestController {
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  @ApiHeader({
+    name: 'authorization',
+    description: 'Пример: Bearer accessToken',
+  })
   @UseGuards(AuthGuard('jwt'), RoleGuard)
   @Post('/create')
   async createAddStoryRequestForCurrentUser(
@@ -124,7 +147,7 @@ export class AddStoryRequestController {
 
   @ApiOperation({
     summary: 'обновление заявки',
-    description: `статус заявки берется из /api/request/status/all | Необходима роль ${Role.moder} | После успешного редактирования данные заявки так же передаются пользователю с userId по веб-сокету`,
+    description: `необходима роль администратора. статус заявки берется из /api/request/status/all | Необходима роль ${Role.moder} | После успешного редактирования данные заявки так же передаются пользователю с userId по веб-сокету`,
   })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -133,6 +156,10 @@ export class AddStoryRequestController {
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  @ApiHeader({
+    name: 'authorization',
+    description: 'Пример: Bearer accessToken',
+  })
   @Roles(Role.admin)
   @UseGuards(AuthGuard('jwt'), RoleGuard)
   @Put('/edit/:addStoryRequestId')
@@ -152,7 +179,7 @@ export class AddStoryRequestController {
 
   @ApiOperation({
     summary: 'удаление заявки',
-    description: `Необходима роль ${Role.admin}`,
+    description: `Необходима роль администратора`,
   })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -160,6 +187,10 @@ export class AddStoryRequestController {
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  @ApiHeader({
+    name: 'authorization',
+    description: 'Пример: Bearer accessToken',
+  })
   @Roles(Role.admin)
   @UseGuards(AuthGuard('jwt'), RoleGuard)
   @Delete('delete/:addStoryRequestId')

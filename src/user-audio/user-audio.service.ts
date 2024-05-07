@@ -1,7 +1,9 @@
 import { PrismaService } from '@/prisma/prisma.service';
+import { PCodeMessages, getUuid, uploadsPath } from '@/util/Constants';
 import { PrintNameAndCodePrismaException } from '@/util/ExceptionUtils';
 import { FileUtils } from '@/util/FileUtils';
 import { MessageException } from '@/util/MessageException';
+import { DataBaseExceptionHandler } from '@/util/exception/DataBaseExceptionHandler';
 import {
   HttpException,
   HttpStatus,
@@ -9,14 +11,12 @@ import {
   Logger,
   StreamableFile,
 } from '@nestjs/common';
-import * as fs from 'node:fs';
 import { File } from 'multer';
-import { BaseUserAudioDto } from './dto/BaseUserAudioDto';
+import * as fs from 'node:fs';
+import { extname, join } from 'path';
+import { ApprovedUserAudioDto } from './dto/ApprovedUserAudioDto';
 import { UploadedUserAudioDto } from './dto/UploadedUserAudioDto';
 import { UserAudioDto } from './dto/UserAudioDto';
-import { extname, join } from 'path';
-import { PCodeMessages, getUuid, uploadsPath } from '@/util/Constants';
-import { DataBaseExceptionHandler } from '@/util/exception/DataBaseExceptionHandler';
 
 @Injectable()
 export class UserAudioService {
@@ -57,6 +57,41 @@ export class UserAudioService {
           );
           return new StreamableFile(file);
         }
+      });
+  }
+
+  async getApprovedUserAudiosCurrentUser(
+    userId: number,
+  ): Promise<ApprovedUserAudioDto[]> {
+    this.logger.debug('GET APPROVED USER AUDIO CURRENT USER');
+    return await this.prisma.storyAudio
+      .findMany({
+        select: {
+          id: true,
+          userAudio: {
+            select: {
+              id: true,
+              name: true,
+              languageId: true,
+            },
+          },
+          author: true,
+          story: {
+            select: {
+              id: true,
+              name: true,
+              ethnicGroup: true,
+              audioId: true,
+            },
+          },
+        },
+        where: {
+          author: userId,
+        },
+      })
+      .catch((error) => {
+        PrintNameAndCodePrismaException(error, this.logger);
+        throw this.dbExceptionHandler.handleError(error);
       });
   }
 
@@ -134,6 +169,7 @@ export class UserAudioService {
         }
       })
       .then((result) => {
+        console.log('SAVE FILE');
         const savedFile = fs.writeFileSync(pathAudio, file.buffer);
         console.log(savedFile);
         return result;

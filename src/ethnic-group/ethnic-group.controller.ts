@@ -1,3 +1,7 @@
+import { Role } from '@/util/Constants';
+import { MessageException } from '@/util/MessageException';
+import { Roles } from '@/util/decorators/Roles';
+import { RoleGuard } from '@/util/guards/role.guard';
 import {
   Body,
   Controller,
@@ -13,20 +17,15 @@ import {
   Put,
   UseGuards,
 } from '@nestjs/common';
-import { EthnicGroupService } from './ethnic-group.service';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { EthnicGroupDto } from './dto/EthnicGroupDto';
-import { AddLanguageDto } from './dto/AddLanguageDto';
-import { LanguageDto } from './dto/LanguageDto';
+import { ApiHeader, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AddEthnicGroupDto } from './dto/AddEthnicGroupDto';
-import { UserAccess, UserIsAdmin } from '@/user/decorators/user.decorator';
-import { MessageException } from '@/util/MessageException';
-import { RoleGuard } from '@/util/guards/role.guard';
-import { Roles } from '@/util/decorators/Roles';
-import { Role } from '@/util/Constants';
+import { AddLanguageDto } from './dto/AddLanguageDto';
 import { EditEthnicGroupDto } from './dto/EditEthnicGroupDto';
+import { EthnicGroupDto } from './dto/EthnicGroupDto';
 import { EthnicGroupLanguageDto } from './dto/EthnicGroupLanguage';
+import { LanguageDto } from './dto/LanguageDto';
+import { EthnicGroupService } from './ethnic-group.service';
 
 @ApiTags('EthnicGroupController')
 @Controller('api/ethnic-group')
@@ -38,6 +37,7 @@ export class EthnicGroupController {
 
   @ApiOperation({
     summary: 'добавление этнической группы',
+    description: 'необходима роль администратора',
   })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -46,6 +46,10 @@ export class EthnicGroupController {
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  @ApiHeader({
+    name: 'authorization',
+    description: 'Пример: Bearer accessToken',
+  })
   @Roles(Role.admin)
   @UseGuards(AuthGuard('jwt'), RoleGuard)
   @HttpCode(HttpStatus.OK)
@@ -93,6 +97,7 @@ export class EthnicGroupController {
 
   @ApiOperation({
     summary: 'редактирование этнической группы',
+    description: 'необходима роль администратора',
   })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -101,6 +106,10 @@ export class EthnicGroupController {
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  @ApiHeader({
+    name: 'authorization',
+    description: 'Пример: Bearer accessToken',
+  })
   @Roles(Role.admin)
   @UseGuards(AuthGuard('jwt'), RoleGuard)
   @Put('/edit/:id')
@@ -115,6 +124,7 @@ export class EthnicGroupController {
 
   @ApiOperation({
     summary: 'удаление этнической группы',
+    description: 'необходима роль администратора',
   })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -122,6 +132,10 @@ export class EthnicGroupController {
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  @ApiHeader({
+    name: 'authorization',
+    description: 'Пример: Bearer accessToken',
+  })
   @Roles(Role.admin)
   @UseGuards(AuthGuard('jwt'), RoleGuard)
   @Delete('/:id')
@@ -135,7 +149,10 @@ export class EthnicGroupController {
   }
 
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'добавление языка этнической группы' })
+  @ApiOperation({
+    summary: 'добавление языка этнической группы',
+    description: 'необходима роль администратора',
+  })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Success',
@@ -143,6 +160,10 @@ export class EthnicGroupController {
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  @ApiHeader({
+    name: 'authorization',
+    description: 'Пример: Bearer accessToken',
+  })
   @Roles(Role.admin)
   @UseGuards(AuthGuard('jwt'), RoleGuard)
   @Post('/language/add')
@@ -166,12 +187,19 @@ export class EthnicGroupController {
     return await this.ethnicGroupService.getLanguages();
   }
 
-  @ApiOperation({ summary: 'удаление языка по id' })
+  @ApiOperation({
+    summary: 'удаление языка по id',
+    description: 'необходима роль администратора',
+  })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Success',
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
+  @ApiHeader({
+    name: 'authorization',
+    description: 'Пример: Bearer accessToken',
+  })
   @Roles(Role.admin)
   @UseGuards(AuthGuard('jwt'), RoleGuard)
   @HttpCode(HttpStatus.OK)
