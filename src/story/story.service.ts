@@ -36,6 +36,7 @@ import { EditStoryDto } from './dto/story/EditStoryDto';
 import { StoryDto } from './dto/story/StoryDto';
 import { AddTextStoryDto } from './dto/text-story/AddTextStoryDto';
 import { TextStoryDto } from './dto/text-story/TextStoryDto';
+import { RatingAudioStoryEntity } from './entity/rating-audio-story/RatingAudioStoryEntity';
 
 @Injectable()
 export class StoryService {
@@ -460,6 +461,30 @@ export class StoryService {
         },
       });
       return new RatingAudioStoryDto(id, avgRatingAudio._avg.rating);
+    } catch (error) {
+      PrintNameAndCodePrismaException(error, this.logger);
+      throw this.dbExceptionHandler.handleError(error);
+    }
+  }
+
+  async getRatingByAudioIdForCurrentUser(
+    userId: number,
+    userAudioId: number,
+  ): Promise<RatingAudioStoryEntity> {
+    this.logger.debug('GET RATING BY AUDIO ID FOR CURRENT USER');
+    try {
+      // const storyAudio: StoryAudio = await this.prisma.storyAudio.findFirst({
+      //   where: {
+      //     author: userId,
+      //     userAudioId: userAudioId,
+      //   },
+      // });
+      return await this.prisma.ratingAudio.findFirst({
+        where: {
+          storyAudioId: userAudioId,
+          userId: userId,
+        },
+      });
     } catch (error) {
       PrintNameAndCodePrismaException(error, this.logger);
       throw this.dbExceptionHandler.handleError(error);
