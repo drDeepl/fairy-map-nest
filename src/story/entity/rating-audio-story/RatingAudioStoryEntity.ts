@@ -17,4 +17,16 @@ export class RatingAudioStoryEntity {
   @ApiProperty({ description: 'оценка пользователя', nullable: false })
   @IsNumber()
   rating: number;
+
+  constructor(
+    id: number,
+    storyAudioId: number,
+    userId: number,
+    rating: number,
+  ) {
+    this.id = id;
+    this.storyAudioId = storyAudioId;
+    this.userId = userId;
+    this.rating = rating;
+  }
 }
