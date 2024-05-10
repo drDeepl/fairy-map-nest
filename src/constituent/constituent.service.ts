@@ -1,18 +1,17 @@
 import { PrismaService } from '@/prisma/prisma.service';
+import { MAX_STORIES_FOR_ETHNIC_GROUP, PCodeMessages } from '@/util/Constants';
 import { PrintNameAndCodePrismaException } from '@/util/ExceptionUtils';
 import { MessageException } from '@/util/MessageException';
+import { DataBaseExceptionHandler } from '@/util/exception/DataBaseExceptionHandler';
 import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { AddConstituentDto } from './dto/AddConstituentDto';
-import { ConstituentDto } from './dto/ConstituentDto';
-import { EditConstituentDto } from './dto/EditConstituentDto';
 import { AddEthnicGroupToConstituentDto } from './dto/AddEthnicGroupToConstituentDto';
-import { EthnicGroupToConstituentDto } from './dto/EthnicGroupToConstituentDto';
-import { DeleteEthnicGroupToConstituentDto } from './dto/DeleteEthnicGroupToConstituentDto';
-import { MAX_STORIES_FOR_ETHNIC_GROUP, PCodeMessages } from '@/util/Constants';
-import { Prisma } from '@prisma/client';
+import { ConstituentDto } from './dto/ConstituentDto';
 import { ConstituentFilledDto } from './dto/ConstituentFilledDto';
-import { DataBaseExceptionHandler } from '@/util/exception/DataBaseExceptionHandler';
+import { DeleteEthnicGroupToConstituentDto } from './dto/DeleteEthnicGroupToConstituentDto';
+import { EditConstituentDto } from './dto/EditConstituentDto';
+import { EthnicGroupToConstituentDto } from './dto/EthnicGroupToConstituentDto';
 
 @Injectable()
 export class ConstituentsService {
@@ -136,7 +135,7 @@ export class ConstituentsService {
         count_ethnic_groups: number;
         filled_area: number;
       }[] = await this.prisma
-        .$queryRaw`SELECT cerf.constituent_rf_id, COUNT(DISTINCT stories.ethnic_group_id) as count_ethnic_groups, COUNT(DISTINCT stories.audio_id)/(COUNT(DISTINCT stories.ethnic_group_id) * ${maxStoriesForOneGroup}) as filled_area
+        .$queryRaw`SELECT cerf.constituent_rf_id, COUNT(DISTINCT stories.ethnic_group_id) as count_ethnic_groups, (1.0 * COUNT(DISTINCT stories.audio_id))/(COUNT(DISTINCT stories.ethnic_group_id) * ${maxStoriesForOneGroup}) as filled_area
     FROM constituents_rf_ethnic_groups as cerf INNER JOIN stories ON cerf.ethnic_group_id = stories.ethnic_group_id
     GROUP BY cerf.constituent_rf_id`;
       const constituents: ConstituentFilledDto[] = constituentsFilled.map(
@@ -154,6 +153,41 @@ export class ConstituentsService {
       PrintNameAndCodePrismaException(error, this.logger);
       throw this.dbExceptionHandler.handleError(error);
     }
+  }
+
+  async getPercentOfFilledForConstituent(
+    constituentId: number,
+  ): Promise<ConstituentFilledDto[]> {
+    this.logger.debug('GET PERCENT OF FILLED FOR CONSTITUENT');
+    const constituentRfEthnicGroups =
+      await this.prisma.constituentsRFOnEthnicGroup.findMany({
+        where: {
+          constituentRfId: constituentId,
+        },
+      });
+    const ethnicGroupIds = constituentRfEthnicGroups.map(
+      (item) => item.ethnicGroupId,
+    );
+
+    console.log(`ethnicGroupsId: ${ethnicGroupIds}`);
+    const commonAudios = MAX_STORIES_FOR_ETHNIC_GROUP * ethnicGroupIds.length;
+    const stories = await this.prisma.story.findMany({
+      where: {
+        ethnicGroupId: { in: ethnicGroupIds },
+      },
+    });
+    const aggStories = await this.prisma.story.aggregate({
+      _count: {
+        audioId: true,
+      },
+      where: {
+        ethnicGroupId: { in: ethnicGroupIds },
+      },
+    });
+    console.log(stories);
+    console.log(aggStories);
+    console.log(`filled: ${aggStories._count.audioId / commonAudios}`);
+    return;
   }
 
   async editConstituentById(id: number, dto: EditConstituentDto) {

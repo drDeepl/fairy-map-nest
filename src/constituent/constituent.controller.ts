@@ -158,7 +158,7 @@ export class ConstituentsController {
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @HttpCode(HttpStatus.OK)
-  @Get('/percent-of-filled')
+  @Get('/percent-of-filled/:constituentId')
   async getPercentsFilledStoriesByConstituentId(): Promise<
     ConstituentFilledDto[]
   > {
