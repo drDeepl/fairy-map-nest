@@ -23,6 +23,8 @@ export class ConstituentsService {
 
   constructor(private prisma: PrismaService) {}
 
+  
+
   async addNewConstituent(dto: AddConstituentDto): Promise<ConstituentDto> {
     this.logger.warn('ADD NEW CONSTITUENT');
     return this.prisma.constituentsRF
