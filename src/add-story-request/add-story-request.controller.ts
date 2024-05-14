@@ -87,7 +87,7 @@ export class AddStoryRequestController {
     name: 'authorization',
     description: 'Пример: Bearer accessToken',
   })
-  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @UseGuards(AuthGuard('jwt'))
   @Get('/my-requests')
   async getAddStoryRequestForCurrentUser(
     @User() user: UserAccessInterface,
@@ -99,6 +99,7 @@ export class AddStoryRequestController {
   @ApiOperation({
     summary:
       'получение всех заявок на добавление сказки для выбранного пользователя',
+    description: 'необходима роль администратора.',
   })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -111,6 +112,7 @@ export class AddStoryRequestController {
     name: 'authorization',
     description: 'Пример: Bearer accessToken',
   })
+  @Roles(Role.admin)
   @UseGuards(AuthGuard('jwt'), RoleGuard)
   @Get('/by-user/:userId')
   async getAddStoryRequestByUserId(
@@ -134,7 +136,7 @@ export class AddStoryRequestController {
     name: 'authorization',
     description: 'Пример: Bearer accessToken',
   })
-  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @UseGuards(AuthGuard('jwt'))
   @Post('/create')
   async createAddStoryRequestForCurrentUser(
     @User() user: UserAccessInterface,
