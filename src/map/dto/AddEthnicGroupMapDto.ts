@@ -6,4 +6,9 @@ export class AddEthnicGroupMapDto extends BaseEthnicGroupMapDto {
   @ApiProperty({ description: '', nullable: false })
   @IsNumber()
   constituentId: number;
+
+  constructor(longitude: number, latitude: number, constituentId: number) {
+    super(longitude, latitude);
+    this.constituentId = constituentId;
+  }
 }

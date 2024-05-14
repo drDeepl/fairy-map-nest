@@ -18,6 +18,7 @@ import * as bcrypt from 'bcrypt';
 import { SignInDto } from './dto/signIn.dto';
 import { SignUpDto } from './dto/signUp.dto';
 import { Tokens } from './types';
+const { program } = require('commander');
 
 @Injectable()
 export class AuthService {

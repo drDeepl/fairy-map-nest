@@ -4,6 +4,7 @@ import { UserAccess } from '@/user/decorators/user.decorator';
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
   Logger,
@@ -25,7 +26,6 @@ import { Tokens } from './types';
 export class AuthController {
   private readonly logger = new Logger('AuthController');
   constructor(private readonly authService: AuthService) {}
-
   @Post('signin')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'запрос на вход' })

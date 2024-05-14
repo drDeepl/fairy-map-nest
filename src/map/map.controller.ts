@@ -58,12 +58,6 @@ export class MapController {
     return this.mapService.addEthnicalGroupPoint(ethnicGroupId, dto);
   }
 
-  @Get('/generate-points')
-  async generateMapPoints(): Promise<void> {
-    this.logger.debug('ADD ETHNICAL GROUP POINT');
-    return await this.mapService.generateMapPoints();
-  }
-
   @ApiOperation({ summary: 'получение точек этнических групп на карте' })
   @ApiResponse({
     status: HttpStatus.OK,
