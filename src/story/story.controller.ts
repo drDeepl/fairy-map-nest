@@ -43,6 +43,7 @@ import { EditStoryDto } from './dto/story/EditStoryDto';
 import { StoryDto } from './dto/story/StoryDto';
 import { AddTextStoryDto } from './dto/text-story/AddTextStoryDto';
 import { TextStoryDto } from './dto/text-story/TextStoryDto';
+import { RatingAudioStoryEntity } from './entity/rating-audio-story/RatingAudioStoryEntity';
 
 @ApiTags('StoryController')
 @Controller('api/story')
@@ -405,6 +406,31 @@ export class StoryController {
   ): Promise<RatingAudioStoryDto> {
     this.logger.debug('GET RATING BY AUDIO ID');
     return await this.storyService.getRatingByAudioId(audioId);
+  }
+
+  @ApiOperation({
+    summary: 'получение оценки для выбранной озвучки для текущего пользователя',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Success',
+    type: RatingAudioStoryDto,
+  })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @HttpCode(HttpStatus.OK)
+  @Get('/rating/my/:userAudioId')
+  async getRatingByAudioIdForCurrentUser(
+    @User() user: UserAccessInterface,
+    @Param('userAudioId', ParseIntPipe) userAudioId: number,
+  ): Promise<RatingAudioStoryEntity> {
+    this.logger.debug('GET RATING AUDIO ID FOR CURRENT USER');
+    return await this.storyService.getRatingByAudioIdForCurrentUser(
+      user.sub,
+
+      userAudioId,
+    );
   }
 
   @ApiOperation({

@@ -11,6 +11,7 @@ import { PrintNameAndCodePrismaException } from '@/util/ExceptionUtils';
 import { MessageException } from '@/util/MessageException';
 import { DataBaseExceptionHandler } from '@/util/exception/DataBaseExceptionHandler';
 import {
+  BadRequestException,
   HttpException,
   HttpStatus,
   Injectable,
@@ -18,6 +19,7 @@ import {
   NotFoundException,
   StreamableFile,
 } from '@nestjs/common';
+import { RatingAudio, StoryAudio } from '@prisma/client';
 import { File } from 'multer';
 import * as fs from 'node:fs';
 import { basename, extname } from 'node:path';
@@ -31,6 +33,7 @@ import { ImageStoryEntity } from './dto/image-story/entity/ImageStoryEntity';
 import { AddRatingAudioStoryDto } from './dto/rating-audio-story/AddRatingAudioStoryDto';
 import { AddedRatingAudioStoryDto } from './dto/rating-audio-story/AddedRatingAudioStoryDto';
 import { RatingAudioStoryDto } from './dto/rating-audio-story/RatingAudioStoryDto';
+import { RatingAudioStoryWithUserAudio } from './dto/rating-audio-story/RatingAudioStoryWithUserAudioId';
 import { AddStoryDto } from './dto/story/AddStoryDto';
 import { EditStoryDto } from './dto/story/EditStoryDto';
 import { StoryDto } from './dto/story/StoryDto';
@@ -461,6 +464,43 @@ export class StoryService {
       });
       return new RatingAudioStoryDto(id, avgRatingAudio._avg.rating);
     } catch (error) {
+      PrintNameAndCodePrismaException(error, this.logger);
+      throw this.dbExceptionHandler.handleError(error);
+    }
+  }
+
+  async getRatingByAudioIdForCurrentUser(
+    userId: number,
+    userAudioId: number,
+  ): Promise<RatingAudioStoryWithUserAudio> {
+    this.logger.debug('GET RATING BY AUDIO ID FOR CURRENT USER');
+    const storyAudio: StoryAudio = await this.prisma.storyAudio.findUnique({
+      where: {
+        userAudioId: userAudioId,
+      },
+    });
+    console.log(storyAudio);
+    if (storyAudio == null) {
+      throw new BadRequestException('Оценка не найдена');
+    }
+    try {
+      const ratingAudio: RatingAudio = await this.prisma.ratingAudio.findFirst({
+        where: {
+          storyAudioId: storyAudio.id,
+          userId: userId,
+        },
+      });
+      return new RatingAudioStoryWithUserAudio(
+        ratingAudio.id,
+        ratingAudio.storyAudioId,
+        ratingAudio.userId,
+        ratingAudio.rating,
+        storyAudio.userAudioId,
+      );
+    } catch (error) {
+      // if (error.name === 'BadRequestException') {
+      //   throw new BadRequestException(error.message);
+      // }
       PrintNameAndCodePrismaException(error, this.logger);
       throw this.dbExceptionHandler.handleError(error);
     }

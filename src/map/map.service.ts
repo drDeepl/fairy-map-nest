@@ -69,20 +69,6 @@ export class MapService {
   ): Promise<EthnicGroupMapPointEntity[]> {
     this.logger.debug('GET ETHNICAL GROUP POINT BY COSTITUENT ID');
     try {
-      // const ethnicGroupsId =
-      //   await this.prisma.constituentsRFOnEthnicGroup.findMany({
-      //     select: { ethnicGroupId: true },
-      //     where: {
-      //       constituentRfId: constituentId,
-      //     },
-      //   });
-
-      // const ids = ethnicGroupsId.map((item) => item.ethnicGroupId);
-      // return await this.prisma.ethnicGroupMapPoint.findMany({
-      //   where: {
-      //     ethnicGroupId: { in: ids },
-      //   },
-      // });
       return await this.prisma.ethnicGroupMapPoint.findMany({
         where: {
           constituentId: constituentId,

@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsNumber } from 'class-validator';
 import { BaseAudioStoryRequestDto } from './BaseAudioStoryRequestDto';
 
-export class AddAudioStoryRequestDto extends BaseAudioStoryRequestDto {
+export class AddAudioStoryRequestDto {
   @ApiProperty({ description: '', nullable: false })
   typeId: number;
 

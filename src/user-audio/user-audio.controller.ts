@@ -118,7 +118,7 @@ export class UserAudioController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Success',
-    type: BaseUserAudioDto,
+    type: UserAudioDto,
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
