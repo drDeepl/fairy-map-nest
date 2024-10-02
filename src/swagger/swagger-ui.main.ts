@@ -1,17 +1,14 @@
 import { SWAGGER_UI_CONSTANTS } from './constants/swagger-ui.constants';
 
 export class SwaggerUI {
-  constructor(
-    private readonly applicationUrl: string,
-    private readonly siteTitle: string,
-  ) {}
+  constructor(private readonly siteTitle: string) {}
 
-  private faviconFilename = 'nestjs-logo.png';
-  private topbarIconFilename = 'nestjs-logo.png';
+  private faviconFilename = 'app-logo.png';
+  private topbarIconFilename = 'app-logo.png';
 
-  private customfavIcon = `${this.applicationUrl}/wwwroot/swagger/assets/${this.faviconFilename}`;
+  private customfavIcon = `../${this.faviconFilename}`;
   private customCss = `
-  .topbar-wrapper { content:url('${this.applicationUrl}/wwwroot/swagger/assets/${this.topbarIconFilename}'); width: 3em; height:auto; }
+  .topbar-wrapper { background-image:url('../${this.topbarIconFilename}'); width: 7em; height:5em; background-size: cover; margin: 0; padding: 0; }
   .topbar-wrapper svg { visibility: hidden; }
   .swagger-ui .topbar { background-color: ${SWAGGER_UI_CONSTANTS.TOPBAR.BACKGROUND_COLOR}; }
   .swagger-ui .opblock.opblock-get { background-color: ${SWAGGER_UI_CONSTANTS.HTTP_METHODS.GET.BACKGROUND_COLOR}; border-color: ${SWAGGER_UI_CONSTANTS.HTTP_METHODS.GET.BORDER_COLOR}; }

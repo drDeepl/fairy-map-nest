@@ -41,7 +41,6 @@ class SwaggerDocumentBuilder {
   public setupSwagger() {
     const document = this.createDocument();
     const swaggerUI = new SwaggerUI(
-      this.swaggerConfig.appUrl,
       this.swaggerConfig.documentBuilder.tabTitle,
     );
 
