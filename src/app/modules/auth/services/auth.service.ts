@@ -1,28 +1,34 @@
 import { PrismaService } from '@/prisma/prisma.service';
-import { PCodeMessages, Role } from '@/util/Constants';
+import { PCodeMessages } from '@/util/Constants';
 import { PrintNameAndCodePrismaException } from '@/util/ExceptionUtils';
 import { MessageException } from '@/util/MessageException';
 import { DataBaseExceptionHandler } from '@/util/exception/DataBaseExceptionHandler';
 import {
+  BadRequestException,
+  ConflictException,
   ForbiddenException,
-  HttpException,
-  HttpStatus,
   Injectable,
   Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
+
 import * as bcrypt from 'bcrypt';
-import { SignInDto } from './dto/signIn.dto';
-import { SignUpDto } from './dto/signUp.dto';
-import { Tokens } from './types';
-const { program } = require('commander');
+import { SignInRequestDto } from '../dto/request/sign-in.request.dto';
+import { SignUpRequestDto } from '../dto/request/sign-up.request.dto';
+import { Tokens } from '../types';
+import { JwtTokenOptions } from '@/config/interfaces/jwt-config.interface';
+import { CreateJwt } from '../interface/create-jwt.interface';
+import { Role, User } from '@prisma/client';
+import { JwtPayload } from '../interface/jwt-payload.interface';
+import { UserRepository } from '../../user/repositories/user.repository';
+import { UserService } from '../../user/services/user.service';
+import { UserResponseDto } from '../../user/dto/response/user.response.dto';
 
 @Injectable()
 export class AuthService {
-  private readonly logger = new Logger('AuthService');
+  private readonly logger = new Logger(AuthService.name);
   private readonly msgException = new MessageException();
   private readonly dbExceptionHandler = new DataBaseExceptionHandler(
     PCodeMessages,
@@ -32,36 +38,26 @@ export class AuthService {
     private jwtService: JwtService,
     private configService: ConfigService,
     private prisma: PrismaService,
+    private readonly userService: UserService,
   ) {}
 
   hashData(data: string): Promise<string> {
     return bcrypt.hash(data, 10);
   }
 
-  async getTokens(userId: number, role: string = Role.admin): Promise<Tokens> {
-    const [accessToken, refreshToken] = await Promise.all([
-      this.jwtService.signAsync(
-        {
-          sub: userId,
-          role,
-        },
-        {
-          secret: this.configService.get('JWT_ACCESS_SECRET'),
-          expiresIn: this.configService.get('JWT_ACCESS_EXP'),
-        },
+  async createJwt(payload: CreateJwt): Promise<Tokens> {
+    const signOptions: JwtTokenOptions = this.configService.get(
+      `jwt.${payload.role.toLowerCase()}`,
+    );
+
+    const jwt: Tokens = {
+      accessToken: await this.jwtService.signAsync(payload, signOptions.access),
+      refreshToken: await this.jwtService.signAsync(
+        payload,
+        signOptions.refresh,
       ),
-      this.jwtService.signAsync(
-        {
-          sub: userId,
-          role,
-        },
-        {
-          secret: this.configService.get('JWT_REFRESH_SECRET'),
-          expiresIn: this.configService.get('JWT_REFRESH_EXP'),
-        },
-      ),
-    ]);
-    return { accessToken: accessToken, refreshToken: refreshToken };
+    };
+    return jwt;
   }
 
   async updateHashRefreshToken(userId: number, refreshToken: string) {
@@ -78,47 +74,40 @@ export class AuthService {
     });
   }
 
-  async signUp(dto: SignUpDto, role: string = 'user'): Promise<Tokens> {
-    this.logger.verbose('signUp');
-    try {
-      const hashData = await this.hashData(dto.password);
-      const newUser = await this.prisma.user.create({
-        data: {
-          firstName: dto.firstName,
-          lastName: dto.lastName,
-          email: dto.email,
-          passwordHash: hashData,
-          role: role,
-        },
-      });
-      const tokens = await this.getTokens(newUser.id, newUser.role);
-      this.updateHashRefreshToken(newUser.id, tokens.refreshToken);
-      return tokens;
-    } catch (error) {
-      PrintNameAndCodePrismaException(error, this.logger);
-      if (error instanceof PrismaClientKnownRequestError) {
-        if (error.code == 'P2002') {
-          throw new HttpException(
-            'пользователь с такой электронной почтой уже существует',
-            HttpStatus.FORBIDDEN,
-          );
-        }
-        throw new HttpException(
-          'произошла ошибка в работе базы данных',
-          HttpStatus.BAD_GATEWAY,
-        );
-      } else {
-        throw new HttpException(
-          this.msgException.UnhandledError,
-          HttpStatus.BAD_GATEWAY,
-        );
-      }
+  async signUp(dto: SignUpRequestDto): Promise<Tokens> {
+    const hashData = await this.hashData(dto.password);
+
+    const user: UserResponseDto = await this.userService.findUserByEmail(
+      dto.email,
+    );
+
+    if (user) {
+      throw new ConflictException(
+        'пользователь с такой электронной почтой уже существует',
+      );
     }
+
+    const newUser: User = await this.prisma.user.create({
+      data: {
+        firstName: dto.firstName,
+        lastName: dto.lastName,
+        email: dto.email,
+        passwordHash: hashData,
+        role: Role.USER,
+      },
+    });
+
+    const payload: CreateJwt = {
+      sub: `${newUser.id}`,
+      role: newUser.role,
+    };
+
+    const tokens = await this.createJwt(payload);
+    this.updateHashRefreshToken(newUser.id, tokens.refreshToken);
+    return tokens;
   }
 
-  async signIn(dto: SignInDto): Promise<Tokens> {
-    this.logger.verbose('signIn');
-
+  async signIn(dto: SignInRequestDto): Promise<Tokens> {
     const user = await this.prisma.user.findFirst({
       where: {
         email: dto.email,
@@ -132,9 +121,15 @@ export class AuthService {
       user.passwordHash,
     );
     if (!passwordMatches) {
-      throw new ForbiddenException('неверный пароль');
+      throw new BadRequestException('неверный пароль');
     }
-    const tokens = await this.getTokens(user.id, user.role);
+
+    const payload: CreateJwt = {
+      sub: `${user.id}`,
+      role: user.role,
+    };
+
+    const tokens: Tokens = await this.createJwt(payload);
     this.updateHashRefreshToken(user.id, tokens.refreshToken);
     return tokens;
   }
@@ -165,7 +160,7 @@ export class AuthService {
         id: userId,
       },
     });
-    console.log(user);
+
     if (!user) {
       throw new ForbiddenException('Пользователь не найден');
     }
@@ -182,8 +177,21 @@ export class AuthService {
       throw new ForbiddenException('Не соответствие токена');
     }
 
-    const tokens = await this.getTokens(user.id, user.role);
+    const payload: CreateJwt = {
+      sub: `${user.id}`,
+      role: user.role,
+    };
+
+    const tokens: Tokens = await this.createJwt(payload);
     this.updateHashRefreshToken(userId, tokens.refreshToken);
     return tokens;
+  }
+
+  async validateJwtPayload(payload: JwtPayload): Promise<User | undefined> {
+    return this.prisma.user.findUnique({
+      where: {
+        id: parseInt(payload.sub),
+      },
+    });
   }
 }

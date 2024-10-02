@@ -1,8 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty } from 'class-validator';
-import { BaseAuthDto } from './BaseAuthDto';
+import { BaseAuthRequestDto } from './base.auth.request.dto';
 
-export class SignUpDto extends BaseAuthDto {
+export class SignUpRequestDto extends BaseAuthRequestDto {
   @ApiProperty({ description: '', nullable: false })
   @IsNotEmpty({
     message: 'имя не может быть пустым',

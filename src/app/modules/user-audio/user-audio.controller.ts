@@ -25,7 +25,7 @@ import {
 } from '@nestjs/swagger';
 import { UserAudioService } from './user-audio.service';
 
-import { UserAccessInterface } from '@/app/modules/auth/interface/UserAccessInterface';
+import { JwtPayload } from '@/app/modules/auth/interface/jwt-payload.interface';
 import { Role, validateAudio } from '@/util/Constants';
 import { Roles } from '@/util/decorators/Roles';
 import { User } from '@/util/decorators/User';
@@ -61,10 +61,10 @@ export class UserAudioController {
   @HttpCode(HttpStatus.OK)
   @Get('/my-audios')
   async getCurrentUserAudios(
-    @User() user: UserAccessInterface,
+    @User() user: JwtPayload,
   ): Promise<UserAudioDto[]> {
     this.logger.debug('GET CURRENT USER AUDIOS');
-    return await this.userAudioService.getAudiosByUserId(user.sub);
+    return await this.userAudioService.getAudiosByUserId(parseInt(user.sub));
   }
 
   @ApiOperation({
@@ -85,11 +85,11 @@ export class UserAudioController {
   @HttpCode(HttpStatus.OK)
   @Get('/my-audios/approved')
   async getApprovedUserAudiosCurrentUser(
-    @User() user: UserAccessInterface,
+    @User() user: JwtPayload,
   ): Promise<ApprovedUserAudioDto[]> {
     this.logger.debug('GET CURRENT USER AUDIOS');
     return await this.userAudioService.getApprovedUserAudiosCurrentUser(
-      user.sub,
+      parseInt(user.sub),
     );
   }
 

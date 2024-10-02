@@ -1,7 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Role } from '@prisma/client';
 import { IsEmail, IsNotEmpty } from 'class-validator';
 
-export class BaseUserDto {
+export class BaseUserRequestDto {
   @ApiProperty({ description: '', nullable: false })
   @IsNotEmpty({
     message: 'имя пользователя не может быть пустым',
@@ -24,5 +25,5 @@ export class BaseUserDto {
   @IsNotEmpty({
     message: 'роль пользователя не может быть пустой',
   })
-  role: string;
+  role: Role;
 }

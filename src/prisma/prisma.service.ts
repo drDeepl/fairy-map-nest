@@ -11,7 +11,7 @@ export class PrismaService
   constructor(configService: ConfigService) {
     super({
       datasources: {
-        db: { url: configService.get('DATABASE_URL') },
+        db: { url: configService.get('prisma.url') },
       },
     });
   }

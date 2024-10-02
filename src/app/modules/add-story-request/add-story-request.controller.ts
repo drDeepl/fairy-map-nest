@@ -1,4 +1,4 @@
-import { UserAccessInterface } from '@/app/modules/auth/interface/UserAccessInterface';
+import { JwtPayload } from '@/app/modules/auth/interface/jwt-payload.interface';
 import { Role } from '@/util/Constants';
 import { Roles } from '@/util/decorators/Roles';
 import { User } from '@/util/decorators/User';
@@ -90,10 +90,12 @@ export class AddStoryRequestController {
   @UseGuards(AuthGuard('jwt'))
   @Get('/my-requests')
   async getAddStoryRequestForCurrentUser(
-    @User() user: UserAccessInterface,
+    @User() user: JwtPayload,
   ): Promise<AddStoryRequestDto[]> {
     this.logger.debug('GET ADD STORY REQUEST FOR CURRENT USER');
-    return await this.addStoryReqService.getAddStoryRequestsByUserId(user.sub);
+    return await this.addStoryReqService.getAddStoryRequestsByUserId(
+      parseInt(user.sub),
+    );
   }
 
   @ApiOperation({
@@ -139,12 +141,15 @@ export class AddStoryRequestController {
   @UseGuards(AuthGuard('jwt'))
   @Post('/create')
   async createAddStoryRequestForCurrentUser(
-    @User() user: UserAccessInterface,
+    @User() user: JwtPayload,
     @Body() dto: CreateAddStoryRequestDto,
   ): Promise<AddStoryRequestDto> {
     this.logger.debug('CREATE ADD STORY REQEUST FOR CURRENT USER');
     console.log(user);
-    return await this.addStoryReqService.createAddStoryRequest(user.sub, dto);
+    return await this.addStoryReqService.createAddStoryRequest(
+      parseInt(user.sub),
+      dto,
+    );
   }
 
   @ApiOperation({

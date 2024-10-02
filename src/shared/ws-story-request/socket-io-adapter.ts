@@ -1,5 +1,5 @@
 import { UserAccessDto } from '@/app/modules/user/dto/UserAccessDto';
-import { UserService } from '@/app/modules/user/user.service';
+import { UserService } from '@/app/modules/user/services/user.service';
 import { INestApplicationContext, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';

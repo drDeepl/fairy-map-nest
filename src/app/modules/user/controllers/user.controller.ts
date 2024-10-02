@@ -12,14 +12,14 @@ import {
 } from '@nestjs/common';
 import { ApiHeader, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
-import { MessageDto } from '@/common/dto/MessageDto';
+import { MessageResponseDto } from '../../../../common/dto/response/message.response.dto';
 import { Role } from '@/util/Constants';
 import { Roles } from '@/util/decorators/Roles';
 import { RoleGuard } from '@/util/guards/role.guard';
 import { AuthGuard } from '@nestjs/passport';
-import { UserAccess } from './decorators/user.decorator';
-import { UserDto } from './dto/UserDto';
-import { UserService } from './user.service';
+import { UserAccess } from '../decorators/user.decorator';
+import { UserResponseDto } from '../dto/response/user.response.dto';
+import { UserService } from '../services/user.service';
 
 @ApiTags('UserController')
 @UseGuards(AuthGuard('jwt'))
@@ -31,7 +31,7 @@ export class UserController {
 
   @Get('/me')
   @ApiOperation({ summary: 'получение информации о текущем пользователе' })
-  @ApiResponse({ status: HttpStatus.OK, type: UserDto })
+  @ApiResponse({ status: HttpStatus.OK, type: UserResponseDto })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED })
   @ApiResponse({ status: HttpStatus.NOT_FOUND })
@@ -42,7 +42,9 @@ export class UserController {
   @UseGuards(AuthGuard('jwt'), RoleGuard)
   @HttpCode(HttpStatus.OK)
   @HttpCode(HttpStatus.FORBIDDEN)
-  getCurrentUserInfo(@UserAccess() userAccessTokenData): Promise<UserDto> {
+  getCurrentUserInfo(
+    @UserAccess() userAccessTokenData,
+  ): Promise<UserResponseDto> {
     this.logger.verbose('GET CURRENT USER INFO');
     const userId = userAccessTokenData.sub;
     return this.userService.findById(userId);
@@ -53,7 +55,7 @@ export class UserController {
     summary: 'получение информации о пользователе по его id',
     description: 'необходима роль администратора',
   })
-  @ApiResponse({ status: HttpStatus.OK, type: UserDto })
+  @ApiResponse({ status: HttpStatus.OK, type: UserResponseDto })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED })
   @ApiResponse({ status: HttpStatus.NOT_FOUND })
@@ -65,7 +67,7 @@ export class UserController {
   @UseGuards(AuthGuard('jwt'), RoleGuard)
   @HttpCode(HttpStatus.OK)
   @HttpCode(HttpStatus.NOT_FOUND)
-  findUserById(@Param('userId') userId: number): Promise<UserDto> {
+  findUserById(@Param('userId') userId: number): Promise<UserResponseDto> {
     this.logger.verbose('findUserById');
     return this.userService.findById(userId);
   }
@@ -75,7 +77,7 @@ export class UserController {
     summary: 'удаленеи пользователя по его id',
     description: 'необходима роль администратора',
   })
-  @ApiResponse({ status: HttpStatus.OK, type: UserDto })
+  @ApiResponse({ status: HttpStatus.OK, type: UserResponseDto })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED })
   @ApiResponse({ status: HttpStatus.NOT_FOUND })
@@ -86,7 +88,7 @@ export class UserController {
   deleteUser(
     @Param('userId', ParseIntPipe) userId: number,
     @UserAccess() userAccessTokenData,
-  ): Promise<MessageDto> {
+  ): Promise<MessageResponseDto> {
     this.logger.verbose('deleteUser');
     if (userId === userAccessTokenData.sub || userAccessTokenData.isAdmin) {
       return this.userService.deleteUser(userId);

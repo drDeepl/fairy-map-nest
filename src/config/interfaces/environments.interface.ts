@@ -1,5 +1,5 @@
 import { JwtConfig } from './jwt-config.interface';
-import { PostgreConfig } from './postgre-config.interface';
+import { PrismaConfig } from './prisma-config.interface';
 import { SwaggerConfig } from './swagger-config.interface';
 
 export interface EnvironmentVariables {
@@ -8,5 +8,5 @@ export interface EnvironmentVariables {
   jwt: JwtConfig;
   globalPrefix: string;
   swagger: SwaggerConfig;
-  postgre: PostgreConfig;
+  postgre: PrismaConfig;
 }

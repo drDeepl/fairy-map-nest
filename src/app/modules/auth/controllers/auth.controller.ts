@@ -4,7 +4,6 @@ import { UserAccess } from '@/app/modules/user/decorators/user.decorator';
 import {
   Body,
   Controller,
-  Get,
   HttpCode,
   HttpStatus,
   Logger,
@@ -13,52 +12,58 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiHeader, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBadRequestResponse,
+  ApiHeader,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { Request } from 'express';
-import { AuthService } from './auth.service';
-import { SignInDto } from './dto/signIn.dto';
-import { SignUpDto } from './dto/signUp.dto';
-import { TokensDto } from './dto/tokens.dto';
-import { Tokens } from './types';
+import { AuthService } from '../services/auth.service';
+import { SignInRequestDto } from '../dto/request/sign-in.request.dto';
+import { SignUpRequestDto } from '../dto/request/sign-up.request.dto';
+import { TokensResponseDto } from '../dto/response/tokens.response.dto';
+import { Tokens } from '../types';
 
 @ApiTags('AuthController')
-@Controller('api/auth')
+@Controller('auth')
 export class AuthController {
   private readonly logger = new Logger('AuthController');
   constructor(private readonly authService: AuthService) {}
   @Post('signin')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'запрос на вход' })
+  @ApiOperation({ summary: 'вход' })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Success',
-    type: TokensDto,
+    type: TokensResponseDto,
   })
-  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
+  @ApiBadRequestResponse({ description: 'Bad Request' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
-  signIn(@Body() dto: SignInDto): Promise<Tokens> {
+  signIn(@Body() dto: SignInRequestDto): Promise<Tokens> {
     this.logger.log('auth.controller: signIn');
     return this.authService.signIn(dto);
   }
 
   @Post('signup')
   @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({ summary: 'запрос на регистрацию' })
+  @ApiOperation({ summary: 'регистрация' })
   @ApiResponse({
     status: HttpStatus.CREATED,
-    type: TokensDto,
+    type: TokensResponseDto,
   })
-  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
+  @ApiBadRequestResponse({ description: 'Bad Request' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
-  signUp(@Body() dto: SignUpDto): Promise<Tokens> {
+  signUp(@Body() dto: SignUpRequestDto): Promise<Tokens> {
     return this.authService.signUp(dto);
   }
 
-  @ApiOperation({ summary: 'запрос на обновление access token' })
+  @ApiOperation({ summary: ' на обновление access token' })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Success',
-    type: TokensDto,
+    type: TokensResponseDto,
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED })
@@ -75,7 +80,7 @@ export class AuthController {
     return this.authService.refreshTokens(user['sub'], user['refreshToken']);
   }
 
-  @ApiOperation({ summary: 'запрос на удаление refresh token у пользователя' })
+  @ApiOperation({ summary: 'выход из системы' })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Success',
@@ -98,8 +103,6 @@ export class AuthController {
   @Post('logout')
   @HttpCode(HttpStatus.OK)
   async logout(@UserAccess() userAccessData) {
-    this.logger.verbose('logout');
-    this.logger.verbose(userAccessData);
     return await this.authService.logout(userAccessData['sub']);
   }
 }

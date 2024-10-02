@@ -1,5 +1,7 @@
-import appConfig from '@/config/app.config';
-import swaggerConfig from '@/config/swagger.config';
+import appConfig from '../config/app.config';
+import swaggerConfig from '../config/swagger.config';
+import prismaConfig from '../config/prisma.config';
+import jwtConfig from '../config/jwt.config';
 import { UserModule } from '@/app/modules/user/user.module';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
@@ -15,14 +17,14 @@ import { UserAudioModule } from './modules/user-audio/user-audio.module';
 
 import { WsStoryRequestModule } from '../shared/ws-story-request/ws-story-request.module';
 import { AddStoryRequestModule } from './modules/add-story-request/add-story-request.module';
-import { environmentsVariablesValidationSchema } from '@/config/validation/schemas/environment-validation.schema';
+import { environmentsVariablesValidationSchema } from '../config/validation/schemas/environment-validation.schema';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       validationSchema: environmentsVariablesValidationSchema,
-      load: [appConfig, swaggerConfig],
+      load: [appConfig, swaggerConfig, prismaConfig, jwtConfig],
     }),
     PrismaModule,
     AuthModule,

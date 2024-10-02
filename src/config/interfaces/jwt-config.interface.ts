@@ -1,7 +1,6 @@
 export interface JwtConfig {
-  patient: JwtTokenOptions;
-
-  doctor: JwtTokenOptions;
+  user: JwtTokenOptions;
+  moder: JwtTokenOptions;
   admin: JwtTokenOptions;
 }
 

@@ -22,7 +22,7 @@ import {
 import { ApiHeader, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { StoryService } from './story.service';
 
-import { UserAccessInterface } from '@/app/modules/auth/interface/UserAccessInterface';
+import { JwtPayload } from '@/app/modules/auth/interface/jwt-payload.interface';
 import { Role } from '@/util/Constants';
 import { Roles } from '@/util/decorators/Roles';
 import { User } from '@/util/decorators/User';
@@ -295,10 +295,14 @@ export class StoryController {
   async setUserAudioToStory(
     @Query('storyId', ParseIntPipe) storyId: number,
     @Body() dto: AddAudioStoryDto,
-    @User() user: UserAccessInterface,
+    @User() user: JwtPayload,
   ): Promise<void> {
     this.logger.debug('SET USER AUDIO TO STORY');
-    return this.storyService.setUserAudioToStory(user.sub, storyId, dto);
+    return this.storyService.setUserAudioToStory(
+      parseInt(user.sub),
+      storyId,
+      dto,
+    );
   }
 
   @ApiOperation({
@@ -422,13 +426,12 @@ export class StoryController {
   @HttpCode(HttpStatus.OK)
   @Get('/rating/my/:userAudioId')
   async getRatingByAudioIdForCurrentUser(
-    @User() user: UserAccessInterface,
+    @User() user: JwtPayload,
     @Param('userAudioId', ParseIntPipe) userAudioId: number,
   ): Promise<RatingAudioStoryEntity> {
     this.logger.debug('GET RATING AUDIO ID FOR CURRENT USER');
     return await this.storyService.getRatingByAudioIdForCurrentUser(
-      user.sub,
-
+      parseInt(user.sub),
       userAudioId,
     );
   }
@@ -450,10 +453,13 @@ export class StoryController {
   @HttpCode(HttpStatus.OK)
   @Put('/rating/add')
   async addRatingForStoryByCurrentUser(
-    @User() user: UserAccessInterface,
+    @User() user: JwtPayload,
     @Body() dto: AddRatingAudioStoryDto,
   ): Promise<AddedRatingAudioStoryDto> {
     this.logger.debug('ADD RATING FOR STORY BY CURRENT USER');
-    return await this.storyService.addRatingAudioStoryById(user.sub, dto);
+    return await this.storyService.addRatingAudioStoryById(
+      parseInt(user.sub),
+      dto,
+    );
   }
 }

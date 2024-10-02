@@ -1,4 +1,4 @@
-import { UserAccessInterface } from '@/app/modules/auth/interface/UserAccessInterface';
+import { JwtPayload } from '@/app/modules/auth/interface/jwt-payload.interface';
 import { Role } from '@/util/Constants';
 import { Roles } from '@/util/decorators/Roles';
 import { User } from '@/util/decorators/User';
@@ -51,10 +51,11 @@ export class AudioStoryRequestController {
   @UseGuards(AuthGuard('jwt'), RoleGuard)
   @Get('/my-requests')
   async getAllAudioStoryRequestsCurrentUser(
-    @User() user: UserAccessInterface,
+    @User() user: JwtPayload,
   ): Promise<AudioRequestWithUserAudioDto[]> {
-    this.logger.debug('GET ALL AUDIO STORY REQUESTS FOR CURRENT USER');
-    return this.audioStoryRequestService.getAudioRequestsByUserId(user.sub);
+    return this.audioStoryRequestService.getAudioRequestsByUserId(
+      parseInt(user.sub),
+    );
   }
 
   @ApiOperation({

@@ -1,24 +1,24 @@
 import { registerAs } from '@nestjs/config';
 
 export default registerAs('jwt', () => ({
-  patient: {
+  user: {
     access: {
-      secret: process.env.ACCESS_TOKEN_SECRET_PATIENT,
-      expiresIn: process.env.ACCESS_TOKEN_EXPIRATION_PATIENT,
+      secret: process.env.ACCESS_TOKEN_SECRET_USER,
+      expiresIn: process.env.ACCESS_TOKEN_EXPIRATION_USER,
     },
     refresh: {
-      secret: process.env.REFRESH_TOKEN_SECRET_PATIENT,
-      expiresIn: process.env.REFRESH_TOKEN_EXPIRATION_PATIENT,
+      secret: process.env.REFRESH_TOKEN_SECRET_USER,
+      expiresIn: process.env.REFRESH_TOKEN_EXPIRATION_USER,
     },
   },
-  doctor: {
+  moder: {
     access: {
-      secret: process.env.ACCESS_TOKEN_SECRET_DOCTOR,
-      expiresIn: process.env.ACCESS_TOKEN_EXPIRATION_DOCTOR,
+      secret: process.env.ACCESS_TOKEN_SECRET_MODER,
+      expiresIn: process.env.ACCESS_TOKEN_EXPIRATION_MODER,
     },
     refresh: {
-      secret: process.env.REFRESH_TOKEN_SECRET_DOCTOR,
-      expiresIn: process.env.REFRESH_TOKEN_EXPIRATION_DOCTOR,
+      secret: process.env.REFRESH_TOKEN_SECRET_MODER,
+      expiresIn: process.env.REFRESH_TOKEN_EXPIRATION_MODER,
     },
   },
   admin: {
