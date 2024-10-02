@@ -60,16 +60,13 @@ export class AuthService {
     return jwt;
   }
 
-  async updateHashRefreshToken(userId: number, refreshToken: string) {
-    this.logger.verbose('updateRefreshToken');
-    const hashData: string = await this.hashData(refreshToken);
-
+  async updateRefreshToken(userId: number, refreshToken: string) {
     await this.prisma.user.update({
       where: {
         id: userId,
       },
       data: {
-        refreshTokenHash: hashData,
+        refreshToken: refreshToken,
       },
     });
   }
@@ -103,7 +100,7 @@ export class AuthService {
     };
 
     const tokens = await this.createJwt(payload);
-    this.updateHashRefreshToken(newUser.id, tokens.refreshToken);
+    this.updateRefreshToken(newUser.id, tokens.refreshToken);
     return tokens;
   }
 
@@ -130,7 +127,7 @@ export class AuthService {
     };
 
     const tokens: Tokens = await this.createJwt(payload);
-    this.updateHashRefreshToken(user.id, tokens.refreshToken);
+    this.updateRefreshToken(user.id, tokens.refreshToken);
     return tokens;
   }
 
@@ -142,7 +139,7 @@ export class AuthService {
           id: userId,
         },
         data: {
-          refreshTokenHash: null,
+          refreshToken: null,
         },
       })
       .catch((error) => {
@@ -152,10 +149,8 @@ export class AuthService {
       .then((result) => {});
   }
 
-  async refreshTokens(userId: number, refreshToken: string): Promise<Tokens> {
-    this.logger.verbose('refreshTokens');
-    this.logger.verbose(`${userId}`);
-    const user = await this.prisma.user.findUnique({
+  async refreshTokens(userId: number): Promise<Tokens> {
+    const user: User | undefined = await this.prisma.user.findUnique({
       where: {
         id: userId,
       },
@@ -165,16 +160,8 @@ export class AuthService {
       throw new ForbiddenException('Пользователь не найден');
     }
 
-    if (!user.refreshTokenHash) {
+    if (!user.refreshToken) {
       throw new ForbiddenException('Refresh Token не найден');
-    }
-
-    const comparedRefreshToken = await bcrypt.compare(
-      refreshToken,
-      user.refreshTokenHash,
-    );
-    if (!comparedRefreshToken) {
-      throw new ForbiddenException('Не соответствие токена');
     }
 
     const payload: CreateJwt = {
@@ -183,7 +170,7 @@ export class AuthService {
     };
 
     const tokens: Tokens = await this.createJwt(payload);
-    this.updateHashRefreshToken(userId, tokens.refreshToken);
+    this.updateRefreshToken(userId, tokens.refreshToken);
     return tokens;
   }
 

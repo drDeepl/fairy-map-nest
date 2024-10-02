@@ -9,6 +9,8 @@ import { AppConfig } from './config/interfaces/app-environment.interface';
 import { SwaggerConfig } from './config/interfaces/swagger-config.interface';
 import SwaggerDocumentBuilder from './swagger/swagger-document-builder';
 import { join } from 'path';
+import validationExceptionFactory from './common/filters/validation-exception-factory';
+import { HttpErrorFilter } from './common/filters/http-error.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -20,6 +22,22 @@ async function bootstrap() {
   const globalPrefix: string = appConfig.globalPrefix;
 
   const logger = new Logger('NestApplication');
+
+  const options = {
+    transform: true,
+    whitelist: true,
+    forbidNonWhitelisted: true,
+    skipMissingProperties: false,
+  };
+
+  app.useGlobalPipes(
+    new ValidationPipe({
+      ...options,
+      exceptionFactory: validationExceptionFactory,
+    }),
+  );
+
+  app.useGlobalFilters(new HttpErrorFilter());
 
   app.useStaticAssets(join(__dirname, '..', 'wwwroot/swagger/assets'));
 

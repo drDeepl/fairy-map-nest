@@ -11,7 +11,7 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
+
 import {
   ApiBadRequestResponse,
   ApiHeader,
@@ -25,12 +25,34 @@ import { SignInRequestDto } from '../dto/request/sign-in.request.dto';
 import { SignUpRequestDto } from '../dto/request/sign-up.request.dto';
 import { TokensResponseDto } from '../dto/response/tokens.response.dto';
 import { Tokens } from '../types';
+import { ValidationExceptionResponseDto } from '@/common/dto/response/validation-exception.response.dto';
+import { CurrentUser } from '@/common/decorators/user.decorator';
+import { JwtPayload } from '../interface/jwt-payload.interface';
+import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 
 @ApiTags('AuthController')
 @Controller('auth')
 export class AuthController {
   private readonly logger = new Logger('AuthController');
+
   constructor(private readonly authService: AuthService) {}
+
+  @Post('signup')
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'регистрация' })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+    type: TokensResponseDto,
+  })
+  @ApiBadRequestResponse({
+    description: 'Bad Request',
+    type: ValidationExceptionResponseDto,
+  })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  signUp(@Body() dto: SignUpRequestDto): Promise<Tokens> {
+    return this.authService.signUp(dto);
+  }
+
   @Post('signin')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'вход' })
@@ -42,21 +64,7 @@ export class AuthController {
   @ApiBadRequestResponse({ description: 'Bad Request' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
   signIn(@Body() dto: SignInRequestDto): Promise<Tokens> {
-    this.logger.log('auth.controller: signIn');
     return this.authService.signIn(dto);
-  }
-
-  @Post('signup')
-  @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({ summary: 'регистрация' })
-  @ApiResponse({
-    status: HttpStatus.CREATED,
-    type: TokensResponseDto,
-  })
-  @ApiBadRequestResponse({ description: 'Bad Request' })
-  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
-  signUp(@Body() dto: SignUpRequestDto): Promise<Tokens> {
-    return this.authService.signUp(dto);
   }
 
   @ApiOperation({ summary: ' на обновление access token' })
@@ -71,13 +79,11 @@ export class AuthController {
     name: 'authorization',
     description: 'Пример: Bearer refreshToken',
   })
-  @UseGuards(AuthGuard('jwt-refresh'))
+  @UseGuards(JwtAuthGuard)
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
-  refresh(@Req() req: Request) {
-    this.logger.verbose('refresh');
-    const user = req.user;
-    return this.authService.refreshTokens(user['sub'], user['refreshToken']);
+  refresh(@CurrentUser() currentUser: JwtPayload) {
+    return this.authService.refreshTokens(parseInt(currentUser.sub));
   }
 
   @ApiOperation({ summary: 'выход из системы' })
@@ -99,10 +105,10 @@ export class AuthController {
     name: 'authorization',
     description: 'Пример: Bearer accessToken',
   })
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(JwtAuthGuard)
   @Post('logout')
   @HttpCode(HttpStatus.OK)
-  async logout(@UserAccess() userAccessData) {
-    return await this.authService.logout(userAccessData['sub']);
+  async logout(@CurrentUser() currentUser: JwtPayload) {
+    return await this.authService.logout(parseInt(currentUser.sub));
   }
 }
