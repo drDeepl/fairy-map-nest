@@ -12,7 +12,7 @@ export class AddStoryRequestEntity {
   @ApiProperty({ description: 'комментарий проверяющего', nullable: false })
   comment: string;
   @ApiProperty({
-    description: 'ид полльзователя, создавшего заявку',
+    description: 'ид пользователя, создавшего заявку',
     nullable: false,
   })
   userId: number;

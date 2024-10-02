@@ -1,25 +1,43 @@
-import { ValidationPipe } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { AppModule } from './app.module';
+import { AppModule } from './app/app.module';
 import { SocketIOAdapter } from './ws-story-request/socket-io-adapter';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import { ConfigService } from '@nestjs/config';
+import { AppConfig } from './config/interfaces/app-environment.interface';
+import { SwaggerConfig } from './config/interfaces/swagger-config.interface';
+import SwaggerDocumentBuilder from './swagger/swagger-document-builder';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  const configService = app.get(ConfigService);
+
+  const appConfig: AppConfig = configService.get('app');
 
   const config = new DocumentBuilder()
     .setDescription('API интерактивной карты сказок различных национальностей')
     .addTag('InteractiveMap')
     .build();
 
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document);
+  const port: number = appConfig.port;
+  const globalPrefix: string = appConfig.globalPrefix;
+
+  const logger = new Logger('NestApplication');
 
   app.useGlobalPipes(new ValidationPipe());
   app.enableCors();
-
+  app.setGlobalPrefix(globalPrefix);
   app.useWebSocketAdapter(new SocketIOAdapter(app));
 
-  await app.listen(3005);
+  const swaggerConfig: SwaggerConfig = configService.get('swagger');
+
+  console.log(swaggerConfig);
+  const swaggerDocumentBuilder = new SwaggerDocumentBuilder(app, swaggerConfig);
+  swaggerDocumentBuilder.setupSwagger();
+
+  await app.listen(port, () => {
+    logger.log(`Server initialized on port ${port}`);
+  });
 }
 bootstrap();

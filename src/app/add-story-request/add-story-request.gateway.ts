@@ -1,4 +1,4 @@
-import { Logger, UseGuards } from '@nestjs/common';
+import { Logger } from '@nestjs/common';
 import {
   ConnectedSocket,
   OnGatewayConnection,
@@ -11,11 +11,10 @@ import {
 
 import { Server, Socket } from 'socket.io';
 
-import { SocketWithAuth } from '../ws-story-request/socket-io-adapter';
-import { UserAccessInterface } from '@/auth/interface/UserAccessInterface';
 import { UserAccessDto } from '@/user/dto/UserAccessDto';
 import { AddStoryRequestDto } from './dto/AddStoryRequestDto';
 import { AddStoryRequestRepository } from './add-story-request.repository';
+import { SocketWithAuth } from '@/ws-story-request/socket-io-adapter';
 
 @WebSocketGateway(3002, { cors: true, transports: ['websocket'] })
 export class AddStoryRequestGateway
@@ -54,12 +53,6 @@ export class AddStoryRequestGateway
     const { sockets } = this.server.sockets;
     for (const [, client] of sockets) {
       const user: UserAccessDto = (client as SocketWithAuth).user;
-
-      // if (addStoryRequestDto.userId === user.sub) {
-      //   client.emit('statuses', {
-      //     ...JSON.parse(JSON.stringify(addStoryRequestDto)),
-      //   });
-      // }
     }
   }
 }

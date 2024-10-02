@@ -1,4 +1,4 @@
-import { Logger, UseGuards } from '@nestjs/common';
+import { Logger } from '@nestjs/common';
 import {
   ConnectedSocket,
   OnGatewayConnection,
@@ -10,15 +10,11 @@ import {
 } from '@nestjs/websockets';
 
 import { Server, Socket } from 'socket.io';
-
-import { AudioStoryRequestService } from '@/audio-story-request/audio-story-request.service';
 import { SocketWithAuth } from '../ws-story-request/socket-io-adapter';
-import { EditAudioStoryRequestDto } from '@/audio-story-request/dto/audio-story-request/EditAudioStoryRequestDto';
 import { AudioRequestWithUserAudioDto } from '@/audio-story-request/dto/audio-story-request/AudioRequestWithUserAudioDto';
-import { UserAccessInterface } from '@/auth/interface/UserAccessInterface';
 import { UserAccessDto } from '@/user/dto/UserAccessDto';
-import { AddStoryRequestDto } from '@/add-story-request/dto/AddStoryRequestDto';
-import { AddStoryRequestEntity } from '@/add-story-request/entity/AddStoryRequestEntity';
+import { AddStoryRequestEntity } from '@/app/add-story-request/entity/AddStoryRequestEntity';
+import { AddStoryRequestDto } from '@/app/add-story-request/dto/AddStoryRequestDto';
 
 @WebSocketGateway(3002, { cors: true, transports: ['websocket'] })
 export class StoryRequestGateway
