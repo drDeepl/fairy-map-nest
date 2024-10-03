@@ -5,13 +5,13 @@ import { MessageException } from '@/util/MessageException';
 import { DataBaseExceptionHandler } from '@/util/exception/DataBaseExceptionHandler';
 import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
-import { AddConstituentDto } from './dto/AddConstituentDto';
-import { AddEthnicGroupToConstituentDto } from './dto/AddEthnicGroupToConstituentDto';
-import { ConstituentDto } from './dto/ConstituentDto';
-import { ConstituentFilledDto } from './dto/ConstituentFilledDto';
-import { DeleteEthnicGroupToConstituentDto } from './dto/DeleteEthnicGroupToConstituentDto';
-import { EditConstituentDto } from './dto/EditConstituentDto';
-import { EthnicGroupToConstituentDto } from './dto/EthnicGroupToConstituentDto';
+import { AddConstituentDto } from '../dto/AddConstituentDto';
+import { AddEthnicGroupToConstituentDto } from '../dto/AddEthnicGroupToConstituentDto';
+import { ConstituentDto } from '../dto/ConstituentDto';
+import { ConstituentFilledDto } from '../dto/ConstituentFilledDto';
+import { DeleteEthnicGroupToConstituentDto } from '../dto/DeleteEthnicGroupToConstituentDto';
+import { EditConstituentDto } from '../dto/EditConstituentDto';
+import { EthnicGroupToConstituentDto } from '../dto/EthnicGroupToConstituentDto';
 
 @Injectable()
 export class ConstituentsService {
@@ -22,8 +22,6 @@ export class ConstituentsService {
   );
 
   constructor(private prisma: PrismaService) {}
-
-  
 
   async addNewConstituent(dto: AddConstituentDto): Promise<ConstituentDto> {
     this.logger.warn('ADD NEW CONSTITUENT');

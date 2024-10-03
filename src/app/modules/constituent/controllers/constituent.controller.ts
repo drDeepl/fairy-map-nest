@@ -18,14 +18,14 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiHeader, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { ConstituentsService } from './constituent.service';
-import { AddConstituentDto } from './dto/AddConstituentDto';
-import { AddEthnicGroupToConstituentDto } from './dto/AddEthnicGroupToConstituentDto';
-import { ConstituentDto } from './dto/ConstituentDto';
-import { ConstituentFilledDto } from './dto/ConstituentFilledDto';
-import { DeleteEthnicGroupToConstituentDto } from './dto/DeleteEthnicGroupToConstituentDto';
-import { EditConstituentDto } from './dto/EditConstituentDto';
-import { EthnicGroupToConstituentDto } from './dto/EthnicGroupToConstituentDto';
+import { ConstituentsService } from '../services/constituent.service';
+import { AddConstituentDto } from '../dto/AddConstituentDto';
+import { AddEthnicGroupToConstituentDto } from '../dto/AddEthnicGroupToConstituentDto';
+import { ConstituentDto } from '../dto/ConstituentDto';
+import { ConstituentFilledDto } from '../dto/ConstituentFilledDto';
+import { DeleteEthnicGroupToConstituentDto } from '../dto/DeleteEthnicGroupToConstituentDto';
+import { EditConstituentDto } from '../dto/EditConstituentDto';
+import { EthnicGroupToConstituentDto } from '../dto/EthnicGroupToConstituentDto';
 
 @ApiTags('ConstituentController')
 @Controller('api/constituent')
@@ -146,25 +146,6 @@ export class ConstituentsController {
   async getConstituents(): Promise<ConstituentDto[]> {
     this.logger.warn('GET CONSTITUENTS');
     return this.constituentService.getConstituents();
-  }
-
-  @ApiOperation({
-    summary: 'получение списка заполненности субъектов',
-  })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'Success',
-    type: [ConstituentFilledDto],
-  })
-  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
-  @HttpCode(HttpStatus.OK)
-  @Get('/percent-of-filled/:constituentId')
-  async getPercentsFilledStoriesByConstituentId(): Promise<
-    ConstituentFilledDto[]
-  > {
-    this.logger.warn('GET CONSTITUENTS');
-
-    return await this.constituentService.getPercentOfFilledConstituent();
   }
 
   @HttpCode(HttpStatus.OK)
