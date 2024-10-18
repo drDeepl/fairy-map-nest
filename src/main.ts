@@ -1,6 +1,7 @@
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-
+import * as express from 'express';
+import { join } from 'path';
 import { AppModule } from './app/app.module';
 import { SocketIOAdapter } from './shared/ws-story-request/socket-io-adapter';
 import { NestExpressApplication } from '@nestjs/platform-express';
@@ -8,7 +9,7 @@ import { ConfigService } from '@nestjs/config';
 import { AppConfig } from './config/interfaces/app-environment.interface';
 import { SwaggerConfig } from './config/interfaces/swagger-config.interface';
 import SwaggerDocumentBuilder from './swagger/swagger-document-builder';
-import { join } from 'path';
+
 import validationExceptionFactory from './common/filters/validation-exception-factory';
 import { HttpErrorFilter } from './common/filters/http-error.filter';
 
@@ -38,6 +39,8 @@ async function bootstrap() {
   );
 
   app.useGlobalFilters(new HttpErrorFilter());
+
+  app.use('/static', express.static(join(__dirname, '..', 'static')));
 
   app.useStaticAssets(join(__dirname, '..', 'wwwroot/swagger/assets'));
 

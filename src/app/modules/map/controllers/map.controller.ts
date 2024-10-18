@@ -14,22 +14,60 @@ import {
   ParseIntPipe,
   Post,
   UseGuards,
+  Res,
+  StreamableFile,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiHeader, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { AddEthnicGroupMapDto } from './dto/AddEthnicGroupMapDto';
-import { EthnicGroupMapDto } from './dto/EthnicGroupMapDto';
-import { EthnicGroupMapWithGroupDto } from './dto/EthnicGroupMapWithGroupDto';
-import { EthnicGroupMapPointEntity } from './entity/EthnicGroupMapPointEntity';
-import { EthnicGroupMapPointEntityWithConstituents } from './entity/EthnicGroupMapPointEntityWithConstituents';
-import { MapService } from './map.service';
+import { AddEthnicGroupMapDto } from '../dto/AddEthnicGroupMapDto';
+import { EthnicGroupMapDto } from '../dto/EthnicGroupMapDto';
+import { EthnicGroupMapWithGroupDto } from '../dto/EthnicGroupMapWithGroupDto';
+import { EthnicGroupMapPointEntity } from '../entity/EthnicGroupMapPointEntity';
+import { EthnicGroupMapPointEntityWithConstituents } from '../entity/EthnicGroupMapPointEntityWithConstituents';
+import { MapService } from '../services/map.service';
+import { join } from 'path';
+import { createReadStream } from 'fs';
+import { Response } from 'express';
 
 @ApiTags('MapController')
-@Controller('api/map')
+@Controller('map')
 export class MapController {
   private readonly logger = new Logger('MapController');
 
   constructor(private readonly mapService: MapService) {}
+
+  @ApiOperation({
+    summary: 'получить topojson карты',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Success',
+    type: StreamableFile,
+  })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
+  @Get('map.json')
+  getMapTopojson(@Res() res: Response): StreamableFile {
+    const filePath = join(
+      __dirname,
+      '../../../..',
+      'static',
+      'map',
+      'map.topojson.json',
+    );
+
+    const readStream = createReadStream(filePath);
+    readStream.on('data', (chunk) => console.log(chunk)); // <--- the data log gets printed
+    readStream.on('end', () => console.log('done'));
+    readStream.on('error', (err) => {
+      console.error(err);
+
+      res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    });
+
+    return new StreamableFile(readStream);
+  }
 
   @ApiOperation({
     summary: 'добавление точки этнической группы на карту',
