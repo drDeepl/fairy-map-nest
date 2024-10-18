@@ -18,6 +18,8 @@ import { UserAudioModule } from './modules/user-audio/user-audio.module';
 import { WsStoryRequestModule } from '../shared/ws-story-request/ws-story-request.module';
 import { AddStoryRequestModule } from './modules/add-story-request/add-story-request.module';
 import { environmentsVariablesValidationSchema } from '../config/validation/schemas/environment-validation.schema';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -25,6 +27,10 @@ import { environmentsVariablesValidationSchema } from '../config/validation/sche
       isGlobal: true,
       validationSchema: environmentsVariablesValidationSchema,
       load: [appConfig, swaggerConfig, prismaConfig, jwtConfig],
+    }),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'static'),
+      renderPath: '/static',
     }),
     PrismaModule,
     AuthModule,

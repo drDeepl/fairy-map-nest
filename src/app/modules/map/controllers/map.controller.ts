@@ -13,19 +13,23 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  Res,
+  StreamableFile,
   UseGuards,
 } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
+import { Response } from 'express';
 import { ApiHeader, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { AddEthnicGroupMapDto } from './dto/AddEthnicGroupMapDto';
-import { EthnicGroupMapDto } from './dto/EthnicGroupMapDto';
-import { EthnicGroupMapWithGroupDto } from './dto/EthnicGroupMapWithGroupDto';
-import { EthnicGroupMapPointEntity } from './entity/EthnicGroupMapPointEntity';
-import { EthnicGroupMapPointEntityWithConstituents } from './entity/EthnicGroupMapPointEntityWithConstituents';
-import { MapService } from './map.service';
-import { ConstituentFilledDto } from '../constituent/dto/ConstituentFilledDto';
-import { ConstituentsService } from '../constituent/services/constituent.service';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { AddEthnicGroupMapDto } from '../dto/AddEthnicGroupMapDto';
+import { EthnicGroupMapDto } from '../dto/EthnicGroupMapDto';
+import { EthnicGroupMapWithGroupDto } from '../dto/EthnicGroupMapWithGroupDto';
+import { EthnicGroupMapPointEntity } from '../entity/EthnicGroupMapPointEntity';
+import { EthnicGroupMapPointEntityWithConstituents } from '../entity/EthnicGroupMapPointEntityWithConstituents';
+import { MapService } from '../services/map.service';
+import { ConstituentFilledDto } from '../../constituent/dto/ConstituentFilledDto';
+import { ConstituentsService } from '../../constituent/services/constituent.service';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
+import { createReadStream } from 'fs';
+import { join } from 'path';
 
 @ApiTags('MapController')
 @Controller('map')
@@ -36,6 +40,37 @@ export class MapController {
     private readonly mapService: MapService,
     private readonly constituentService: ConstituentsService,
   ) {}
+
+  @ApiOperation({
+    summary: 'получить данные для отрисовки карты',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Success',
+    type: StreamableFile,
+  })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
+  @Get('map.json')
+  getMapTopojson(@Res({ passthrough: true }) res: Response): StreamableFile {
+    const filePath = join(
+      __dirname,
+      '../../../..',
+      'static',
+      'map',
+      'map.json',
+    );
+
+    const readStream = createReadStream(filePath);
+
+    readStream.on('error', (err) => {
+      console.error(err);
+      res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message });
+    });
+
+    return new StreamableFile(readStream);
+  }
 
   @ApiOperation({ summary: 'получение точек этнических групп на карте' })
   @ApiResponse({

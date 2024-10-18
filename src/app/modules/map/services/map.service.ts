@@ -4,11 +4,11 @@ import { PrintNameAndCodePrismaException } from '@/util/ExceptionUtils';
 import { MessageException } from '@/util/MessageException';
 import { DataBaseExceptionHandler } from '@/util/exception/DataBaseExceptionHandler';
 import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
-import { AddEthnicGroupMapDto } from './dto/AddEthnicGroupMapDto';
-import { EthnicGroupMapDto } from './dto/EthnicGroupMapDto';
-import { EthnicGroupMapWithGroupDto } from './dto/EthnicGroupMapWithGroupDto';
-import { EthnicGroupMapPointEntity } from './entity/EthnicGroupMapPointEntity';
-import { EthnicGroupMapPointEntityWithConstituents } from './entity/EthnicGroupMapPointEntityWithConstituents';
+import { AddEthnicGroupMapDto } from '../dto/AddEthnicGroupMapDto';
+import { EthnicGroupMapDto } from '../dto/EthnicGroupMapDto';
+import { EthnicGroupMapWithGroupDto } from '../dto/EthnicGroupMapWithGroupDto';
+import { EthnicGroupMapPointEntity } from '../entity/EthnicGroupMapPointEntity';
+import { EthnicGroupMapPointEntityWithConstituents } from '../entity/EthnicGroupMapPointEntityWithConstituents';
 
 @Injectable()
 export class MapService {
@@ -48,8 +48,6 @@ export class MapService {
         }
       });
   }
-
-  
 
   async getEthnicalGroupPoints(): Promise<EthnicGroupMapWithGroupDto[]> {
     this.logger.debug('GET ETHNICAL GROUP POINT');
