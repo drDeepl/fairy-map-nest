@@ -42,7 +42,11 @@ async function bootstrap() {
   app.useStaticAssets(join(__dirname, '..', 'wwwroot/swagger/assets'));
 
   app.useGlobalPipes(new ValidationPipe());
-  app.enableCors();
+  app.enableCors(
+    {origin: true,
+            methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+            credentials: true,}
+  );
   app.setGlobalPrefix(globalPrefix);
   app.useWebSocketAdapter(new SocketIOAdapter(app));
 
