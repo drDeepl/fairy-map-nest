@@ -23,7 +23,7 @@ import { UserService } from '../services/user.service';
 
 @ApiTags('UserController')
 @UseGuards(AuthGuard('jwt'))
-@Controller('api/user')
+@Controller('user')
 export class UserController {
   private readonly logger = new Logger('USER.CONTROLLER');
 

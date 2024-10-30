@@ -23,7 +23,7 @@ import { ApiHeader, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { RequestService } from './request.service';
 
 @ApiTags('RequestController')
-@Controller('/api/request')
+@Controller('request')
 export class RequestController {
   private readonly logger = new Logger('RequestController');
   private readonly codeMessages: { P2025: 'выбранной записи не существует' };

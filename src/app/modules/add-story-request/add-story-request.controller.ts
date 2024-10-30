@@ -34,7 +34,7 @@ import { EditAddStoryRequestDto } from './dto/EditAddStoryRequestDto';
 import { AddStoryRequestEntity } from './entity/AddStoryRequestEntity';
 
 @ApiTags('AddStoryRequestController')
-@Controller('api/add-story-request')
+@Controller('add-story-request')
 export class AddStoryRequestController {
   private readonly logger = new Logger(AddStoryRequestController.name);
 

@@ -46,7 +46,7 @@ import { TextStoryDto } from './dto/text-story/TextStoryDto';
 import { RatingAudioStoryEntity } from './entity/rating-audio-story/RatingAudioStoryEntity';
 
 @ApiTags('StoryController')
-@Controller('api/story')
+@Controller('story')
 export class StoryController {
   private readonly logger = new Logger('StoryController');
   constructor(private readonly storyService: StoryService) {}

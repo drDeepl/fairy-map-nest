@@ -28,7 +28,7 @@ import { LanguageDto } from './dto/LanguageDto';
 import { EthnicGroupService } from './ethnic-group.service';
 
 @ApiTags('EthnicGroupController')
-@Controller('api/ethnic-group')
+@Controller('ethnic-group')
 export class EthnicGroupController {
   private readonly logger = new Logger('EthnicGroupController');
   private readonly msgException = new MessageException();

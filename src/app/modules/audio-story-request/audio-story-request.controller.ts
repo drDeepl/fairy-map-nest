@@ -26,7 +26,7 @@ import { EditAudioStoryRequestDto } from './dto/audio-story-request/EditAudioSto
 import { AudioStoryRequestEntity } from './entity/AudioStoryRequestEntity';
 
 @ApiTags('AudioStoryRequestController')
-@Controller('api/audio-story-request')
+@Controller('audio-story-request')
 export class AudioStoryRequestController {
   private readonly logger = new Logger('RequestAudioStoryController');
   constructor(

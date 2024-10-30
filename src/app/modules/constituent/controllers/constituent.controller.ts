@@ -28,7 +28,7 @@ import { EditConstituentDto } from '../dto/EditConstituentDto';
 import { EthnicGroupToConstituentDto } from '../dto/EthnicGroupToConstituentDto';
 
 @ApiTags('ConstituentController')
-@Controller('api/constituent')
+@Controller('constituent')
 export class ConstituentsController {
   private readonly logger = new Logger('ConstituentsController');
   constructor(private readonly constituentService: ConstituentsService) {}

@@ -39,7 +39,7 @@ import { BaseUserAudioDto } from './dto/BaseUserAudioDto';
 import { UserAudioDto } from './dto/UserAudioDto';
 
 @ApiTags('UserAudioController')
-@Controller('api/user-audio')
+@Controller('user-audio')
 export class UserAudioController {
   private readonly logger = new Logger('UserAudioController');
 
