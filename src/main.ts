@@ -30,6 +30,12 @@ async function bootstrap() {
     skipMissingProperties: false,
   };
 
+  const corsOptions = {
+    origin: true,
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    credentials: true,
+  };
+
   app.useGlobalPipes(
     new ValidationPipe({
       ...options,
@@ -42,17 +48,14 @@ async function bootstrap() {
   app.useStaticAssets(join(__dirname, '..', 'wwwroot/swagger/assets'));
 
   app.useGlobalPipes(new ValidationPipe());
-  app.enableCors(
-    {origin: true,
-            methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-            credentials: true,}
-  );
+  app.enableCors(corsOptions);
   app.setGlobalPrefix(globalPrefix);
   app.useWebSocketAdapter(new SocketIOAdapter(app));
 
   const swaggerConfig: SwaggerConfig = configService.get('swagger');
 
   const swaggerDocumentBuilder = new SwaggerDocumentBuilder(app, swaggerConfig);
+
   swaggerDocumentBuilder.setupSwagger();
 
   await app.listen(port, () => {
