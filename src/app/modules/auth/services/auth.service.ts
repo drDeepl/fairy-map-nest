@@ -97,6 +97,7 @@ export class AuthService {
     const payload: CreateJwt = {
       sub: `${newUser.id}`,
       role: newUser.role,
+      email: newUser.email,
     };
 
     const tokens = await this.createJwt(payload);
@@ -124,6 +125,7 @@ export class AuthService {
     const payload: CreateJwt = {
       sub: `${user.id}`,
       role: user.role,
+      email: user.email,
     };
 
     const tokens: Tokens = await this.createJwt(payload);
@@ -167,6 +169,7 @@ export class AuthService {
     const payload: CreateJwt = {
       sub: `${user.id}`,
       role: user.role,
+      email: user.email,
     };
 
     const tokens: Tokens = await this.createJwt(payload);
