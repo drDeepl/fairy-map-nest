@@ -20,6 +20,7 @@ import { AddStoryRequestModule } from './modules/add-story-request/add-story-req
 import { environmentsVariablesValidationSchema } from '../config/validation/schemas/environment-validation.schema';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { AdminModule } from './modules/admin/admin.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { join } from 'path';
     ConstituentsModule,
     EthnicGroupModule,
     MapModule,
+    AdminModule,
     StoryModule,
     UserAudioModule,
     AudioStoryRequestModule,

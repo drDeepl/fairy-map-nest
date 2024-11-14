@@ -7,5 +7,6 @@ import { ConstituentsModule } from '../constituent/constituent.module';
   imports: [ConstituentsModule],
   controllers: [MapController],
   providers: [MapService],
+  exports: [MapService],
 })
 export class MapModule {}

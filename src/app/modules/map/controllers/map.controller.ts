@@ -19,7 +19,6 @@ import {
 } from '@nestjs/common';
 import { Response } from 'express';
 import { ApiHeader, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { AddEthnicGroupMapDto } from '../dto/AddEthnicGroupMapDto';
 import { EthnicGroupMapDto } from '../dto/EthnicGroupMapDto';
 import { EthnicGroupMapWithGroupDto } from '../dto/EthnicGroupMapWithGroupDto';
 import { EthnicGroupMapPointEntity } from '../entity/EthnicGroupMapPointEntity';
@@ -115,32 +114,6 @@ export class MapController {
     @Param('name') nameEthnicGroup: string,
   ): Promise<EthnicGroupMapPointEntityWithConstituents[]> {
     return this.mapService.getPointsByNameEthnicGroup(nameEthnicGroup);
-  }
-
-  @ApiOperation({
-    summary: 'добавление точки этнической группы на карту',
-    description: 'необходима роль администратора',
-  })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'Success',
-    type: EthnicGroupMapDto,
-  })
-  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
-  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
-  @ApiHeader({
-    name: 'authorization',
-    description: 'Пример: Bearer accessToken',
-  })
-  @UseGuards(JwtAuthGuard, RoleGuard)
-  @Roles(Role.admin)
-  @HttpCode(HttpStatus.OK)
-  @Post('/ethnic-groups/:ethnicGroupId')
-  async addEthnicalGroupPoint(
-    @Param('ethnicGroupId', ParseIntPipe) ethnicGroupId: number,
-    @Body() dto: AddEthnicGroupMapDto,
-  ): Promise<EthnicGroupMapDto> {
-    return this.mapService.addEthnicalGroupPoint(ethnicGroupId, dto);
   }
 
   @ApiOperation({

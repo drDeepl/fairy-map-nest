@@ -21,16 +21,17 @@ export class MapService {
   constructor(private prisma: PrismaService) {}
 
   async addEthnicalGroupPoint(
-    id: number,
+    ethnicGroupId: number,
+    constituentId: number,
     dto: AddEthnicGroupMapDto,
   ): Promise<EthnicGroupMapDto> {
     return this.prisma.ethnicGroupMapPoint
       .create({
         data: {
-          ethnicGroupId: id,
+          ethnicGroupId: ethnicGroupId,
           longitude: dto.longitude,
           latitude: dto.latitude,
-          constituentId: dto.constituentId,
+          constituentId: constituentId,
         },
       })
       .catch((error) => {

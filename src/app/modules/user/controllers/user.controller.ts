@@ -25,7 +25,7 @@ import { UserService } from '../services/user.service';
 @UseGuards(AuthGuard('jwt'))
 @Controller('user')
 export class UserController {
-  private readonly logger = new Logger('USER.CONTROLLER');
+  private readonly logger = new Logger(UserController.name);
 
   constructor(private readonly userService: UserService) {}
 
