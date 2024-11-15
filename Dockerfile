@@ -15,7 +15,6 @@ COPY . .
 RUN npm install -g prisma
 RUN npx prisma generate
 
-COPY .env .env
 
 EXPOSE 3000
 
