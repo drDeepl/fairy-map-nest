@@ -56,7 +56,7 @@ export class MapController {
       '../../../..',
       'static',
       'map',
-      'map.json',
+      'map_with_ethnic_groups_points.json',
     );
 
     const readStream = createReadStream(filePath);

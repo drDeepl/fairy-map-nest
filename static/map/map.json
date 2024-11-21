@@ -90628,7 +90628,54 @@
             "shapeISO": "RU-ALT",
             "shapeID": "28173009B19169349567218",
             "shapeGroup": "RUS",
-            "shapeType": "ADM1"
+            "shapeType": "ADM1",
+            "ethnic_groups": [
+              {
+                "ethnic_group_name": "Русские",
+                "latitude": 53.289372,
+                "longitude": 83.819076
+              },
+              {
+                "ethnic_group_name": "Алтайцы",
+                "latitude": 53.175716,
+                "longitude": 79.271542
+              },
+              {
+                "ethnic_group_name": "Теленгиты",
+                "latitude": 51.993016,
+                "longitude": 79.781078
+              },
+              {
+                "ethnic_group_name": "Тубалары",
+                "latitude": 52.616128,
+                "longitude": 81.780026
+              },
+              {
+                "ethnic_group_name": "Челканцы",
+                "latitude": 52.900766,
+                "longitude": 86.561822
+              },
+              {
+                "ethnic_group_name": "Казахи",
+                "latitude": 53.974716,
+                "longitude": 81.152905
+              },
+              {
+                "ethnic_group_name": "Кумандинцы",
+                "latitude": 52.22571,
+                "longitude": 84.68046
+              },
+              {
+                "ethnic_group_name": "Немцы",
+                "latitude": 51.483315,
+                "longitude": 83.373958
+              },
+              {
+                "ethnic_group_name": "Шорцы",
+                "latitude": 51.230397,
+                "longitude": 81.24436
+              }
+            ]
           }
         },
         {
@@ -90640,7 +90687,24 @@
             "shapeISO": "RU-MO",
             "shapeID": "28173009B16834140201491",
             "shapeGroup": "RUS",
-            "shapeType": "ADM1"
+            "shapeType": "ADM1",
+            "ethnic_groups": [
+              {
+                "ethnic_group_name": "Мордва",
+                "latitude": 54.396839,
+                "longitude": 43.012891
+              },
+              {
+                "ethnic_group_name": "Татары",
+                "latitude": 54.314,
+                "longitude": 44.45756838978721
+              },
+              {
+                "ethnic_group_name": "Русские",
+                "latitude": 54.677294,
+                "longitude": 45.830884
+              }
+            ]
           }
         },
         {

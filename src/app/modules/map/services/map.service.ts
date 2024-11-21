@@ -51,7 +51,6 @@ export class MapService {
   }
 
   async getEthnicalGroupPoints(): Promise<EthnicGroupMapWithGroupDto[]> {
-    this.logger.debug('GET ETHNICAL GROUP POINT');
     return this.prisma.ethnicGroupMapPoint.findMany({
       select: {
         id: true,
@@ -66,7 +65,6 @@ export class MapService {
   async getEthnicalGroupPointsByConstituentId(
     constituentId: number,
   ): Promise<EthnicGroupMapPointEntity[]> {
-    this.logger.debug('GET ETHNICAL GROUP POINT BY COSTITUENT ID');
     try {
       return await this.prisma.ethnicGroupMapPoint.findMany({
         where: {
@@ -82,7 +80,6 @@ export class MapService {
   async getPointsByNameEthnicGroup(
     name: string,
   ): Promise<EthnicGroupMapPointEntityWithConstituents[]> {
-    this.logger.debug('GET POINTS BY NAME ETHNIC GROUP');
     try {
       const ethnicGroups: Array<{ id: number }> = await this.prisma
         .$queryRaw`SELECT DISTINCT id FROM ethnic_groups WHERE name ~* ${name}`;
@@ -109,7 +106,6 @@ export class MapService {
   }
 
   async deleteEthnicalGroupPoint(id: number) {
-    this.logger.debug('DELETE ETHNICAL GROUP POINT');
     return this.prisma.ethnicGroupMapPoint
       .delete({
         where: {
