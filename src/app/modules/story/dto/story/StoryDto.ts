@@ -4,14 +4,14 @@ import { IsInt } from 'class-validator';
 import { BaseStoryDto } from './BaseStoryDto';
 
 export class StoryDto extends BaseStoryDto {
-  @ApiProperty({ description: '', nullable: false })
+  @ApiProperty({ description: 'id сказки', nullable: false })
   @IsInt()
   id: number;
 
-  @ApiProperty({ description: '', nullable: true })
+  @ApiProperty({ description: 'id аудиозаписи', nullable: true })
   audioId: number | null;
 
-  @ApiProperty({ description: '', nullable: false })
+  @ApiProperty({ description: 'id этнической группы', nullable: false })
   ethnicGroup: EthnicGroupDto;
 
   constructor(

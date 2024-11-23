@@ -28,6 +28,7 @@ import { EditStoryDto } from '../../story/dto/story/EditStoryDto';
 import { StoryDto } from '../../story/dto/story/StoryDto';
 import { AddTextStoryDto } from '../../story/dto/text-story/AddTextStoryDto';
 import { TextStoryDto } from '../../story/dto/text-story/TextStoryDto';
+import { StoryWithTextDto } from '../../story/dto/story/story-with-text.dto';
 
 @ApiTags('AdminController')
 @Controller('admin')
@@ -106,7 +107,7 @@ export class AdminController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Success',
-    type: StoryDto,
+    type: StoryWithTextDto,
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
@@ -118,7 +119,7 @@ export class AdminController {
   @UseGuards(JwtAuthGuard, RoleGuard)
   @HttpCode(HttpStatus.OK)
   @Post('story/add')
-  async addStory(@Body() dto: AddStoryDto): Promise<StoryDto> {
+  async addStory(@Body() dto: AddStoryDto): Promise<StoryWithTextDto> {
     // return this.storyService.addStory(dto);
     return this.storyService.addStoryWithText(dto);
   }

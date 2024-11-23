@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsInt } from 'class-validator';
+import { IsInt, IsString } from 'class-validator';
 import { BaseStoryDto } from './BaseStoryDto';
 
 export class AddStoryDto extends BaseStoryDto {
@@ -8,5 +8,6 @@ export class AddStoryDto extends BaseStoryDto {
   ethnicGroupId: number;
 
   @ApiProperty({ description: 'текст сказки', nullable: false })
-  text?: string;
+  @IsString()
+  text: string;
 }

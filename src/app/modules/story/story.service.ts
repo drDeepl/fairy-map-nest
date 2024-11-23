@@ -19,7 +19,7 @@ import {
   NotFoundException,
   StreamableFile,
 } from '@nestjs/common';
-import { RatingAudio, StoryAudio } from '@prisma/client';
+import { PrismaClient, RatingAudio, StoryAudio } from '@prisma/client';
 import { File } from 'multer';
 import * as fs from 'node:fs';
 import { basename, extname } from 'node:path';
@@ -39,6 +39,8 @@ import { EditStoryDto } from './dto/story/EditStoryDto';
 import { StoryDto } from './dto/story/StoryDto';
 import { AddTextStoryDto } from './dto/text-story/AddTextStoryDto';
 import { TextStoryDto } from './dto/text-story/TextStoryDto';
+import { ITXClientDenyList } from '@prisma/client/runtime/library';
+import { StoryWithTextDto } from './dto/story/story-with-text.dto';
 
 @Injectable()
 export class StoryService {
@@ -168,6 +170,7 @@ export class StoryService {
 
   async addStory(dto: AddStoryDto): Promise<StoryDto> {
     const maxCountStories = MAX_STORIES_FOR_ETHNIC_GROUP;
+
     return this.prisma.story
       .count({
         where: {
@@ -277,7 +280,7 @@ export class StoryService {
     storyId: number,
     dto: AddTextStoryDto,
   ): Promise<TextStoryDto> {
-    return await this.prisma.textStory
+    return this.prisma.textStory
       .create({
         data: {
           storyId: storyId,
@@ -290,11 +293,72 @@ export class StoryService {
       });
   }
 
-  async addStoryWithText(dto: AddStoryDto): Promise<StoryDto> {
-    return this.prisma.$transaction(async () => {
-      const story = await this.addStory(dto);
-      const textStory = await this.addTextStory(story.id, { text: dto.text });
-      return story;
+  async addStoryWithText(dto: AddStoryDto): Promise<StoryWithTextDto> {
+    return this.prisma.$transaction(async (tx) => {
+      const maxCountStories = MAX_STORIES_FOR_ETHNIC_GROUP;
+      try {
+        const currentCountStories = await tx.story.count({
+          where: {
+            ethnicGroupId: dto.ethnicGroupId,
+          },
+        });
+
+        if (currentCountStories >= maxCountStories) {
+          throw new HttpException(
+            `Превышен лимит сказок для одной этнической группы. Максимальное количество: ${maxCountStories}`,
+            HttpStatus.FORBIDDEN,
+          );
+        }
+        const story = await tx.story
+          .create({
+            select: {
+              id: true,
+              name: true,
+              ethnicGroup: true,
+              audioId: true,
+            },
+            data: {
+              name: dto.name,
+              ethnicGroupId: dto.ethnicGroupId,
+            },
+          })
+          .catch((error) => {
+            PrintNameAndCodePrismaException(error, this.logger);
+            if (error.code == 'P2002') {
+              throw new HttpException(
+                'сказка с таким названием уже существует',
+                HttpStatus.FORBIDDEN,
+              );
+            }
+            if (error.code === 'P2003') {
+              throw new HttpException(
+                'выбранной этнической группы не существует',
+                HttpStatus.FORBIDDEN,
+              );
+            } else {
+              throw new HttpException(
+                this.msgException.UnhandledError,
+                HttpStatus.BAD_GATEWAY,
+              );
+            }
+          });
+
+        const textStory = await tx.textStory
+          .create({
+            data: {
+              storyId: story.id,
+              text: dto.text,
+            },
+          })
+          .catch((error) => {
+            PrintNameAndCodePrismaException(error, this.logger);
+            throw this.dbExceptionHandler.handleError(error);
+          });
+
+        return new StoryWithTextDto(story, textStory.text);
+      } catch (error) {
+        throw this.dbExceptionHandler.handleError(error);
+      }
     });
   }
 
