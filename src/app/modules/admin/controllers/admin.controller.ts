@@ -120,7 +120,6 @@ export class AdminController {
   @HttpCode(HttpStatus.OK)
   @Post('story/add')
   async addStory(@Body() dto: AddStoryDto): Promise<StoryWithTextDto> {
-    // return this.storyService.addStory(dto);
     return this.storyService.addStoryWithText(dto);
   }
 
