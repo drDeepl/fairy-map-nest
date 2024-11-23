@@ -74,7 +74,6 @@ export class StoryService {
       ethnic_groups.language_id as ethnicGroupLanguageId
        FROM stories INNER JOIN ethnic_groups ON stories.ethnic_group_id = ethnic_groups.id
        WHERE stories.name ~* ${name}`;
-      console.log(stories);
       return stories.map(
         (story) =>
           new StoryDto(
@@ -95,7 +94,6 @@ export class StoryService {
   }
 
   async getStoriesByEthnicGroup(ethnicGroupId: number): Promise<StoryDto[]> {
-    this.logger.debug('GET STORIES BY ETHNIC GROUP ID');
     return this.prisma.story.findMany({
       select: {
         id: true,
@@ -130,7 +128,6 @@ export class StoryService {
   async getLanguagesForStory(
     storyId: number,
   ): Promise<AudioStoryLanguageDto[]> {
-    this.logger.debug('GET LANGUAGES FOR STORY');
     const story = await this.prisma.story.findUnique({
       where: {
         id: storyId,
@@ -170,7 +167,6 @@ export class StoryService {
   }
 
   async addStory(dto: AddStoryDto): Promise<StoryDto> {
-    this.logger.debug('ADD STORY');
     const maxCountStories = MAX_STORIES_FOR_ETHNIC_GROUP;
     return this.prisma.story
       .count({
@@ -179,7 +175,6 @@ export class StoryService {
         },
       })
       .then((result) => {
-        this.logger.warn(`Count stories for ethnic group ${result}`);
         if (result < maxCountStories) {
           return this.prisma.story
             .create({
@@ -223,7 +218,6 @@ export class StoryService {
   }
 
   async editStory(id: number, dto: EditStoryDto) {
-    this.logger.debug('EDIT STORY');
     return this.prisma.story
       .update({
         where: {
@@ -257,7 +251,6 @@ export class StoryService {
   }
 
   async deleteStoryById(id: number) {
-    this.logger.debug('DELETE STORY BY ID');
     return this.prisma.story
       .delete({
         where: {
@@ -284,7 +277,6 @@ export class StoryService {
     storyId: number,
     dto: AddTextStoryDto,
   ): Promise<TextStoryDto> {
-    this.logger.debug('ADD TEXT STORY');
     return await this.prisma.textStory
       .create({
         data: {
@@ -298,8 +290,15 @@ export class StoryService {
       });
   }
 
+  async addStoryWithText(dto: AddStoryDto): Promise<StoryDto> {
+    return this.prisma.$transaction(async () => {
+      const story = await this.addStory(dto);
+      const textStory = await this.addTextStory(story.id, { text: dto.text });
+      return story;
+    });
+  }
+
   async getTextByStoryId(storyId: number): Promise<TextStoryDto> {
-    this.logger.debug('GET TEXT STORY BY ID');
     return await this.prisma.textStory
       .findUnique({
         where: {
@@ -317,7 +316,6 @@ export class StoryService {
     storyId: number,
     dto: AddAudioStoryDto,
   ): Promise<void> {
-    this.logger.debug('SET USER AUDIO TO STORY');
     const userAudio = await this.prisma.userAudioStory.findUnique({
       where: {
         id: dto.userAudioId,
@@ -361,7 +359,6 @@ export class StoryService {
   }
 
   async getAudioStoryById(audioId: number): Promise<StreamableFile> {
-    this.logger.debug('GET AUDIO BY AUDIO ID');
     try {
       const audioStory: AudioStoryEntity =
         await this.prisma.storyAudio.findUnique({
@@ -388,7 +385,6 @@ export class StoryService {
   }
 
   async getImgStoryById(storyId: number): Promise<ImageStoryDto> {
-    this.logger.debug('GET IMG STORY BY ID');
     try {
       const imgStoryData = await this.prisma.imgStory.findUnique({
         where: {
@@ -411,10 +407,9 @@ export class StoryService {
   }
 
   async setImgForStory(storyId: number, file: File) {
-    this.logger.debug('Setting image for story');
     console.log(file);
     const path = `${basePathUpload}/img/${storyId}/${getUuid(file.originalname)}${extname(file.originalname)}`;
-    this.logger.debug('SET IMG FOR STORY');
+
     return this.prisma.imgStory
       .create({
         data: {
@@ -437,7 +432,6 @@ export class StoryService {
   }
 
   async deleteStoryImgByStoryId(storyId: number): Promise<void> {
-    this.logger.debug('DELETE STORY IMG BY STORY ID');
     try {
       const deletedStoryImg = await this.prisma.imgStory.delete({
         where: {
@@ -452,7 +446,6 @@ export class StoryService {
   }
 
   async getRatingByAudioId(id: number): Promise<RatingAudioStoryDto> {
-    this.logger.debug('GET RATING BY AUDIO ID');
     try {
       const avgRatingAudio = await this.prisma.ratingAudio.aggregate({
         _avg: {
@@ -473,7 +466,6 @@ export class StoryService {
     userId: number,
     userAudioId: number,
   ): Promise<RatingAudioStoryWithUserAudio> {
-    this.logger.debug('GET RATING BY AUDIO ID FOR CURRENT USER');
     const storyAudio: StoryAudio = await this.prisma.storyAudio.findUnique({
       where: {
         userAudioId: userAudioId,
@@ -510,7 +502,6 @@ export class StoryService {
     userId: number,
     dto: AddRatingAudioStoryDto,
   ): Promise<AddedRatingAudioStoryDto> {
-    this.logger.debug('ADD RATING AUDIO STORY BY ID');
     const currentRating = await this.prisma.ratingAudio.findFirst({
       where: {
         storyAudioId: dto.audioId,

@@ -1,5 +1,3 @@
-import { Roles } from '@/util/decorators/Roles';
-import { RoleGuard } from '@/util/guards/role.guard';
 import {
   Controller,
   Logger,
@@ -17,13 +15,14 @@ import {
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiHeader } from '@nestjs/swagger';
 import { Role } from '@/util/Constants';
+import { Roles } from '@/util/decorators/Roles';
+import { RoleGuard } from '@/util/guards/role.guard';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 
 import { AddEthnicGroupMapDto } from '../../map/dto/AddEthnicGroupMapDto';
 import { EthnicGroupMapDto } from '../../map/dto/EthnicGroupMapDto';
 import { MapService } from '../../map/services/map.service';
 import { StoryService } from '../../story/story.service';
-import { AuthGuard } from '@nestjs/passport';
 import { AddStoryDto } from '../../story/dto/story/AddStoryDto';
 import { EditStoryDto } from '../../story/dto/story/EditStoryDto';
 import { StoryDto } from '../../story/dto/story/StoryDto';
@@ -34,6 +33,7 @@ import { TextStoryDto } from '../../story/dto/text-story/TextStoryDto';
 @Controller('admin')
 export class AdminController {
   private readonly logger = new Logger('StoryController');
+
   constructor(
     private readonly mapService: MapService,
     private readonly storyService: StoryService,
@@ -102,7 +102,6 @@ export class AdminController {
 
   @ApiOperation({
     summary: 'добавление сказки',
-    description: 'необходима роль администратора',
   })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -116,17 +115,16 @@ export class AdminController {
     description: 'Пример: Bearer accessToken',
   })
   @Roles(Role.admin)
-  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @UseGuards(JwtAuthGuard, RoleGuard)
   @HttpCode(HttpStatus.OK)
   @Post('story/add')
-  async addStory(@Body() dto: AddStoryDto) {
-    this.logger.debug('ADD STORY');
-    return this.storyService.addStory(dto);
+  async addStory(@Body() dto: AddStoryDto): Promise<StoryDto> {
+    // return this.storyService.addStory(dto);
+    return this.storyService.addStoryWithText(dto);
   }
 
   @ApiOperation({
     summary: 'редактирование сказки',
-    description: 'необходима роль администратора',
   })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -139,21 +137,19 @@ export class AdminController {
     name: 'authorization',
     description: 'Пример: Bearer accessToken',
   })
+  @UseGuards(JwtAuthGuard, RoleGuard)
   @Roles(Role.admin)
-  @UseGuards(AuthGuard('jwt'), RoleGuard)
   @HttpCode(HttpStatus.OK)
   @Put('story/edit/:storyId')
   async editSotry(
     @Param('storyId', ParseIntPipe) storyId: number,
     @Body() dto: EditStoryDto,
   ) {
-    this.logger.debug('EDIT SOTRY');
     return this.storyService.editStory(storyId, dto);
   }
 
   @ApiOperation({
     summary: 'удаление сказки',
-    description: 'необходима роль администратора',
   })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -165,12 +161,11 @@ export class AdminController {
     name: 'authorization',
     description: 'Пример: Bearer accessToken',
   })
+  @UseGuards(JwtAuthGuard, RoleGuard)
   @Roles(Role.admin)
-  @UseGuards(AuthGuard('jwt'), RoleGuard)
   @HttpCode(HttpStatus.OK)
   @Delete('story/delete/:storyId')
   async deleteStoryById(@Param('storyId', ParseIntPipe) storyId: number) {
-    this.logger.debug('DELETE STORY BY ID');
     return this.storyService
       .deleteStoryById(storyId)
       .catch((error) => {
@@ -181,7 +176,6 @@ export class AdminController {
 
   @ApiOperation({
     summary: 'добавление текста сказки',
-    description: 'небходима роль администратора',
   })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -194,15 +188,14 @@ export class AdminController {
     name: 'authorization',
     description: 'Пример: Bearer accessToken',
   })
+  @UseGuards(JwtAuthGuard, RoleGuard)
   @Roles(Role.admin)
-  @UseGuards(AuthGuard('jwt'), RoleGuard)
   @HttpCode(HttpStatus.OK)
   @Post('story/text/add/:storyId')
   async addTextStory(
     @Param('storyId', ParseIntPipe) storyId,
     @Body() dto: AddTextStoryDto,
   ) {
-    this.logger.debug('ADD TEXT STORY');
     return this.storyService.addTextStory(storyId, dto);
   }
 }
