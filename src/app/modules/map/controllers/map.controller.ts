@@ -27,7 +27,7 @@ import { MapService } from '../services/map.service';
 import { ConstituentFilledDto } from '../../constituent/dto/ConstituentFilledDto';
 import { ConstituentsService } from '../../constituent/services/constituent.service';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
-import { createReadStream } from 'fs';
+import { promises as fsPromises } from 'fs';
 import { join } from 'path';
 import { promises as fsPromises } from 'fs';
 import { MapDto } from '../dto/MapDto';
@@ -63,7 +63,6 @@ export class MapController {
       'map',
       'map_with_ethnic_groups_points.json',
     );
-
     try {
       const data: MapTopology = JSON.parse(
         await fsPromises.readFile(filePath, 'utf-8'),
