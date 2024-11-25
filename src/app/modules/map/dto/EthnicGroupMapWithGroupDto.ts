@@ -3,6 +3,6 @@ import { BaseEthnicGroupMapDto } from './BaseEthnicGroupMapDto';
 import { EthnicGroupDto } from '@/app/modules/ethnic-group/dto/EthnicGroupDto';
 
 export class EthnicGroupMapWithGroupDto extends BaseEthnicGroupMapDto {
-  @ApiProperty({ description: '', nullable: false })
+  @ApiProperty({ description: 'объект с этнической группой', nullable: false })
   ethnicGroup: EthnicGroupDto;
 }

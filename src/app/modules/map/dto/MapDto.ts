@@ -1,11 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { MapTopology } from '../interfaces/map.interface';
+import { MapTopologyDto } from './MapTopologyDto';
 
 export class MapDto {
   @ApiProperty({ description: 'данные карты' })
-  data: MapTopology;
+  data: MapTopologyDto;
 
-  constructor(data: MapTopology) {
+  constructor(data: MapTopologyDto) {
     this.data = data;
   }
 }

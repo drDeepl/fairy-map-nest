@@ -30,7 +30,7 @@ import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { promises as fsPromises } from 'fs';
 import { join } from 'path';
 import { MapDto } from '../dto/MapDto';
-import { MapTopology } from '../interfaces/map.interface';
+import { MapTopologyDto } from '../dto/MapTopologyDto';
 
 @ApiTags('MapController')
 @Controller('map')
@@ -63,7 +63,7 @@ export class MapController {
       'map_with_ethnic_groups_points.json',
     );
     try {
-      const data: MapTopology = JSON.parse(
+      const data: MapTopologyDto = JSON.parse(
         await fsPromises.readFile(filePath, 'utf-8'),
       );
 
