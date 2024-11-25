@@ -29,6 +29,9 @@ import { ConstituentsService } from '../../constituent/services/constituent.serv
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { createReadStream } from 'fs';
 import { join } from 'path';
+import { promises as fsPromises } from 'fs';
+import { MapDto } from '../dto/MapDto';
+import { MapTopology } from '../interfaces/map.interface';
 
 @ApiTags('MapController')
 @Controller('map')
@@ -50,7 +53,9 @@ export class MapController {
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @Get('map.json')
-  getMapTopojson(@Res({ passthrough: true }) res: Response): StreamableFile {
+  async getMapTopojson(
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<MapDto> {
     const filePath = join(
       __dirname,
       '../../../..',
@@ -59,16 +64,18 @@ export class MapController {
       'map_with_ethnic_groups_points.json',
     );
 
-    const readStream = createReadStream(filePath);
+    try {
+      const data: MapTopology = JSON.parse(
+        await fsPromises.readFile(filePath, 'utf-8'),
+      );
 
-    readStream.on('error', (err) => {
-      console.error(err);
-      res
-        .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json({ message: err.message });
-    });
-
-    return new StreamableFile(readStream);
+      return new MapDto(data);
+    } catch (error) {
+      throw new HttpException(
+        'ошибка при чтении данных карты',
+        HttpStatus.BAD_GATEWAY,
+      );
+    }
   }
 
   @ApiOperation({ summary: 'получение точек этнических групп на карте' })
