@@ -48,7 +48,7 @@ export class MapController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Success',
-    type: StreamableFile,
+    type: MapDto,
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @Get('map.json')
