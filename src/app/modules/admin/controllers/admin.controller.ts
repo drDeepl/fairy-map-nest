@@ -12,6 +12,7 @@ import {
   HttpException,
   Get,
   Put,
+  Query,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiHeader } from '@nestjs/swagger';
 import { Role } from '@/util/Constants';
@@ -22,13 +23,17 @@ import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { AddEthnicGroupMapDto } from '../../map/dto/AddEthnicGroupMapDto';
 import { EthnicGroupMapDto } from '../../map/dto/EthnicGroupMapDto';
 import { MapService } from '../../map/services/map.service';
-import { StoryService } from '../../story/story.service';
+import { StoryService } from '../../story/services/story.service';
 import { AddStoryDto } from '../../story/dto/story/AddStoryDto';
 import { EditStoryDto } from '../../story/dto/story/EditStoryDto';
 import { StoryDto } from '../../story/dto/story/StoryDto';
 import { AddTextStoryDto } from '../../story/dto/text-story/AddTextStoryDto';
 import { TextStoryDto } from '../../story/dto/text-story/TextStoryDto';
 import { StoryWithTextDto } from '../../story/dto/story/story-with-text.dto';
+import { User } from '@/util/decorators/User';
+import { AuthGuard } from '@nestjs/passport';
+import { JwtPayload } from '../../auth/interface/jwt-payload.interface';
+import { AddAudioStoryDto } from '../../story/dto/audio-story/AddAudioStoryDto';
 
 @ApiTags('AdminController')
 @Controller('admin')
@@ -197,5 +202,33 @@ export class AdminController {
     @Body() dto: AddTextStoryDto,
   ) {
     return this.storyService.addTextStory(storyId, dto);
+  }
+
+  @ApiOperation({
+    summary: 'добавление озвучки к сказке',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Success',
+  })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  @ApiHeader({
+    name: 'authorization',
+    description: 'Пример: Bearer accessToken',
+  })
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  @Roles(Role.admin)
+  @Put('/story/:storyId/audio')
+  async setUserAudioToStory(
+    @Param('storyId', ParseIntPipe) storyId: number,
+    @Body() dto: AddAudioStoryDto,
+    @User() user: JwtPayload,
+  ): Promise<void> {
+    return this.storyService.setUserAudioToStory(
+      parseInt(user.sub),
+      storyId,
+      dto,
+    );
   }
 }

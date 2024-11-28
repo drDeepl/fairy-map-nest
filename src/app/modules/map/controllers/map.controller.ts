@@ -35,8 +35,6 @@ import { MapTopologyDto } from '../dto/MapTopologyDto';
 @ApiTags('MapController')
 @Controller('map')
 export class MapController {
-  private readonly logger = new Logger('MapController');
-
   constructor(
     private readonly mapService: MapService,
     private readonly constituentService: ConstituentsService,
@@ -51,7 +49,7 @@ export class MapController {
     type: MapDto,
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
-  @Get('map.json')
+  @Get('')
   async getMapTopojson(
     @Res({ passthrough: true }) res: Response,
   ): Promise<MapDto> {
@@ -101,7 +99,6 @@ export class MapController {
   async getEthnicalGroupPointsByConstituentId(
     @Param('constituentId', ParseIntPipe) constituentId: number,
   ): Promise<any> {
-    this.logger.debug('GET ETHNIC GROUP POINTS');
     return this.mapService.getEthnicalGroupPointsByConstituentId(constituentId);
   }
 

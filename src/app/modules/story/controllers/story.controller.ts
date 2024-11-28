@@ -20,7 +20,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { ApiHeader, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { StoryService } from './story.service';
+import { StoryService } from '../services/story.service';
 
 import { JwtPayload } from '@/app/modules/auth/interface/jwt-payload.interface';
 import { Role } from '@/util/Constants';
@@ -31,19 +31,16 @@ import { validatorImgFile } from '@/util/validators/validators';
 import { AuthGuard } from '@nestjs/passport';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { File, memoryStorage } from 'multer';
-import { AddAudioStoryDto } from './dto/audio-story/AddAudioStoryDto';
-import { AudioStoryLanguageDto } from './dto/audio-story/AudioStoryLanguageDto';
-import { CreatedImageStoryDto } from './dto/image-story/CreatedImageStory';
-import { ImageStoryDto } from './dto/image-story/ImageStoryDto';
-import { AddRatingAudioStoryDto } from './dto/rating-audio-story/AddRatingAudioStoryDto';
-import { AddedRatingAudioStoryDto } from './dto/rating-audio-story/AddedRatingAudioStoryDto';
-import { RatingAudioStoryDto } from './dto/rating-audio-story/RatingAudioStoryDto';
-import { AddStoryDto } from './dto/story/AddStoryDto';
-import { EditStoryDto } from './dto/story/EditStoryDto';
-import { StoryDto } from './dto/story/StoryDto';
-import { AddTextStoryDto } from './dto/text-story/AddTextStoryDto';
-import { TextStoryDto } from './dto/text-story/TextStoryDto';
-import { RatingAudioStoryEntity } from './entity/rating-audio-story/RatingAudioStoryEntity';
+import { AddAudioStoryDto } from '../dto/audio-story/AddAudioStoryDto';
+import { AudioStoryLanguageDto } from '../dto/audio-story/AudioStoryLanguageDto';
+import { CreatedImageStoryDto } from '../dto/image-story/CreatedImageStory';
+import { ImageStoryDto } from '../dto/image-story/ImageStoryDto';
+import { AddRatingAudioStoryDto } from '../dto/rating-audio-story/AddRatingAudioStoryDto';
+import { AddedRatingAudioStoryDto } from '../dto/rating-audio-story/AddedRatingAudioStoryDto';
+import { RatingAudioStoryDto } from '../dto/rating-audio-story/RatingAudioStoryDto';
+import { StoryDto } from '../dto/story/StoryDto';
+import { TextStoryDto } from '../dto/text-story/TextStoryDto';
+import { RatingAudioStoryEntity } from '../entity/rating-audio-story/RatingAudioStoryEntity';
 
 @ApiTags('StoryController')
 @Controller('story')
@@ -169,37 +166,6 @@ export class StoryController {
   }
 
   @ApiOperation({
-    summary: 'добавление озвучки к сказке',
-    description:
-      'пример запроса: /api/story/audio?storyId=8 | необходима роль администратора',
-  })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'Success',
-  })
-  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
-  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
-  @ApiHeader({
-    name: 'authorization',
-    description: 'Пример: Bearer accessToken',
-  })
-  @Roles(Role.admin)
-  @UseGuards(AuthGuard('jwt'), RoleGuard)
-  @Put('/audio')
-  async setUserAudioToStory(
-    @Query('storyId', ParseIntPipe) storyId: number,
-    @Body() dto: AddAudioStoryDto,
-    @User() user: JwtPayload,
-  ): Promise<void> {
-    this.logger.debug('SET USER AUDIO TO STORY');
-    return this.storyService.setUserAudioToStory(
-      parseInt(user.sub),
-      storyId,
-      dto,
-    );
-  }
-
-  @ApiOperation({
     summary: 'получение обложки для сказки по storyId',
   })
   @ApiResponse({
@@ -211,12 +177,11 @@ export class StoryController {
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Image not found' })
   @HttpCode(HttpStatus.OK)
-  @Get('/image/:storyId')
+  @Get('/:storyId/image')
   async getImgStoryById(
     @Param('storyId', ParseIntPipe) storyId: number,
     @Res() response,
   ) {
-    this.logger.debug('GET IMAGE STORY BY ID');
     try {
       const file = await this.storyService.getImgStoryById(storyId);
       response.set({
