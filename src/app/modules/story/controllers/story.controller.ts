@@ -1,7 +1,6 @@
 import {
   Body,
   Controller,
-  Delete,
   Get,
   HttpCode,
   HttpException,
@@ -9,31 +8,19 @@ import {
   Logger,
   Param,
   ParseIntPipe,
-  Post,
   Put,
-  Query,
-  Req,
   Res,
   StreamableFile,
-  UploadedFile,
   UseGuards,
-  UseInterceptors,
 } from '@nestjs/common';
 import { ApiHeader, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { StoryService } from '../services/story.service';
-
 import { JwtPayload } from '@/app/modules/auth/interface/jwt-payload.interface';
-import { Role } from '@/util/Constants';
-import { Roles } from '@/util/decorators/Roles';
 import { User } from '@/util/decorators/User';
 import { RoleGuard } from '@/util/guards/role.guard';
-import { validatorImgFile } from '@/util/validators/validators';
 import { AuthGuard } from '@nestjs/passport';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { File, memoryStorage } from 'multer';
-import { AddAudioStoryDto } from '../dto/audio-story/AddAudioStoryDto';
+import { Response } from 'express';
 import { AudioStoryLanguageDto } from '../dto/audio-story/AudioStoryLanguageDto';
-import { CreatedImageStoryDto } from '../dto/image-story/CreatedImageStory';
 import { ImageStoryDto } from '../dto/image-story/ImageStoryDto';
 import { AddRatingAudioStoryDto } from '../dto/rating-audio-story/AddRatingAudioStoryDto';
 import { AddedRatingAudioStoryDto } from '../dto/rating-audio-story/AddedRatingAudioStoryDto';
@@ -41,6 +28,8 @@ import { RatingAudioStoryDto } from '../dto/rating-audio-story/RatingAudioStoryD
 import { StoryDto } from '../dto/story/StoryDto';
 import { TextStoryDto } from '../dto/text-story/TextStoryDto';
 import { RatingAudioStoryEntity } from '../entity/rating-audio-story/RatingAudioStoryEntity';
+import { join } from 'path';
+import { MessageResponseDto } from '@/common/dto/response/message.response.dto';
 
 @ApiTags('StoryController')
 @Controller('story')
@@ -177,79 +166,28 @@ export class StoryController {
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Image not found' })
   @HttpCode(HttpStatus.OK)
-  @Get('/:storyId/image')
+  @Get('/:storyId/image/:filename')
   async getImgStoryById(
-    @Param('storyId', ParseIntPipe) storyId: number,
-    @Res() response,
+    @Param('storyId') storyId: string,
+    @Param('filename') fileName: string,
+    @Res() res: Response,
   ) {
-    try {
-      const file = await this.storyService.getImgStoryById(storyId);
-      response.set({
-        'Content-Disposition': `attachment; filename=${file.filename}`,
-      });
-      response.send(file.buffer);
-    } catch (error) {
-      response.send(new HttpException(error.message, error.status));
-    }
-  }
-
-  @ApiOperation({
-    summary: 'загрузка обложки для выбранной сказки',
-    description: 'необходима роль администратора',
-  })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'Success',
-    type: CreatedImageStoryDto,
-  })
-  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
-  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
-  @ApiHeader({
-    name: 'authorization',
-    description: 'Пример: Bearer accessToken',
-  })
-  @Roles(Role.admin)
-  @UseGuards(AuthGuard('jwt'), RoleGuard)
-  @HttpCode(HttpStatus.OK)
-  @Put('/image/upload/:storyId')
-  @UseInterceptors(
-    FileInterceptor('file', {
-      storage: memoryStorage(),
-      fileFilter: validatorImgFile,
-    }),
-  )
-  async uploadStoryImage(
-    @UploadedFile() file: File,
-    @Req() req,
-    @Param('storyId', ParseIntPipe) storyId: number,
-  ) {
-    this.logger.debug('UPLOAD STORY IMAGE');
-    return await this.storyService.setImgForStory(storyId, file);
-  }
-
-  @ApiOperation({
-    summary: 'удаление обложки для выбранной сказки по storyId',
-    description: 'необходима роль администратора',
-  })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'Success',
-  })
-  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
-  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
-  @ApiHeader({
-    name: 'authorization',
-    description: 'Пример: Bearer accessToken',
-  })
-  @Roles(Role.admin)
-  @UseGuards(AuthGuard('jwt'), RoleGuard)
-  @HttpCode(HttpStatus.OK)
-  @Delete('/image/delete/:storyId')
-  async deleteStoryImgByStoryId(
-    @Param('storyId', ParseIntPipe) storyId: number,
-  ): Promise<void> {
-    this.logger.debug('DELETE STORY IMG BY STORY ID');
-    await this.storyService.deleteStoryImgByStoryId(storyId);
+    const filePath = join(
+      __dirname,
+      '../../../..',
+      'static',
+      'uploads',
+      'img',
+      storyId,
+      fileName,
+    );
+    return res.sendFile(filePath, (err) => {
+      if (err) {
+        res
+          .status(HttpStatus.NOT_FOUND)
+          .json(new MessageResponseDto('изображение не найдено'));
+      }
+    });
   }
 
   @ApiOperation({

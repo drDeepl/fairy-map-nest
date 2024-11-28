@@ -13,6 +13,9 @@ import {
   Get,
   Put,
   Query,
+  Req,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiHeader } from '@nestjs/swagger';
 import { Role } from '@/util/Constants';
@@ -31,9 +34,12 @@ import { AddTextStoryDto } from '../../story/dto/text-story/AddTextStoryDto';
 import { TextStoryDto } from '../../story/dto/text-story/TextStoryDto';
 import { StoryWithTextDto } from '../../story/dto/story/story-with-text.dto';
 import { User } from '@/util/decorators/User';
-import { AuthGuard } from '@nestjs/passport';
+import { File, memoryStorage } from 'multer';
 import { JwtPayload } from '../../auth/interface/jwt-payload.interface';
 import { AddAudioStoryDto } from '../../story/dto/audio-story/AddAudioStoryDto';
+import { validatorImgFile } from '@/util/validators/validators';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { CreatedImageStoryDto } from '../../story/dto/image-story/CreatedImageStory';
 
 @ApiTags('AdminController')
 @Controller('admin')
@@ -230,5 +236,60 @@ export class AdminController {
       storyId,
       dto,
     );
+  }
+
+  @ApiOperation({
+    summary: 'загрузка обложки для выбранной сказки',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Success',
+    type: CreatedImageStoryDto,
+  })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  @ApiHeader({
+    name: 'authorization',
+    description: 'Пример: Bearer accessToken',
+  })
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  @Roles(Role.admin)
+  @HttpCode(HttpStatus.OK)
+  @Put('/story/:storyId/image/upload')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: memoryStorage(),
+      fileFilter: validatorImgFile,
+    }),
+  )
+  async uploadStoryImage(
+    @UploadedFile() file: File,
+    @Req() req,
+    @Param('storyId', ParseIntPipe) storyId: number,
+  ) {
+    return await this.storyService.setImgForStory(storyId, file);
+  }
+
+  @ApiOperation({
+    summary: 'удаление обложки для выбранной сказки',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Success',
+  })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  @ApiHeader({
+    name: 'authorization',
+    description: 'Пример: Bearer accessToken',
+  })
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  @Roles(Role.admin)
+  @HttpCode(HttpStatus.OK)
+  @Delete('/story/:storyId/image')
+  async deleteStoryImgByStoryId(
+    @Param('storyId', ParseIntPipe) storyId: number,
+  ): Promise<void> {
+    await this.storyService.deleteStoryImgByStoryId(storyId);
   }
 }

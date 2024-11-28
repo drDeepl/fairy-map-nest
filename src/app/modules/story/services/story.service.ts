@@ -455,12 +455,10 @@ export class StoryService {
           storyId: storyId,
         },
       });
-      console.log(imgStoryData);
       if (imgStoryData) {
         const imgStoryDto: ImageStoryDto = new ImageStoryDto();
         imgStoryDto.filename = basename(imgStoryData.path);
         imgStoryDto.buffer = fs.readFileSync(imgStoryData.path);
-        console.log(imgStoryDto);
         return imgStoryDto;
       }
       throw new NotFoundException();
