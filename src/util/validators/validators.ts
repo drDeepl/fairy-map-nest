@@ -1,5 +1,4 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
-import { basePathUpload } from '../Constants';
 
 export const validatorImgFile = (req, file, callback) => {
   console.warn('VALIDATE DATA');

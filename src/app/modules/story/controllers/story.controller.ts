@@ -28,14 +28,17 @@ import { RatingAudioStoryDto } from '../dto/rating-audio-story/RatingAudioStoryD
 import { StoryDto } from '../dto/story/StoryDto';
 import { TextStoryDto } from '../dto/text-story/TextStoryDto';
 import { RatingAudioStoryEntity } from '../entity/rating-audio-story/RatingAudioStoryEntity';
-import { join } from 'path';
 import { MessageResponseDto } from '@/common/dto/response/message.response.dto';
+import { ConfigService } from '@nestjs/config';
 
 @ApiTags('StoryController')
 @Controller('story')
 export class StoryController {
   private readonly logger = new Logger('StoryController');
-  constructor(private readonly storyService: StoryService) {}
+  constructor(
+    private readonly storyService: StoryService,
+    private readonly configService: ConfigService,
+  ) {}
 
   @ApiOperation({ summary: 'получение всех сказок' })
   @ApiResponse({
@@ -131,7 +134,6 @@ export class StoryController {
   async getTextStoryByStoryId(
     @Param('storyId', ParseIntPipe) storyId: number,
   ): Promise<TextStoryDto> {
-    this.logger.debug('GET TEXT STORY BY ID');
     return await this.storyService.getTextByStoryId(storyId);
   }
 
@@ -172,15 +174,8 @@ export class StoryController {
     @Param('filename') fileName: string,
     @Res() res: Response,
   ) {
-    const filePath = join(
-      __dirname,
-      '../../../..',
-      'static',
-      'uploads',
-      'img',
-      storyId,
-      fileName,
-    );
+    const filePath = `${this.configService.get('uploads.imgPath')}\\${storyId}\\${fileName}`;
+
     return res.sendFile(filePath, (err) => {
       if (err) {
         res

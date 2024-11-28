@@ -39,8 +39,9 @@ import { EditStoryDto } from '../dto/story/EditStoryDto';
 import { StoryDto } from '../dto/story/StoryDto';
 import { AddTextStoryDto } from '../dto/text-story/AddTextStoryDto';
 import { TextStoryDto } from '../dto/text-story/TextStoryDto';
-import { ITXClientDenyList } from '@prisma/client/runtime/library';
+
 import { StoryWithTextDto } from '../dto/story/story-with-text.dto';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class StoryService {
@@ -50,10 +51,12 @@ export class StoryService {
     PCodeMessages,
   );
 
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private readonly configService: ConfigService,
+  ) {}
 
   async getStories(): Promise<StoryDto[]> {
-    this.logger.debug('GET STORIES');
     return this.prisma.story.findMany({
       select: {
         id: true,

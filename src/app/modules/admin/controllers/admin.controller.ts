@@ -40,6 +40,7 @@ import { AddAudioStoryDto } from '../../story/dto/audio-story/AddAudioStoryDto';
 import { validatorImgFile } from '@/util/validators/validators';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CreatedImageStoryDto } from '../../story/dto/image-story/CreatedImageStory';
+import { ConfigService } from '@nestjs/config';
 
 @ApiTags('AdminController')
 @Controller('admin')
@@ -49,6 +50,7 @@ export class AdminController {
   constructor(
     private readonly mapService: MapService,
     private readonly storyService: StoryService,
+    private readonly configService: ConfigService,
   ) {}
 
   @ApiOperation({
@@ -255,7 +257,7 @@ export class AdminController {
   @UseGuards(JwtAuthGuard, RoleGuard)
   @Roles(Role.admin)
   @HttpCode(HttpStatus.OK)
-  @Put('/story/:storyId/image/upload')
+  @Post('/story/:storyId/image/upload')
   @UseInterceptors(
     FileInterceptor('file', {
       storage: memoryStorage(),

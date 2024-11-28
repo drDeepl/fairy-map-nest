@@ -2,6 +2,7 @@ import appConfig from '../config/app.config';
 import swaggerConfig from '../config/swagger.config';
 import prismaConfig from '../config/prisma.config';
 import jwtConfig from '../config/jwt.config';
+import imgConfig from '../config/uploads.config';
 import { UserModule } from '@/app/modules/user/user.module';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
@@ -27,7 +28,7 @@ import { AdminModule } from './modules/admin/admin.module';
     ConfigModule.forRoot({
       isGlobal: true,
       validationSchema: environmentsVariablesValidationSchema,
-      load: [appConfig, swaggerConfig, prismaConfig, jwtConfig],
+      load: [appConfig, swaggerConfig, prismaConfig, jwtConfig, imgConfig],
     }),
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'static'),
