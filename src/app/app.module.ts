@@ -22,6 +22,8 @@ import { environmentsVariablesValidationSchema } from '../config/validation/sche
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { AdminModule } from './modules/admin/admin.module';
+import { MulterModule } from '@nestjs/platform-express';
+import { MulterImageConfigService } from '@/shared/multer/multer-image-config.service';
 
 @Module({
   imports: [
@@ -34,6 +36,7 @@ import { AdminModule } from './modules/admin/admin.module';
       rootPath: join(__dirname, '..', 'static'),
       renderPath: '/static',
     }),
+
     PrismaModule,
     AuthModule,
     UserModule,

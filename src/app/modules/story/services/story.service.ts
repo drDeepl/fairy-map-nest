@@ -21,9 +21,8 @@ import {
 } from '@nestjs/common';
 import { PrismaClient, RatingAudio, StoryAudio } from '@prisma/client';
 import { File } from 'multer';
-import * as fs from 'node:fs';
+
 import { basename, extname } from 'node:path';
-import { join } from 'path';
 import { AddAudioStoryDto } from '../dto/audio-story/AddAudioStoryDto';
 import { AudioStoryLanguageDto } from '../dto/audio-story/AudioStoryLanguageDto';
 import { AudioStoryEntity } from '../dto/audio-story/entity/AudioStoryEntity';
@@ -39,9 +38,11 @@ import { EditStoryDto } from '../dto/story/EditStoryDto';
 import { StoryDto } from '../dto/story/StoryDto';
 import { AddTextStoryDto } from '../dto/text-story/AddTextStoryDto';
 import { TextStoryDto } from '../dto/text-story/TextStoryDto';
-
 import { StoryWithTextDto } from '../dto/story/story-with-text.dto';
 import { ConfigService } from '@nestjs/config';
+import { promises as fsPromises } from 'fs';
+import * as fs from 'node:fs';
+import { join } from 'path';
 
 @Injectable()
 export class StoryService {
@@ -345,6 +346,12 @@ export class StoryService {
               );
             }
           });
+        const coversStoriesPath = join(
+          this.configService.get('uploads.imgPath'),
+          `${story.id}`,
+        );
+
+        fsPromises.mkdir(coversStoriesPath, { recursive: true });
 
         const textStory = await tx.textStory
           .create({

@@ -41,6 +41,8 @@ import { validatorImgFile } from '@/util/validators/validators';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CreatedImageStoryDto } from '../../story/dto/image-story/CreatedImageStory';
 import { ConfigService } from '@nestjs/config';
+import { isThisISOWeek } from 'date-fns';
+import { Request } from 'express';
 
 @ApiTags('AdminController')
 @Controller('admin')
@@ -254,22 +256,20 @@ export class AdminController {
     name: 'authorization',
     description: 'Пример: Bearer accessToken',
   })
-  @UseGuards(JwtAuthGuard, RoleGuard)
   @Roles(Role.admin)
+  @UseGuards(JwtAuthGuard, RoleGuard)
   @HttpCode(HttpStatus.OK)
   @Post('/story/:storyId/image/upload')
-  @UseInterceptors(
-    FileInterceptor('file', {
-      storage: memoryStorage(),
-      fileFilter: validatorImgFile,
-    }),
-  )
+  @UseInterceptors(FileInterceptor('file'))
   async uploadStoryImage(
     @UploadedFile() file: File,
-    @Req() req,
+    @Req() req: Request,
     @Param('storyId', ParseIntPipe) storyId: number,
   ) {
-    return await this.storyService.setImgForStory(storyId, file);
+    this.logger.debug(this.uploadStoryImage.name);
+
+    // return await this.storyService.setImgForStory(storyId, file);
+    return file;
   }
 
   @ApiOperation({
