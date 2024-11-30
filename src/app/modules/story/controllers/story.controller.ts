@@ -30,6 +30,7 @@ import { TextStoryDto } from '../dto/text-story/TextStoryDto';
 import { RatingAudioStoryEntity } from '../entity/rating-audio-story/RatingAudioStoryEntity';
 import { MessageResponseDto } from '@/common/dto/response/message.response.dto';
 import { ConfigService } from '@nestjs/config';
+import { StoryWithImgResponseDto } from '../dto/story/response/story-with-img.response.dto';
 
 @ApiTags('StoryController')
 @Controller('story')
@@ -44,13 +45,13 @@ export class StoryController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Success',
-    type: [StoryDto],
+    isArray: true,
+    type: StoryWithImgResponseDto,
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
   @Get('/all')
-  async getAllStories() {
-    this.logger.debug('GET ALL STORIES');
+  async getAllStories(): Promise<StoryWithImgResponseDto[]> {
     return this.storyService.getStories();
   }
 
@@ -110,15 +111,15 @@ export class StoryController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Success',
-    type: [StoryDto],
+    isArray: true,
+    type: StoryWithImgResponseDto,
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
   @Get('/ethnic-group/:ethnicGroupId')
   async getStoriesByEthnicGroupId(
     @Param('ethnicGroupId', ParseIntPipe) ethnicGroupId: number,
-  ): Promise<StoryDto[]> {
-    this.logger.debug('GET STORIES BY ETHNIC GROUP ID');
+  ): Promise<StoryWithImgResponseDto[]> {
     return this.storyService.getStoriesByEthnicGroup(ethnicGroupId);
   }
 

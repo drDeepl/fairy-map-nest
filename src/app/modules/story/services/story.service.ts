@@ -52,7 +52,6 @@ import * as fs from 'node:fs';
 import { join } from 'path';
 import { StoryWithImgResponseDto } from '../dto/story/response/story-with-img.response.dto';
 import { StoryExtendImg } from '../dto/story/interfaces/story-extend-img';
-import { isThursday } from 'date-fns';
 
 @Injectable()
 export class StoryService {
@@ -67,14 +66,27 @@ export class StoryService {
     private readonly configService: ConfigService,
   ) {}
 
-  async getStories(): Promise<StoryDto[]> {
-    return this.prisma.story.findMany({
+  prepareSrcImg(storyId: number, filename: string): string {
+    return `${this.configService.get('APP_URL')}/uploads/img/${storyId}/${filename}`;
+  }
+
+  async getStories(): Promise<StoryWithImgResponseDto[]> {
+    const stories = await this.prisma.story.findMany({
       select: {
         id: true,
         name: true,
         ethnicGroup: true,
         audioId: true,
+        img: true,
       },
+    });
+
+    return stories.map((story) => {
+      const srcImg: string | null = story.img
+        ? this.prepareSrcImg(story.id, story.img.filename)
+        : null;
+
+      return new StoryWithImgResponseDto(story, srcImg);
     });
   }
 
@@ -108,17 +120,27 @@ export class StoryService {
     }
   }
 
-  async getStoriesByEthnicGroup(ethnicGroupId: number): Promise<StoryDto[]> {
-    return this.prisma.story.findMany({
+  async getStoriesByEthnicGroup(
+    ethnicGroupId: number,
+  ): Promise<StoryWithImgResponseDto[]> {
+    const stories = await this.prisma.story.findMany({
       select: {
         id: true,
         name: true,
         ethnicGroup: true,
         audioId: true,
+        img: true,
       },
       where: {
         ethnicGroupId: ethnicGroupId,
       },
+    });
+    return stories.map((story) => {
+      const srcImg: string | null = story.img
+        ? this.prepareSrcImg(story.id, story.img.filename)
+        : null;
+
+      return new StoryWithImgResponseDto(story, srcImg);
     });
   }
 

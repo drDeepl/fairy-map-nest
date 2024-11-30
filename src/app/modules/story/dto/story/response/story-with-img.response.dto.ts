@@ -3,10 +3,10 @@ import { StoryDto } from '../StoryDto';
 
 export class StoryWithImgResponseDto extends StoryDto {
   @ApiProperty({ description: 'url для получения обложки сказки' })
-  srcImg: string;
+  srcImg: string | null;
 
-  constructor(dto: Partial<StoryWithImgResponseDto>) {
+  constructor(dto: Partial<StoryDto>, srcImg: string) {
     super(dto.id, dto.name, dto.audioId, dto.ethnicGroup);
-    this.srcImg = dto.srcImg;
+    this.srcImg = srcImg;
   }
 }
