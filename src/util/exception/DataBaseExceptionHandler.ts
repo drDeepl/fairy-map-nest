@@ -8,7 +8,13 @@ export class DataBaseExceptionHandler {
     this.codeMessage = codeMessage;
   }
 
-  handleError(error: Prisma.PrismaClientKnownRequestError): HttpException {
+  handleError(
+    error: Prisma.PrismaClientKnownRequestError | HttpException,
+  ): HttpException {
+    if (error instanceof HttpException) {
+      return error;
+    }
+
     if (error.name === 'NotFoundException') {
       throw new NotFoundException();
     }

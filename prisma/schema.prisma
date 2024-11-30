@@ -100,7 +100,6 @@ model TextStory{
 model ImgStory {
   id            Int         @id @default(autoincrement())
   filename      String      @db.Text
-  path          String      @db.Text
   storyId       Int         @unique @map("story_id")
   story         Story       @relation(fields: [storyId], references: [id])
 

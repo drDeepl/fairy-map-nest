@@ -17,9 +17,16 @@ import {
   Injectable,
   Logger,
   NotFoundException,
+  NotImplementedException,
   StreamableFile,
 } from '@nestjs/common';
-import { PrismaClient, RatingAudio, StoryAudio } from '@prisma/client';
+import {
+  ImgStory,
+  PrismaClient,
+  RatingAudio,
+  Story,
+  StoryAudio,
+} from '@prisma/client';
 import { File } from 'multer';
 
 import { basename, extname } from 'node:path';
@@ -43,6 +50,9 @@ import { ConfigService } from '@nestjs/config';
 import { promises as fsPromises } from 'fs';
 import * as fs from 'node:fs';
 import { join } from 'path';
+import { StoryWithImgResponseDto } from '../dto/story/response/story-with-img.response.dto';
+import { StoryExtendImg } from '../dto/story/interfaces/story-extend-img';
+import { isThursday } from 'date-fns';
 
 @Injectable()
 export class StoryService {
@@ -69,7 +79,6 @@ export class StoryService {
   }
 
   async getStoryByName(name: string): Promise<StoryDto[]> {
-    this.logger.debug('GET STORY BY NAME');
     try {
       const stories = await this.prisma.$queryRaw<StoryDto[]>`
       SELECT stories.id,
@@ -113,9 +122,9 @@ export class StoryService {
     });
   }
 
-  async getStoryById(storyId: number): Promise<StoryDto> {
-    return await this.prisma.story
-      .findUnique({
+  async getStoryById(storyId: number): Promise<StoryDto | null> {
+    try {
+      const story: StoryDto | null = await this.prisma.story.findUnique({
         select: {
           id: true,
           name: true,
@@ -125,12 +134,14 @@ export class StoryService {
         where: {
           id: storyId,
         },
-      })
-      .catch((error) => {
-        PrintNameAndCodePrismaException(error, this.logger);
-        throw this.dbExceptionHandler.handleError(error);
       });
+      return story;
+    } catch (error) {
+      PrintNameAndCodePrismaException(error, this.logger);
+      throw this.dbExceptionHandler.handleError(error);
+    }
   }
+
   async getLanguagesForStory(
     storyId: number,
   ): Promise<AudioStoryLanguageDto[]> {
@@ -372,6 +383,21 @@ export class StoryService {
     });
   }
 
+  async getStoryWithImg(storyId: number): Promise<StoryExtendImg | null> {
+    try {
+      return this.prisma.story.findUnique({
+        where: {
+          id: storyId,
+        },
+        include: {
+          img: true,
+        },
+      });
+    } catch (error) {
+      throw this.dbExceptionHandler.handleError(error);
+    }
+  }
+
   async getTextByStoryId(storyId: number): Promise<TextStoryDto> {
     return await this.prisma.textStory
       .findUnique({
@@ -466,9 +492,14 @@ export class StoryService {
         },
       });
       if (imgStoryData) {
+        const imgPath = join(
+          this.configService.get('upload.imgPath'),
+          `${imgStoryData.storyId}`,
+          imgStoryData.filename,
+        );
         const imgStoryDto: ImageStoryDto = new ImageStoryDto();
-        imgStoryDto.filename = basename(imgStoryData.path);
-        imgStoryDto.buffer = fs.readFileSync(imgStoryData.path);
+        imgStoryDto.filename = imgStoryData.filename;
+        imgStoryDto.buffer = fs.readFileSync(imgPath);
         return imgStoryDto;
       }
       throw new NotFoundException();
@@ -478,29 +509,37 @@ export class StoryService {
     }
   }
 
-  async setImgForStory(storyId: number, file: File) {
-    console.log(file);
-    const path = `${basePathUpload}/img/${storyId}/${getUuid(file.originalname)}${extname(file.originalname)}`;
-
-    return this.prisma.imgStory
-      .create({
-        data: {
-          filename: file.originalname,
-          path: path,
+  async createImgForStoryOrUpdateIfExists(
+    storyId: number,
+    file: File,
+  ): Promise<ImgStory> {
+    try {
+      const storyImg = await this.prisma.imgStory.findUnique({
+        where: {
           storyId: storyId,
         },
-      })
-      .then((createdImg: ImageStoryEntity) => {
-        fs.writeFileSync(createdImg.path, file.buffer);
-        const createdImgDto: CreatedImageStoryDto = new CreatedImageStoryDto();
-        createdImgDto.id = createdImg.id;
-        createdImgDto.storyId = createdImg.storyId;
-        return createdImgDto;
-      })
-      .catch((error) => {
-        PrintNameAndCodePrismaException(error, this.logger);
-        throw this.dbExceptionHandler.handleError(error);
       });
+      if (!storyImg) {
+        return this.prisma.imgStory.create({
+          data: {
+            filename: file.filename,
+            storyId: storyId,
+          },
+        });
+      } else {
+        return this.prisma.imgStory.update({
+          where: {
+            id: storyImg.id,
+          },
+          data: {
+            filename: file.filename,
+          },
+        });
+      }
+    } catch (error) {
+      PrintNameAndCodePrismaException(error, this.logger);
+      throw this.dbExceptionHandler.handleError(error);
+    }
   }
 
   async deleteStoryImgByStoryId(storyId: number): Promise<void> {
@@ -510,8 +549,12 @@ export class StoryService {
           storyId: storyId,
         },
       });
-      fs.unlinkSync(deletedStoryImg.path);
-      console.log(deletedStoryImg);
+      const imgPath = join(
+        this.configService.get('uploads.imgPath'),
+        `${deletedStoryImg.storyId}`,
+        deletedStoryImg.filename,
+      );
+      fs.unlinkSync(imgPath);
     } catch (error) {
       this.logger.error(error);
     }

@@ -43,6 +43,7 @@ import { CreatedImageStoryDto } from '../../story/dto/image-story/CreatedImageSt
 import { ConfigService } from '@nestjs/config';
 import { isThisISOWeek } from 'date-fns';
 import { Request } from 'express';
+import { ImgStoryResponseDto } from '../../story/dto/image-story/response/img-story.response.dto';
 
 @ApiTags('AdminController')
 @Controller('admin')
@@ -266,10 +267,13 @@ export class AdminController {
     @Req() req: Request,
     @Param('storyId', ParseIntPipe) storyId: number,
   ) {
-    this.logger.debug(this.uploadStoryImage.name);
+    const imgStory = await this.storyService.createImgForStoryOrUpdateIfExists(
+      storyId,
+      file,
+    );
+    const srcUrl = `${this.configService.get('APP_URL')}/uploads/img/${storyId}/${imgStory.filename}`;
 
-    // return await this.storyService.setImgForStory(storyId, file);
-    return file;
+    return new ImgStoryResponseDto({ storyId, srcUrl });
   }
 
   @ApiOperation({

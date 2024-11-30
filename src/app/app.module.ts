@@ -15,15 +15,12 @@ import { PrismaModule } from '../prisma/prisma.module';
 import { RequestModule } from './modules/request/request.module';
 import { StoryModule } from './modules/story/story.module';
 import { UserAudioModule } from './modules/user-audio/user-audio.module';
-
 import { WsStoryRequestModule } from '../shared/ws-story-request/ws-story-request.module';
 import { AddStoryRequestModule } from './modules/add-story-request/add-story-request.module';
 import { environmentsVariablesValidationSchema } from '../config/validation/schemas/environment-validation.schema';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { AdminModule } from './modules/admin/admin.module';
-import { MulterModule } from '@nestjs/platform-express';
-import { MulterImageConfigService } from '@/shared/multer/multer-image-config.service';
 
 @Module({
   imports: [
