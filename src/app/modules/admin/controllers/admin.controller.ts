@@ -249,7 +249,7 @@ export class AdminController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Success',
-    type: CreatedImageStoryDto,
+    type: ImgStoryResponseDto,
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
@@ -266,7 +266,7 @@ export class AdminController {
     @UploadedFile() file: File,
     @Req() req: Request,
     @Param('storyId', ParseIntPipe) storyId: number,
-  ) {
+  ): Promise<ImgStoryResponseDto> {
     const imgStory = await this.storyService.createImgForStoryOrUpdateIfExists(
       storyId,
       file,
