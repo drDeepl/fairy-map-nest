@@ -39,15 +39,14 @@ export const multerImgFactory = async (
           cb(new NotFoundException('выбранная сказка не найдена'));
         }
 
-        if (!storyWithImg.img) {
-          fs.mkdirSync(pathToSave, { recursive: true });
-          const uniqueSuffix =
-            Date.now() + '-' + Math.round(Math.random() * 1e9);
-          const filename = `${file.fieldname}-${uniqueSuffix}${extname(file.originalname)}`;
-          cb(null, filename);
-        } else {
-          cb(null, storyWithImg.img.filename);
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+        const filename = `${file.fieldname}-${uniqueSuffix}${extname(file.originalname)}`;
+
+        if (storyWithImg.img) {
+          // fs.mkdirSync(pathToSave, { recursive: true });
+          fs.promises.unlink(join(pathToSave, storyWithImg.img.filename));
         }
+        cb(null, filename);
       },
     }),
   };
