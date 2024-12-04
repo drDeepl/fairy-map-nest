@@ -14,6 +14,7 @@ import {
 
 import {
   ApiBadRequestResponse,
+  ApiBearerAuth,
   ApiHeader,
   ApiOperation,
   ApiResponse,
@@ -62,12 +63,13 @@ export class AuthController {
     type: TokensResponseDto,
   })
   @ApiBadRequestResponse({ description: 'Bad Request' })
+  @ApiBearerAuth()
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
   signIn(@Body() dto: SignInRequestDto): Promise<Tokens> {
     return this.authService.signIn(dto);
   }
 
-  @ApiOperation({ summary: ' на обновление access token' })
+  @ApiOperation({ summary: ' обновление access token' })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Success',
@@ -106,6 +108,7 @@ export class AuthController {
     description: 'Пример: Bearer accessToken',
   })
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @Post('logout')
   @HttpCode(HttpStatus.OK)
   async logout(@CurrentUser() currentUser: JwtPayload) {

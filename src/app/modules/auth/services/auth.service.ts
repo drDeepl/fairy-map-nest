@@ -7,9 +7,12 @@ import {
   BadRequestException,
   ConflictException,
   ForbiddenException,
+  HttpException,
   Injectable,
   Logger,
   NotFoundException,
+  NotImplementedException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
@@ -25,6 +28,7 @@ import { JwtPayload } from '../interface/jwt-payload.interface';
 import { UserRepository } from '../../user/repositories/user.repository';
 import { UserService } from '../../user/services/user.service';
 import { UserResponseDto } from '../../user/dto/response/user.response.dto';
+import { TokensResponseDto } from '../dto/response/tokens.response.dto';
 
 @Injectable()
 export class AuthService {
@@ -131,6 +135,10 @@ export class AuthService {
     const tokens: Tokens = await this.createJwt(payload);
     this.updateRefreshToken(user.id, tokens.refreshToken);
     return tokens;
+  }
+
+  async updateAccess(user: JwtPayload): Promise<TokensResponseDto> {
+    throw new NotImplementedException('в разработке');
   }
 
   async logout(userId: number) {

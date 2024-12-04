@@ -19,6 +19,10 @@ export const multerImgFactory = async (
           req.params.storyId,
         );
 
+        if (!fs.existsSync(pathToSave)) {
+          fs.mkdirSync(pathToSave, { recursive: true });
+        }
+
         cb(null, pathToSave);
       },
       filename: async (req, file, cb) => {
