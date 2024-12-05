@@ -44,7 +44,7 @@ export const multerImgFactory = async (
 
         if (storyWithImg.img) {
           // fs.mkdirSync(pathToSave, { recursive: true });
-          fs.promises.unlink(join(pathToSave, storyWithImg.img.filename));
+          await fs.promises.unlink(join(pathToSave, storyWithImg.img.filename));
         }
         cb(null, filename);
       },
