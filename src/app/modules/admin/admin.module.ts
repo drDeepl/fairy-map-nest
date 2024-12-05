@@ -3,7 +3,7 @@ import { AdminController } from './controllers/admin.controller';
 import { MapModule } from '../map/map.module';
 import { StoryModule } from '../story/story.module';
 import { MulterModule } from '@nestjs/platform-express';
-import { multerImgFactory } from './factories/multer-img.factory';
+import { multerFactory } from './factories/multer.factory';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { StoryService } from '../story/services/story.service';
 
@@ -13,7 +13,7 @@ import { StoryService } from '../story/services/story.service';
     StoryModule,
     MulterModule.registerAsync({
       imports: [ConfigModule, StoryModule],
-      useFactory: multerImgFactory,
+      useFactory: multerFactory,
       inject: [ConfigService, StoryService],
     }),
   ],

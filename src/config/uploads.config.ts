@@ -9,6 +9,6 @@ export default registerAs('uploads', () => {
 
   return {
     imgPath: join(baseUploadPath, 'img'),
-    audioPath: join(baseUploadPath, '..', 'static', 'uploads', 'audio'),
+    audioPath: join(baseUploadPath, 'audio'),
   };
 });

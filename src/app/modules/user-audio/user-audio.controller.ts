@@ -141,12 +141,7 @@ export class UserAudioController {
   @UseGuards(AuthGuard('jwt'), RoleGuard)
   @HttpCode(HttpStatus.OK)
   @Put('/upload/:languageId')
-  @UseInterceptors(
-    FileInterceptor('file', {
-      storage: memoryStorage(),
-      fileFilter: validateAudio,
-    }),
-  )
+  @UseInterceptors(FileInterceptor('audio', {}))
   async uploadUserAudio(
     @UploadedFile() file: File,
     @Req() req,

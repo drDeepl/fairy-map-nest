@@ -16,6 +16,7 @@ import {
   Req,
   UploadedFile,
   UseInterceptors,
+  NotImplementedException,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiHeader } from '@nestjs/swagger';
 import { Role } from '@/util/Constants';
@@ -45,6 +46,7 @@ import { isThisISOWeek } from 'date-fns';
 import { Request } from 'express';
 import { ImgStoryResponseDto } from '../../story/dto/image-story/response/img-story.response.dto';
 import { StoryWithImgResponseDto } from '../../story/dto/story/response/story-with-img.response.dto';
+import { CurrentUser } from '@/common/decorators/user.decorator';
 
 @ApiTags('AdminController')
 @Controller('admin')
@@ -245,6 +247,32 @@ export class AdminController {
   }
 
   @ApiOperation({
+    summary: 'загрузка озвучки для сказки',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Success',
+  })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  @ApiHeader({
+    name: 'authorization',
+    description: 'Пример: Bearer accessToken',
+  })
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  @Roles(Role.admin)
+  @UseInterceptors(FileInterceptor('audio'))
+  @Post('/story/:languageId/audio/upload')
+  async uploadAudioStory(
+    @UploadedFile() file: File,
+    @Param('languageId', ParseIntPipe) languageId: number,
+    @CurrentUser() user: JwtPayload,
+  ) {
+    console.log(file);
+    throw new NotImplementedException('маршрут находится в разработке');
+  }
+
+  @ApiOperation({
     summary: 'загрузка обложки для выбранной сказки',
   })
   @ApiResponse({
@@ -265,7 +293,6 @@ export class AdminController {
   @UseInterceptors(FileInterceptor('file'))
   async uploadStoryImage(
     @UploadedFile() file: File,
-    @Req() req: Request,
     @Param('storyId', ParseIntPipe) storyId: number,
   ): Promise<StoryWithImgResponseDto> {
     return await this.storyService.createImgForStoryOrUpdateIfExists(

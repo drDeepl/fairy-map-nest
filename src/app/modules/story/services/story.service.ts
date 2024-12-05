@@ -22,6 +22,7 @@ import {
 } from '@nestjs/common';
 import {
   ImgStory,
+  Language,
   PrismaClient,
   RatingAudio,
   Story,
@@ -162,6 +163,14 @@ export class StoryService {
       PrintNameAndCodePrismaException(error, this.logger);
       throw this.dbExceptionHandler.handleError(error);
     }
+  }
+
+  async getLanguageById(languageId: number): Promise<Language | null> {
+    return this.prisma.language.findUnique({
+      where: {
+        id: languageId,
+      },
+    });
   }
 
   async getLanguagesForStory(
