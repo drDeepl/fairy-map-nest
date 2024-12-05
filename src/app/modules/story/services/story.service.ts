@@ -549,7 +549,14 @@ export class StoryService {
             storyId: storyId,
           },
           include: {
-            story: true,
+            story: {
+              select: {
+                id: true,
+                name: true,
+                audioId: true,
+                ethnicGroup: true,
+              },
+            },
           },
         });
         return new StoryWithImgResponseDto(
@@ -565,7 +572,14 @@ export class StoryService {
             filename: file.filename,
           },
           include: {
-            story: true,
+            story: {
+              select: {
+                id: true,
+                name: true,
+                audioId: true,
+                ethnicGroup: true,
+              },
+            },
           },
         });
         return new StoryWithImgResponseDto(
