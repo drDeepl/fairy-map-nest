@@ -534,29 +534,44 @@ export class StoryService {
   async createImgForStoryOrUpdateIfExists(
     storyId: number,
     file: File,
-  ): Promise<ImgStory> {
+  ): Promise<StoryWithImgResponseDto> {
     try {
+      const srcUrl = `${this.configService.get('APP_URL')}/uploads/img/${storyId}`;
       const storyImg = await this.prisma.imgStory.findUnique({
         where: {
           storyId: storyId,
         },
       });
       if (!storyImg) {
-        return this.prisma.imgStory.create({
+        const createdImgStory = await this.prisma.imgStory.create({
           data: {
             filename: file.filename,
             storyId: storyId,
           },
+          include: {
+            story: true,
+          },
         });
+        return new StoryWithImgResponseDto(
+          createdImgStory.story,
+          `${srcUrl}/${createdImgStory.filename}`,
+        );
       } else {
-        return this.prisma.imgStory.update({
+        const updatedStoryImg = await this.prisma.imgStory.update({
           where: {
             id: storyImg.id,
           },
           data: {
             filename: file.filename,
           },
+          include: {
+            story: true,
+          },
         });
+        return new StoryWithImgResponseDto(
+          updatedStoryImg.story,
+          `${srcUrl}/${updatedStoryImg.filename}`,
+        );
       }
     } catch (error) {
       PrintNameAndCodePrismaException(error, this.logger);

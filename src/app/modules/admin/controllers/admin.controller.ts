@@ -44,6 +44,7 @@ import { ConfigService } from '@nestjs/config';
 import { isThisISOWeek } from 'date-fns';
 import { Request } from 'express';
 import { ImgStoryResponseDto } from '../../story/dto/image-story/response/img-story.response.dto';
+import { StoryWithImgResponseDto } from '../../story/dto/story/response/story-with-img.response.dto';
 
 @ApiTags('AdminController')
 @Controller('admin')
@@ -249,7 +250,7 @@ export class AdminController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Success',
-    type: ImgStoryResponseDto,
+    type: StoryWithImgResponseDto,
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
@@ -266,14 +267,11 @@ export class AdminController {
     @UploadedFile() file: File,
     @Req() req: Request,
     @Param('storyId', ParseIntPipe) storyId: number,
-  ): Promise<ImgStoryResponseDto> {
-    const imgStory = await this.storyService.createImgForStoryOrUpdateIfExists(
+  ): Promise<StoryWithImgResponseDto> {
+    return await this.storyService.createImgForStoryOrUpdateIfExists(
       storyId,
       file,
     );
-    const srcUrl = `${this.configService.get('APP_URL')}/uploads/img/${storyId}/${imgStory.filename}`;
-
-    return new ImgStoryResponseDto({ storyId, srcUrl });
   }
 
   @ApiOperation({

@@ -3,7 +3,7 @@ import { StoryService } from '../../story/services/story.service';
 import { Request } from 'express';
 import { diskStorage } from 'multer';
 import { extname, join } from 'path';
-import { NotFoundException } from '@nestjs/common';
+import { BadGatewayException, NotFoundException } from '@nestjs/common';
 
 import * as fs from 'fs';
 
@@ -43,10 +43,23 @@ export const multerImgFactory = async (
         const filename = `${file.fieldname}-${uniqueSuffix}${extname(file.originalname)}`;
 
         if (storyWithImg.img) {
-          // fs.mkdirSync(pathToSave, { recursive: true });
-          await fs.promises.unlink(join(pathToSave, storyWithImg.img.filename));
+          try {
+            await fs.promises.unlink(
+              join(pathToSave, storyWithImg.img.filename),
+            );
+            cb(null, filename);
+          } catch (error) {
+            if (error.syscall === 'unlink') {
+              cb(null, filename);
+            } else {
+              cb(
+                new BadGatewayException(
+                  'ошибка при добавлении обложки для сказки',
+                ),
+              );
+            }
+          }
         }
-        cb(null, filename);
       },
     }),
   };
