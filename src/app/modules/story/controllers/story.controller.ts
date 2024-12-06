@@ -149,12 +149,11 @@ export class StoryController {
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
-  @Get('/audio/:audioId')
+  @Get('/audio/:storyAudioId')
   async getAudioStoryById(
-    @Param('audioId', ParseIntPipe) audioId: number,
+    @Param('storyAudioId', ParseIntPipe) storyAudioId: number,
   ): Promise<StreamableFile> {
-    this.logger.debug('GET STORIES BY ETHNIC GROUP ID');
-    return this.storyService.getAudioStoryById(audioId);
+    return this.storyService.getAudioStoryById(storyAudioId);
   }
 
   @ApiOperation({

@@ -262,13 +262,22 @@ export class AdminController {
   @UseGuards(JwtAuthGuard, RoleGuard)
   @Roles(Role.admin)
   @UseInterceptors(FileInterceptor('audio'))
-  @Post('/story/:languageId/audio/upload')
+  @Post('/story/:storyId/language/:languageId/audio/upload')
   async uploadAudioStory(
     @UploadedFile() file: File,
+    @Param('storyId', ParseIntPipe) storyId: number,
     @Param('languageId', ParseIntPipe) languageId: number,
     @CurrentUser() user: JwtPayload,
   ) {
     console.log(file);
+    const audioStory = await this.storyService.addAudioStory({
+      userId: +user.sub,
+      storyId: storyId,
+      languageId: languageId,
+      filename: file.filename,
+      pathAudio: file.path,
+    });
+    return audioStory;
     throw new NotImplementedException('маршрут находится в разработке');
   }
 

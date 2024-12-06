@@ -111,13 +111,12 @@ model Story{
   name                String      @unique @db.VarChar(255)
   ethnicGroupId       Int         @map("ethnic_group_id")
   ethnicGroup         EthnicGroup @relation(fields: [ethnicGroupId], references: [id])
-  audioId             Int?         @map("audio_id") @unique
-  audio               StoryAudio?  @relation(fields: [audioId], references: [id])
+  // audioId             Int?         @map("audio_id") @unique
+  // audio               StoryAudio?  @relation(fields: [audioId], references: [id])
+  audios              StoryAudio[]
   text                TextStory?
   img                 ImgStory?
   storyAudioRequest   StoryAudioRequest[]
-
-
 
   @@map("stories")
   
@@ -127,7 +126,8 @@ model StoryAudio{
   id            Int             @id @default(autoincrement())
   author        Int
   authors       User            @relation(fields: [author], references: [id])
-  story         Story?
+  storyId       Int             @map("story_id")
+  story         Story           @relation(fields: [storyId], references: [id])
   languageId    Int             @map("language_id")
   language      Language        @relation(fields:[languageId], references: [id])
   moderateScore Float

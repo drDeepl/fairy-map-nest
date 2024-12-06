@@ -53,6 +53,7 @@ import * as fs from 'node:fs';
 import { join } from 'path';
 import { StoryWithImgResponseDto } from '../dto/story/response/story-with-img.response.dto';
 import { StoryExtendImg } from '../dto/story/interfaces/story-extend-img';
+import { AddAudioStoryAdminParams } from '../interfaces/add-audio-story-admin.params';
 
 @Injectable()
 export class StoryService {
@@ -77,7 +78,7 @@ export class StoryService {
         id: true,
         name: true,
         ethnicGroup: true,
-        audioId: true,
+
         img: true,
       },
     });
@@ -107,7 +108,6 @@ export class StoryService {
           new StoryDto(
             story['id'],
             story['name'],
-            story['audioid'],
             new EthnicGroupDto(
               story['ethnicgroupid'],
               story['ethnicgroupname'],
@@ -129,7 +129,7 @@ export class StoryService {
         id: true,
         name: true,
         ethnicGroup: true,
-        audioId: true,
+
         img: true,
       },
       where: {
@@ -152,7 +152,6 @@ export class StoryService {
           id: true,
           name: true,
           ethnicGroup: true,
-          audioId: true,
         },
         where: {
           id: storyId,
@@ -176,14 +175,6 @@ export class StoryService {
   async getLanguagesForStory(
     storyId: number,
   ): Promise<AudioStoryLanguageDto[]> {
-    const story = await this.prisma.story.findUnique({
-      where: {
-        id: storyId,
-      },
-    });
-    if (story.audioId === null) {
-      return [];
-    }
     try {
       return await this.prisma.storyAudio.findMany({
         select: {
@@ -205,7 +196,7 @@ export class StoryService {
           },
         },
         where: {
-          id: story.audioId,
+          storyId: storyId,
         },
       });
     } catch (error) {
@@ -231,7 +222,6 @@ export class StoryService {
                 id: true,
                 name: true,
                 ethnicGroup: true,
-                audioId: true,
               },
               data: {
                 name: dto.name,
@@ -361,7 +351,6 @@ export class StoryService {
               id: true,
               name: true,
               ethnicGroup: true,
-              audioId: true,
             },
             data: {
               name: dto.name,
@@ -442,48 +431,48 @@ export class StoryService {
       });
   }
 
+  async addAudioStory(params: AddAudioStoryAdminParams) {
+    return await this.prisma.$transaction(async (transactionClient) => {
+      const userAudio = await transactionClient.userAudioStory.create({
+        data: {
+          name: params.filename,
+          userId: params.userId,
+          languageId: params.languageId,
+          pathAudio: params.pathAudio,
+        },
+      });
+
+      const storyAudio = await transactionClient.storyAudio.create({
+        select: {
+          id: true,
+          authors: true,
+          storyId: true,
+          language: true,
+          moderateScore: true,
+        },
+        data: {
+          author: params.userId,
+          languageId: params.languageId,
+          moderateScore: 0,
+          storyId: params.storyId,
+          userAudioId: userAudio.id,
+        },
+      });
+      return storyAudio;
+    });
+  }
+
   async setUserAudioToStory(
     moderatorId: number,
     storyId: number,
     dto: AddAudioStoryDto,
   ): Promise<void> {
-    const userAudio = await this.prisma.userAudioStory.findUnique({
-      where: {
-        id: dto.userAudioId,
-      },
-    });
-
-    if (userAudio === null) {
-      throw new HttpException(
-        'Выбранной аудиозаписи не существует',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
     try {
-      const audioStory: AudioStoryEntity = await this.prisma.storyAudio.create({
-        data: {
-          author: dto.userId,
-          userAudioId: dto.userAudioId,
-          moderateScore: dto.moderateScore,
-          languageId: userAudio.languageId,
-        },
-      });
-      await this.prisma.ratingAudio.create({
-        data: {
-          userId: moderatorId,
-          storyAudioId: audioStory.id,
-          rating: dto.moderateScore,
-        },
-      });
-      await this.prisma.story.update({
-        where: {
-          id: storyId,
-        },
-        data: {
-          audioId: audioStory.id,
-        },
-      });
+      throw new NotImplementedException(
+        'добавление озвучки пользователя находится в разработке',
+      );
     } catch (error) {
+      if (error instanceof NotImplementedException) throw error;
       PrintNameAndCodePrismaException(error, this.logger);
       throw this.dbExceptionHandler.handleError(error);
     }
@@ -491,24 +480,23 @@ export class StoryService {
 
   async getAudioStoryById(audioId: number): Promise<StreamableFile> {
     try {
-      const audioStory: AudioStoryEntity =
-        await this.prisma.storyAudio.findUnique({
-          where: { id: audioId },
-        });
-      // FIX after added UserAudioRepository
-      const userAudio: UserAudioEntity =
-        await this.prisma.userAudioStory.findUnique({
-          where: {
-            id: audioStory.userAudioId,
-          },
-        });
-      if (userAudio) {
-        const file = fs.createReadStream(
-          join(process.cwd(), userAudio.pathAudio),
-        );
-        return new StreamableFile(file);
-      }
-      // FIX end =============================================
+      const audioStory = await this.prisma.storyAudio.findUnique({
+        where: { id: audioId },
+        include: {
+          userAudio: true,
+        },
+      });
+
+      const pathAudio = join(
+        this.configService.get('uploads.audioPath'),
+        `${audioStory.userAudio.userId}`,
+        `${audioStory.userAudio.languageId}`,
+        `${audioStory.userAudio.name}`,
+      );
+
+      const file = await fs.promises.readFile(pathAudio);
+
+      return new StreamableFile(file);
     } catch (error) {
       PrintNameAndCodePrismaException(error, this.logger);
       throw this.dbExceptionHandler.handleError(error);
@@ -562,7 +550,6 @@ export class StoryService {
               select: {
                 id: true,
                 name: true,
-                audioId: true,
                 ethnicGroup: true,
               },
             },
@@ -585,7 +572,6 @@ export class StoryService {
               select: {
                 id: true,
                 name: true,
-                audioId: true,
                 ethnicGroup: true,
               },
             },

@@ -3,7 +3,13 @@ import { MAX_STORIES_FOR_ETHNIC_GROUP, PCodeMessages } from '@/util/Constants';
 import { PrintNameAndCodePrismaException } from '@/util/ExceptionUtils';
 import { MessageException } from '@/util/MessageException';
 import { DataBaseExceptionHandler } from '@/util/exception/DataBaseExceptionHandler';
-import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  Logger,
+  NotImplementedException,
+} from '@nestjs/common';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { AddConstituentDto } from '../dto/AddConstituentDto';
 import { AddEthnicGroupToConstituentDto } from '../dto/AddEthnicGroupToConstituentDto';
@@ -153,41 +159,6 @@ export class ConstituentsService {
       PrintNameAndCodePrismaException(error, this.logger);
       throw this.dbExceptionHandler.handleError(error);
     }
-  }
-
-  async getPercentOfFilledForConstituent(
-    constituentId: number,
-  ): Promise<ConstituentFilledDto[]> {
-    this.logger.debug('GET PERCENT OF FILLED FOR CONSTITUENT');
-    const constituentRfEthnicGroups =
-      await this.prisma.constituentsRFOnEthnicGroup.findMany({
-        where: {
-          constituentRfId: constituentId,
-        },
-      });
-    const ethnicGroupIds = constituentRfEthnicGroups.map(
-      (item) => item.ethnicGroupId,
-    );
-
-    console.log(`ethnicGroupsId: ${ethnicGroupIds}`);
-    const commonAudios = MAX_STORIES_FOR_ETHNIC_GROUP * ethnicGroupIds.length;
-    const stories = await this.prisma.story.findMany({
-      where: {
-        ethnicGroupId: { in: ethnicGroupIds },
-      },
-    });
-    const aggStories = await this.prisma.story.aggregate({
-      _count: {
-        audioId: true,
-      },
-      where: {
-        ethnicGroupId: { in: ethnicGroupIds },
-      },
-    });
-    console.log(stories);
-    console.log(aggStories);
-    console.log(`filled: ${aggStories._count.audioId / commonAudios}`);
-    return;
   }
 
   async editConstituentById(id: number, dto: EditConstituentDto) {

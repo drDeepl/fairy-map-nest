@@ -30,7 +30,6 @@ export class UserAudioService {
   constructor(private prisma: PrismaService) {}
 
   async getUserAudioById(userAudioId: number): Promise<StreamableFile> {
-    this.logger.debug('GET USER AUDIO BY ID');
     return this.prisma.userAudioStory
       .findUnique({
         select: {
@@ -63,7 +62,6 @@ export class UserAudioService {
   async getApprovedUserAudiosCurrentUser(
     userId: number,
   ): Promise<ApprovedUserAudioDto[]> {
-    this.logger.debug('GET APPROVED USER AUDIO CURRENT USER');
     return await this.prisma.storyAudio
       .findMany({
         select: {
@@ -81,7 +79,6 @@ export class UserAudioService {
               id: true,
               name: true,
               ethnicGroup: true,
-              audioId: true,
             },
           },
         },
@@ -96,7 +93,6 @@ export class UserAudioService {
   }
 
   async getAudiosByUserId(userId: number): Promise<UserAudioDto[]> {
-    this.logger.debug('GET AUDIOS BY USER ID');
     return await this.prisma.userAudioStory
       .findMany({
         select: {
@@ -133,7 +129,6 @@ export class UserAudioService {
     languageId: number,
     file: File,
   ): Promise<UploadedUserAudioDto> {
-    this.logger.debug('SAVE AUDIO');
     const filename = file.originalname;
     const extens = extname(filename);
     const filenameFolder = `${languageId}@${getUuid(filename)}.${extens}`;
@@ -177,7 +172,6 @@ export class UserAudioService {
   }
 
   async deleteUserAudioById(id: number) {
-    this.logger.debug('DELETE USER AUDIO BY ID');
     return this.prisma.userAudioStory
       .findUnique({
         where: {

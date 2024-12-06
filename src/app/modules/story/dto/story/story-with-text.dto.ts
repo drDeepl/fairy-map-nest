@@ -6,7 +6,7 @@ export class StoryWithTextDto extends StoryDto {
   text: string;
 
   constructor(storyDto: Partial<StoryDto>, text: string) {
-    super(storyDto.id, storyDto.name, storyDto.audioId, storyDto.ethnicGroup);
+    super(storyDto.id, storyDto.name, storyDto.ethnicGroup);
     this.text = text;
   }
 }
