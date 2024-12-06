@@ -1,5 +1,5 @@
 import { LanguageDto } from '@/app/modules/ethnic-group/dto/LanguageDto';
-import { AuthorUserDto } from '@/app/modules/user/dto/AuthorUserDto';
+import { AuthorAudioStoryResponseDto } from '@/app/modules/user/dto/response/author-audio-story.response.dto';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class AudioStoryLanguageDto {
@@ -16,5 +16,5 @@ export class AudioStoryLanguageDto {
   language: LanguageDto;
 
   @ApiProperty({ description: 'информация об авторе', nullable: false })
-  authors: AuthorUserDto;
+  authors: AuthorAudioStoryResponseDto;
 }

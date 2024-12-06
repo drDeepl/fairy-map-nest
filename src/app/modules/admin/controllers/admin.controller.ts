@@ -47,6 +47,7 @@ import { Request } from 'express';
 import { ImgStoryResponseDto } from '../../story/dto/image-story/response/img-story.response.dto';
 import { StoryWithImgResponseDto } from '../../story/dto/story/response/story-with-img.response.dto';
 import { CurrentUser } from '@/common/decorators/user.decorator';
+import { AudioStoryResponseDto } from '../../story/dto/audio-story/response/audio-story.response.dto';
 
 @ApiTags('AdminController')
 @Controller('admin')
@@ -252,6 +253,7 @@ export class AdminController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Success',
+    type: AudioStoryResponseDto,
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
@@ -268,8 +270,7 @@ export class AdminController {
     @Param('storyId', ParseIntPipe) storyId: number,
     @Param('languageId', ParseIntPipe) languageId: number,
     @CurrentUser() user: JwtPayload,
-  ) {
-    console.log(file);
+  ): Promise<AudioStoryResponseDto> {
     const audioStory = await this.storyService.addAudioStory({
       userId: +user.sub,
       storyId: storyId,
@@ -277,8 +278,8 @@ export class AdminController {
       filename: file.filename,
       pathAudio: file.path,
     });
+
     return audioStory;
-    throw new NotImplementedException('маршрут находится в разработке');
   }
 
   @ApiOperation({

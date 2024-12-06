@@ -31,6 +31,7 @@ import { RatingAudioStoryEntity } from '../entity/rating-audio-story/RatingAudio
 import { MessageResponseDto } from '@/common/dto/response/message.response.dto';
 import { ConfigService } from '@nestjs/config';
 import { StoryWithImgResponseDto } from '../dto/story/response/story-with-img.response.dto';
+import { AudioStoryResponseDto } from '../dto/audio-story/response/audio-story.response.dto';
 
 @ApiTags('StoryController')
 @Controller('story')
@@ -82,27 +83,23 @@ export class StoryController {
   async getStoryById(
     @Param('storyId', ParseIntPipe) storyId: number,
   ): Promise<StoryDto> {
-    this.logger.debug('GET STORY BY ID');
     return await this.storyService.getStoryById(storyId);
   }
 
   @ApiOperation({
-    summary: 'получение доступных языков озвучки для выбранной сказки',
+    summary: 'получение одобренных озвучек для выбранной сказки',
   })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Success',
-    type: AudioStoryLanguageDto,
+    type: AudioStoryResponseDto,
     isArray: true,
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
-  @Get('languages/:storyId')
-  async getLanguagesForCurrentStory(
-    @Param('storyId', ParseIntPipe) storyId: number,
-  ): Promise<AudioStoryLanguageDto[]> {
-    this.logger.debug('GET LANGUAGES FOR CURRENT STORY BY STORY ID');
-    return await this.storyService.getLanguagesForStory(storyId);
+  @Get('/:storyId/audio/all')
+  async getAudiosByStoryId(@Param('storyId', ParseIntPipe) storyId: number) {
+    return this.storyService.getAudiosForStory(storyId);
   }
 
   @ApiOperation({
@@ -200,7 +197,6 @@ export class StoryController {
   async getRatingByAudioId(
     @Param('audioId', ParseIntPipe) audioId: number,
   ): Promise<RatingAudioStoryDto> {
-    this.logger.debug('GET RATING BY AUDIO ID');
     return await this.storyService.getRatingByAudioId(audioId);
   }
 
@@ -221,7 +217,6 @@ export class StoryController {
     @User() user: JwtPayload,
     @Param('userAudioId', ParseIntPipe) userAudioId: number,
   ): Promise<RatingAudioStoryEntity> {
-    this.logger.debug('GET RATING AUDIO ID FOR CURRENT USER');
     return await this.storyService.getRatingByAudioIdForCurrentUser(
       parseInt(user.sub),
       userAudioId,
@@ -248,7 +243,6 @@ export class StoryController {
     @User() user: JwtPayload,
     @Body() dto: AddRatingAudioStoryDto,
   ): Promise<AddedRatingAudioStoryDto> {
-    this.logger.debug('ADD RATING FOR STORY BY CURRENT USER');
     return await this.storyService.addRatingAudioStoryById(
       parseInt(user.sub),
       dto,

@@ -54,6 +54,8 @@ import { join } from 'path';
 import { StoryWithImgResponseDto } from '../dto/story/response/story-with-img.response.dto';
 import { StoryExtendImg } from '../dto/story/interfaces/story-extend-img';
 import { AddAudioStoryAdminParams } from '../interfaces/add-audio-story-admin.params';
+import { AudioStoryResponseDto } from '../dto/audio-story/response/audio-story.response.dto';
+import { AuthorAudioStoryResponseDto } from '../../user/dto/response/author-audio-story.response.dto';
 
 @Injectable()
 export class StoryService {
@@ -170,39 +172,6 @@ export class StoryService {
         id: languageId,
       },
     });
-  }
-
-  async getLanguagesForStory(
-    storyId: number,
-  ): Promise<AudioStoryLanguageDto[]> {
-    try {
-      return await this.prisma.storyAudio.findMany({
-        select: {
-          id: true,
-          userAudioId: true,
-          moderateScore: true,
-          language: {
-            select: {
-              id: true,
-              name: true,
-            },
-          },
-          authors: {
-            select: {
-              id: true,
-              firstName: true,
-              lastName: true,
-            },
-          },
-        },
-        where: {
-          storyId: storyId,
-        },
-      });
-    } catch (error) {
-      PrintNameAndCodePrismaException(error, this.logger);
-      throw this.dbExceptionHandler.handleError(error);
-    }
   }
 
   async addStory(dto: AddStoryDto): Promise<StoryDto> {
@@ -431,7 +400,9 @@ export class StoryService {
       });
   }
 
-  async addAudioStory(params: AddAudioStoryAdminParams) {
+  async addAudioStory(
+    params: AddAudioStoryAdminParams,
+  ): Promise<AudioStoryResponseDto> {
     return await this.prisma.$transaction(async (transactionClient) => {
       const userAudio = await transactionClient.userAudioStory.create({
         data: {
@@ -458,8 +429,32 @@ export class StoryService {
           userAudioId: userAudio.id,
         },
       });
-      return storyAudio;
+      return new AudioStoryResponseDto({
+        ...storyAudio,
+        audioId: userAudio.id,
+      });
     });
+  }
+
+  async getAudiosForStory(storyId: number): Promise<AudioStoryResponseDto[]> {
+    const audioStories = await this.prisma.storyAudio.findMany({
+      where: {
+        storyId: storyId,
+      },
+      include: {
+        language: true,
+        authors: true,
+      },
+    });
+
+    return audioStories.map(
+      (audioStory) =>
+        new AudioStoryResponseDto({
+          ...audioStory,
+          audioId: audioStory.userAudioId,
+          author: new AuthorAudioStoryResponseDto(audioStory.authors),
+        }),
+    );
   }
 
   async setUserAudioToStory(
