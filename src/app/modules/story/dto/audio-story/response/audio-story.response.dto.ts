@@ -13,8 +13,8 @@ export class AudioStoryResponseDto {
   @ApiProperty({ description: 'язык озвучки', type: LanguageDto })
   language: LanguageDto;
 
-  @ApiProperty({ description: 'id файла с озвучкой' })
-  audioId: number;
+  @ApiProperty({ description: 'ссылка на файл с озвучкой' })
+  srcAudio: string;
 
   @ApiProperty({ description: 'автор озвучки' })
   author: AuthorAudioStoryResponseDto;
@@ -24,7 +24,7 @@ export class AudioStoryResponseDto {
 
   constructor(dto: Partial<AudioStoryResponseDto>) {
     this.id = dto.id;
-    this.audioId = dto.audioId;
+    this.srcAudio = dto.srcAudio;
     this.language = dto.language;
     this.storyId = dto.storyId;
     this.moderateScore = dto.moderateScore;

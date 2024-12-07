@@ -431,7 +431,7 @@ export class StoryService {
       });
       return new AudioStoryResponseDto({
         ...storyAudio,
-        audioId: userAudio.id,
+        srcAudio: `${this.configService.get('APP_URL')}/uploads/audio/${params.userId}/${params.languageId}/${userAudio.name}`,
       });
     });
   }
@@ -444,6 +444,7 @@ export class StoryService {
       include: {
         language: true,
         authors: true,
+        userAudio: true,
       },
     });
 
@@ -451,7 +452,7 @@ export class StoryService {
       (audioStory) =>
         new AudioStoryResponseDto({
           ...audioStory,
-          audioId: audioStory.userAudioId,
+          srcAudio: `${this.configService.get('APP_URL')}/uploads/audio/${audioStory.author}/${audioStory.languageId}/${audioStory.userAudio.name}`,
           author: new AuthorAudioStoryResponseDto(audioStory.authors),
         }),
     );
