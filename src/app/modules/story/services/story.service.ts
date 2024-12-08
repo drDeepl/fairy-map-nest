@@ -432,6 +432,7 @@ export class StoryService {
       return new AudioStoryResponseDto({
         ...storyAudio,
         srcAudio: `${this.configService.get('APP_URL')}/uploads/audio/${params.userId}/${params.languageId}/${userAudio.name}`,
+        author: new AuthorAudioStoryResponseDto(storyAudio.authors),
       });
     });
   }
