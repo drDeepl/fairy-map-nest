@@ -10,7 +10,7 @@ export class PreviewAudioStoryResponseDto {
 
   @ApiProperty({
     description: 'массив с озвучками',
-    isArrya: true,
+    isArray: true,
     type: AudioResponseDto,
   })
   audios: AudioResponseDto[];
