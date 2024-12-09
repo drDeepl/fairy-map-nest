@@ -56,6 +56,9 @@ import { StoryExtendImg } from '../dto/story/interfaces/story-extend-img';
 import { AddAudioStoryAdminParams } from '../interfaces/add-audio-story-admin.params';
 import { AudioStoryResponseDto } from '../dto/audio-story/response/audio-story.response.dto';
 import { AuthorAudioStoryResponseDto } from '../../user/dto/response/author-audio-story.response.dto';
+import { AudioResponseDto } from '../dto/audio-story/response/audio-response.dto';
+import { LanguageDto } from '../../ethnic-group/dto/LanguageDto';
+import { PreviewAudioStoryResponseDto } from '../dto/audio-story/response/preview-audio-story.response.dto';
 
 @Injectable()
 export class StoryService {
@@ -160,6 +163,62 @@ export class StoryService {
         },
       });
       return story;
+    } catch (error) {
+      PrintNameAndCodePrismaException(error, this.logger);
+      throw this.dbExceptionHandler.handleError(error);
+    }
+  }
+
+  async getAudiosByEthnicGroup(
+    ethnicGroupId: number,
+  ): Promise<PreviewAudioStoryResponseDto[]> {
+    try {
+      const stories = await this.prisma.story.findMany({
+        select: {
+          id: true,
+          name: true,
+          audios: {
+            select: {
+              id: true,
+              moderateScore: true,
+              authors: true,
+              userAudio: {
+                select: {
+                  userId: true,
+                  name: true,
+                  language: true,
+                },
+              },
+            },
+          },
+        },
+        where: {
+          ethnicGroupId: ethnicGroupId,
+        },
+      });
+      const storiesDto: PreviewAudioStoryResponseDto[] = stories.map(
+        (story) => {
+          const audios: AudioResponseDto[] = story.audios.map((audio) => {
+            const srcAudio = `${this.configService.get('APP_URL')}/uploads/audio/${audio.userAudio.userId}/${audio.userAudio.language.id}/${audio.userAudio.name}`;
+            const languageDto = new LanguageDto();
+            languageDto.id = audio.userAudio.language.id;
+            languageDto.name = audio.userAudio.language.name;
+            return new AudioResponseDto({
+              id: audio.id,
+              language: languageDto,
+              srcAudio: srcAudio,
+              author: new AuthorAudioStoryResponseDto(audio.authors),
+              moderateScore: audio.moderateScore,
+            });
+          });
+          return new PreviewAudioStoryResponseDto({
+            ...story,
+            audios: audios,
+          });
+        },
+      );
+
+      return storiesDto.filter((story) => story.audios.length > 0);
     } catch (error) {
       PrintNameAndCodePrismaException(error, this.logger);
       throw this.dbExceptionHandler.handleError(error);
