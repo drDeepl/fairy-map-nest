@@ -155,8 +155,7 @@ export class StoryController {
   }
 
   @ApiOperation({
-    summary: 'получение одобренной озвучки по audioId',
-    description: 'возвращает StreamableFile',
+    summary: 'получение аудиокниг для выбранной этнической группы',
   })
   @ApiResponse({
     status: HttpStatus.OK,
