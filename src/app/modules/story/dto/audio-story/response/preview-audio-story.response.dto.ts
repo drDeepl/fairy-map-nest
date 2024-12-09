@@ -8,7 +8,11 @@ export class PreviewAudioStoryResponseDto {
   @ApiProperty({ description: 'название истории' })
   name: string;
 
-  @ApiProperty({ description: 'id озвучки', type: AudioResponseDto })
+  @ApiProperty({
+    description: 'массив с озвучками',
+    isArrya: true,
+    type: AudioResponseDto,
+  })
   audios: AudioResponseDto[];
 
   constructor(dto: Partial<PreviewAudioStoryResponseDto>) {
