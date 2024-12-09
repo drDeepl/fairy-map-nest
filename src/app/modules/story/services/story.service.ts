@@ -346,12 +346,12 @@ export class StoryService {
               );
             }
           });
-        const coversStoriesPath = join(
-          this.configService.get('uploads.imgPath'),
-          `${story.id}`,
-        );
+        // const coversStoriesPath = join(
+        //   this.configService.get('uploads.imgPath'),
+        //   `${story.id}`,
+        // );
 
-        fsPromises.mkdir(coversStoriesPath, { recursive: true });
+        // fsPromises.mkdir(coversStoriesPath, { recursive: true });
 
         const textStory = await tx.textStory
           .create({

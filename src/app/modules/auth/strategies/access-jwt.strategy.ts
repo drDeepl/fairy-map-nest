@@ -42,8 +42,6 @@ export class AccessJwtStrategy extends PassportStrategy(
       );
     }
 
-    console.log(user);
-
     return payload;
   }
 
