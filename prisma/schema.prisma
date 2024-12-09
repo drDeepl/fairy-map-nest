@@ -91,7 +91,7 @@ model TextStory{
   id            Int         @id @default(autoincrement())
   text          String      @db.Text
   storyId       Int         @unique @map("story_id")
-  story         Story       @relation(fields: [storyId], references: [id])
+  story         Story       @relation(fields: [storyId], references: [id], onDelete: Cascade)
 
   @@map("text_stories")
   
@@ -101,7 +101,7 @@ model ImgStory {
   id            Int         @id @default(autoincrement())
   filename      String      @db.Text
   storyId       Int         @unique @map("story_id")
-  story         Story       @relation(fields: [storyId], references: [id])
+  story         Story       @relation(fields: [storyId], references: [id], onDelete: Cascade)
 
   @@map("img_story")
 }
@@ -132,7 +132,7 @@ model StoryAudio{
   language      Language        @relation(fields:[languageId], references: [id])
   moderateScore Float
   userAudioId   Int             @unique() @map("user_audio_id")
-  userAudio     UserAudioStory  @relation(fields:[userAudioId], references: [id])
+  userAudio     UserAudioStory  @relation(fields:[userAudioId], references: [id], onDelete: Cascade)
   ratings       RatingAudio[]
 
 
