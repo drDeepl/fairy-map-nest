@@ -205,13 +205,13 @@ export class StoryService {
             languageDto.name = audio.userAudio.language.name;
             return new AudioResponseDto({
               id: audio.id,
-
               language: languageDto,
               srcAudio: srcAudio,
               author: new AuthorAudioStoryResponseDto(audio.authors),
               moderateScore: audio.moderateScore,
             });
           });
+
           return new PreviewAudioStoryResponseDto({
             ...story,
             audios: audios,
