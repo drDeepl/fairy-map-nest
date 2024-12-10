@@ -48,6 +48,7 @@ export class PrismaService
 
       await this.ethnicGroup.create({
         data: {
+          id: Number(ethnicGroup.id) + 1,
           name: ethnicGroup.name,
           languageId: language.id,
         },

@@ -1,6 +1,6 @@
 import { LanguageDto } from '@/app/modules/ethnic-group/dto/LanguageDto';
 import { AuthorAudioStoryResponseDto } from '@/app/modules/user/dto/response/author-audio-story.response.dto';
-import { UserResponseDto } from '@/app/modules/user/dto/response/user.response.dto';
+
 import { ApiProperty } from '@nestjs/swagger';
 
 export class AudioStoryResponseDto {

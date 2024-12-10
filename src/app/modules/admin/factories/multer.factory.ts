@@ -48,6 +48,8 @@ export const multerFactory = async (
       +req.params.storyId,
     );
 
+    console.log(storyWithImg);
+
     if (!storyWithImg) {
       cb(new NotFoundException('выбранная сказка не найдена'));
     }
@@ -57,7 +59,6 @@ export const multerFactory = async (
     if (storyWithImg.img) {
       try {
         await fs.promises.unlink(join(pathToSave, storyWithImg.img.filename));
-        cb(null, filename);
       } catch (error) {
         if (error.syscall === 'unlink') {
           cb(null, filename);
@@ -67,7 +68,10 @@ export const multerFactory = async (
           );
         }
       }
+    } else {
+      await fs.promises.mkdir(pathToSave, { recursive: true });
     }
+    cb(null, filename);
   };
 
   const audioDestination = async (req, file, cb) => {

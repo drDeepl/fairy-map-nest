@@ -32,6 +32,7 @@ import { MessageResponseDto } from '@/common/dto/response/message.response.dto';
 import { ConfigService } from '@nestjs/config';
 import { StoryWithImgResponseDto } from '../dto/story/response/story-with-img.response.dto';
 import { AudioStoryResponseDto } from '../dto/audio-story/response/audio-story.response.dto';
+import { PreviewAudioStoryResponseDto } from '../dto/audio-story/response/preview-audio-story.response.dto';
 
 @ApiTags('StoryController')
 @Controller('story')
@@ -151,6 +152,24 @@ export class StoryController {
     @Param('storyAudioId', ParseIntPipe) storyAudioId: number,
   ): Promise<StreamableFile> {
     return this.storyService.getAudioStoryById(storyAudioId);
+  }
+
+  @ApiOperation({
+    summary: 'получение аудиокниг для выбранной этнической группы',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Success',
+    isArray: true,
+    type: PreviewAudioStoryResponseDto,
+  })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  @Get('/audio/ethnic-group/:ethnicGroupId')
+  async getAudioStoryByEthnicGroup(
+    @Param('ethnicGroupId', ParseIntPipe) ethnicGroupId: number,
+  ): Promise<PreviewAudioStoryResponseDto[]> {
+    return this.storyService.getAudiosByEthnicGroup(ethnicGroupId);
   }
 
   @ApiOperation({
