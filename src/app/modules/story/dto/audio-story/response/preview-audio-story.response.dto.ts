@@ -8,6 +8,9 @@ export class PreviewAudioStoryResponseDto {
   @ApiProperty({ description: 'название истории' })
   name: string;
 
+  @ApiProperty({ description: 'url обложки' })
+  srcImg: string;
+
   @ApiProperty({
     description: 'массив с озвучками',
     isArray: true,

@@ -11,6 +11,7 @@ export class DataBaseExceptionHandler {
   handleError(
     error: Prisma.PrismaClientKnownRequestError | HttpException,
   ): HttpException {
+    Object.keys(error);
     if (error instanceof HttpException) {
       return error;
     }

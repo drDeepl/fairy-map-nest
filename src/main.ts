@@ -11,6 +11,7 @@ import SwaggerDocumentBuilder from './swagger/swagger-document-builder';
 import { join } from 'path';
 import validationExceptionFactory from './common/filters/validation-exception-factory';
 import { HttpErrorFilter } from './common/filters/http-error.filter';
+import { PrismaErrorFilter } from './common/filters/prisma-error.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -43,7 +44,7 @@ async function bootstrap() {
     }),
   );
 
-  app.useGlobalFilters(new HttpErrorFilter());
+  app.useGlobalFilters(new HttpErrorFilter(), new PrismaErrorFilter());
 
   app.useStaticAssets(join(__dirname, '..', 'wwwroot/swagger/assets'));
 

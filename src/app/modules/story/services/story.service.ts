@@ -1,12 +1,7 @@
 import { EthnicGroupDto } from '@/app/modules/ethnic-group/dto/EthnicGroupDto';
 import { PrismaService } from '@/prisma/prisma.service';
-import { UserAudioEntity } from '@/app/modules/user-audio/entity/UserAudioEntity';
-import {
-  MAX_STORIES_FOR_ETHNIC_GROUP,
-  PCodeMessages,
-  basePathUpload,
-  getUuid,
-} from '@/util/Constants';
+
+import { MAX_STORIES_FOR_ETHNIC_GROUP, PCodeMessages } from '@/util/Constants';
 import { PrintNameAndCodePrismaException } from '@/util/ExceptionUtils';
 import { MessageException } from '@/util/MessageException';
 import { DataBaseExceptionHandler } from '@/util/exception/DataBaseExceptionHandler';
@@ -20,23 +15,13 @@ import {
   NotImplementedException,
   StreamableFile,
 } from '@nestjs/common';
-import {
-  ImgStory,
-  Language,
-  PrismaClient,
-  RatingAudio,
-  Story,
-  StoryAudio,
-} from '@prisma/client';
+import { Language, RatingAudio, StoryAudio } from '@prisma/client';
 import { File } from 'multer';
 
-import { basename, extname } from 'node:path';
 import { AddAudioStoryDto } from '../dto/audio-story/AddAudioStoryDto';
-import { AudioStoryLanguageDto } from '../dto/audio-story/AudioStoryLanguageDto';
-import { AudioStoryEntity } from '../dto/audio-story/entity/AudioStoryEntity';
-import { CreatedImageStoryDto } from '../dto/image-story/CreatedImageStory';
+
 import { ImageStoryDto } from '../dto/image-story/ImageStoryDto';
-import { ImageStoryEntity } from '../dto/image-story/entity/ImageStoryEntity';
+
 import { AddRatingAudioStoryDto } from '../dto/rating-audio-story/AddRatingAudioStoryDto';
 import { AddedRatingAudioStoryDto } from '../dto/rating-audio-story/AddedRatingAudioStoryDto';
 import { RatingAudioStoryDto } from '../dto/rating-audio-story/RatingAudioStoryDto';
@@ -59,6 +44,7 @@ import { AuthorAudioStoryResponseDto } from '../../user/dto/response/author-audi
 import { AudioResponseDto } from '../dto/audio-story/response/audio-response.dto';
 import { LanguageDto } from '../../ethnic-group/dto/LanguageDto';
 import { PreviewAudioStoryResponseDto } from '../dto/audio-story/response/preview-audio-story.response.dto';
+import { preparePathToAudioUpload } from '@/common/helpers/path-upload';
 
 @Injectable()
 export class StoryService {
@@ -544,12 +530,21 @@ export class StoryService {
         },
       });
 
-      const pathAudio = join(
-        this.configService.get('uploads.audioPath'),
-        `${audioStory.userAudio.userId}`,
-        `${audioStory.userAudio.languageId}`,
-        `${audioStory.userAudio.name}`,
-      );
+      // const pathAudio = join(
+      //   this.configService.get('uploads.audioPath'),
+      //   `${audioStory.userAudio.userId}`,
+      //   `${audioStory.userAudio.languageId}`,
+      //   `${audioStory.userAudio.name}`,
+      // );
+
+      const baseUplaodPathAudio = this.configService.get('uploads.audioPath');
+
+      const pathAudio = preparePathToAudioUpload({
+        baseUploadPath: baseUplaodPathAudio,
+        userId: audioStory.author,
+        storyId: audioStory.storyId,
+        languageId: audioStory.languageId,
+      });
 
       const file = await fs.promises.readFile(pathAudio);
 

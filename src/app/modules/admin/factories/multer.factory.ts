@@ -11,6 +11,7 @@ import {
 
 import * as fs from 'fs';
 import { Language } from '@prisma/client';
+import { preparePathToAudioUpload } from '@/common/helpers/path-upload';
 
 function checkExistsDirCreateIfNotExists(pathToSave) {
   if (!fs.existsSync(pathToSave)) {
@@ -48,8 +49,6 @@ export const multerFactory = async (
       +req.params.storyId,
     );
 
-    console.log(storyWithImg);
-
     if (!storyWithImg) {
       cb(new NotFoundException('выбранная сказка не найдена'));
     }
@@ -81,7 +80,12 @@ export const multerFactory = async (
     if (language) {
       const user = req.user;
       const pathAudio = configService.get('uploads.audioPath');
-      const pathToSave = join(pathAudio, user.sub, req.params.languageId);
+      const pathToSave = preparePathToAudioUpload({
+        baseUploadPath: pathAudio,
+        userId: user.sub,
+        storyId: req.params.storyId,
+        languageId: req.params.languageId,
+      });
       checkExistsDirCreateIfNotExists(pathToSave);
       cb(null, pathToSave);
     } else {
