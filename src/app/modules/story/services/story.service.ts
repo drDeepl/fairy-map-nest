@@ -166,6 +166,7 @@ export class StoryService {
         select: {
           id: true,
           name: true,
+          img: true,
           audios: {
             select: {
               id: true,
@@ -209,8 +210,15 @@ export class StoryService {
             });
           });
 
+          let srcImg = null;
+
+          if (story.img) {
+            srcImg = this.prepareSrcImg(story.id, story.img.filename);
+          }
+
           return new PreviewAudioStoryResponseDto({
             ...story,
+            srcImg: srcImg,
             audios: audios,
           });
         },

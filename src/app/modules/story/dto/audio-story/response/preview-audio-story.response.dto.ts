@@ -20,6 +20,7 @@ export class PreviewAudioStoryResponseDto {
 
   constructor(dto: Partial<PreviewAudioStoryResponseDto>) {
     this.id = dto.id;
+    this.srcImg = dto.srcImg;
     this.name = dto.name;
     this.audios = dto.audios;
   }

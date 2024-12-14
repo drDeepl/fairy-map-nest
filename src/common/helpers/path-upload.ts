@@ -10,6 +10,11 @@ export interface PreparePathUploadAudioParams extends BasePathAudioParams {
   baseUploadPath: string;
 }
 
+export interface PrepareSrcAudioParams extends BasePathAudioParams {
+  appUrl: string;
+  filename: string;
+}
+
 export function preparePathToAudioUpload(params: PreparePathUploadAudioParams) {
   console.log(process.env.APP_URL);
   return join(
@@ -18,11 +23,6 @@ export function preparePathToAudioUpload(params: PreparePathUploadAudioParams) {
     `${params.userId}`,
     `${params.languageId}`,
   );
-}
-
-export interface PrepareSrcAudioParams extends BasePathAudioParams {
-  appUrl: string;
-  filename: string;
 }
 
 export function prepareSrcAudio(params: PrepareSrcAudioParams): string {
