@@ -44,7 +44,10 @@ import { AuthorAudioStoryResponseDto } from '../../user/dto/response/author-audi
 import { AudioResponseDto } from '../dto/audio-story/response/audio-response.dto';
 import { LanguageDto } from '../../ethnic-group/dto/LanguageDto';
 import { PreviewAudioStoryResponseDto } from '../dto/audio-story/response/preview-audio-story.response.dto';
-import { preparePathToAudioUpload } from '@/common/helpers/path-upload';
+import {
+  preparePathToAudioUpload,
+  prepareSrcAudio,
+} from '@/common/helpers/path-upload';
 
 @Injectable()
 export class StoryService {
@@ -185,7 +188,15 @@ export class StoryService {
       const storiesDto: PreviewAudioStoryResponseDto[] = stories.map(
         (story) => {
           const audios: AudioResponseDto[] = story.audios.map((audio) => {
-            const srcAudio = `${this.configService.get('APP_URL')}/uploads/audio/${audio.userAudio.userId}/${audio.userAudio.language.id}/${audio.userAudio.name}`;
+            // const srcAudio = `${this.configService.get('APP_URL')}/uploads/audio/${audio.userAudio.userId}/${audio.userAudio.language.id}/${audio.userAudio.name}`;
+            const appUrl = String(this.configService.get('APP_URL'));
+            const srcAudio = prepareSrcAudio({
+              appUrl: appUrl,
+              storyId: story.id,
+              userId: audio.userAudio.userId,
+              languageId: audio.userAudio.language.id,
+              filename: audio.userAudio.name,
+            });
             const languageDto = new LanguageDto();
             languageDto.id = audio.userAudio.language.id;
             languageDto.name = audio.userAudio.language.name;
@@ -475,9 +486,16 @@ export class StoryService {
           userAudioId: userAudio.id,
         },
       });
+      const appUrl = this.configService.get('APP_URL');
       return new AudioStoryResponseDto({
         ...storyAudio,
-        srcAudio: `${this.configService.get('APP_URL')}/uploads/audio/${params.userId}/${params.languageId}/${userAudio.name}`,
+        srcAudio: prepareSrcAudio({
+          appUrl: appUrl,
+          storyId: storyAudio.storyId,
+          userId: userAudio.userId,
+          languageId: userAudio.languageId,
+          filename: userAudio.name,
+        }),
         author: new AuthorAudioStoryResponseDto(storyAudio.authors),
       });
     });
@@ -495,11 +513,19 @@ export class StoryService {
       },
     });
 
+    const appUrl = this.configService.get('APP_URL');
+
     return audioStories.map(
       (audioStory) =>
         new AudioStoryResponseDto({
           ...audioStory,
-          srcAudio: `${this.configService.get('APP_URL')}/uploads/audio/${audioStory.author}/${audioStory.languageId}/${audioStory.userAudio.name}`,
+          srcAudio: prepareSrcAudio({
+            appUrl: appUrl,
+            storyId: storyId,
+            userId: audioStory.userAudio.userId,
+            languageId: audioStory.userAudio.languageId,
+            filename: audioStory.userAudio.name,
+          }),
           author: new AuthorAudioStoryResponseDto(audioStory.authors),
         }),
     );
@@ -530,6 +556,12 @@ export class StoryService {
         },
       });
 
+      console.log(audioStory);
+
+      if (!audioStory) {
+        throw new NotFoundException('Выбранная озвучка не найдена');
+      }
+
       // const pathAudio = join(
       //   this.configService.get('uploads.audioPath'),
       //   `${audioStory.userAudio.userId}`,
@@ -546,10 +578,15 @@ export class StoryService {
         languageId: audioStory.languageId,
       });
 
-      const file = await fs.promises.readFile(pathAudio);
+      const file = await fs.promises.readFile(
+        `${pathAudio}\\${audioStory.userAudio.name}`,
+      );
 
       return new StreamableFile(file);
     } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
       PrintNameAndCodePrismaException(error, this.logger);
       throw this.dbExceptionHandler.handleError(error);
     }

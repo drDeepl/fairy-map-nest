@@ -8,6 +8,7 @@ import {
   Logger,
   Param,
   ParseIntPipe,
+  Post,
   Put,
   Res,
   StreamableFile,
@@ -248,6 +249,7 @@ export class StoryController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Success',
+    type: AddedRatingAudioStoryDto,
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
@@ -257,7 +259,7 @@ export class StoryController {
   })
   @UseGuards(AuthGuard('jwt'), RoleGuard)
   @HttpCode(HttpStatus.OK)
-  @Put('/rating/add')
+  @Post('/rating/add')
   async addRatingForStoryByCurrentUser(
     @User() user: JwtPayload,
     @Body() dto: AddRatingAudioStoryDto,

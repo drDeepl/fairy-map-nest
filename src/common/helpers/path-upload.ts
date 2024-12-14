@@ -12,11 +12,19 @@ export interface PreparePathUploadAudioParams extends BasePathAudioParams {
 
 export function preparePathToAudioUpload(params: PreparePathUploadAudioParams) {
   console.log(process.env.APP_URL);
-  return join(`${params.userId}`, `${params.storyId}`, `${params.languageId}`);
+  return join(
+    params.baseUploadPath,
+    `${params.storyId}`,
+    `${params.userId}`,
+    `${params.languageId}`,
+  );
 }
 
-export interface PrepareSrcAudioParams extends BasePathAudioParams {}
+export interface PrepareSrcAudioParams extends BasePathAudioParams {
+  appUrl: string;
+  filename: string;
+}
 
-// export function prepareSrcAudio(params: PrepareSrcAudioParams) {
-//   `${this.configService.get('APP_URL')}/uploads/audio/${audio.userAudio.userId}/${audio.userAudio.language.id}/${audio.userAudio.name}`;
-// }
+export function prepareSrcAudio(params: PrepareSrcAudioParams): string {
+  return `${params.appUrl}/uploads/audio/${params.storyId}/${params.userId}/${params.languageId}/${params.filename}`;
+}

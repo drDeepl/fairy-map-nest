@@ -10,8 +10,9 @@ import {
 } from '@nestjs/common';
 
 import * as fs from 'fs';
-import { Language } from '@prisma/client';
+import { Language, Story } from '@prisma/client';
 import { preparePathToAudioUpload } from '@/common/helpers/path-upload';
+import { StoryDto } from '../../story/dto/story/StoryDto';
 
 function checkExistsDirCreateIfNotExists(pathToSave) {
   if (!fs.existsSync(pathToSave)) {
@@ -74,9 +75,18 @@ export const multerFactory = async (
   };
 
   const audioDestination = async (req, file, cb) => {
+    const story: StoryDto | null = await storyService.getStoryById(
+      +req.params.storyId,
+    );
+
+    if (!story) {
+      cb(new BadRequestException('выбранной сказки не существует'));
+    }
+
     const language: Language | null = await storyService.getLanguageById(
       +req.params.languageId,
     );
+
     if (language) {
       const user = req.user;
       const pathAudio = configService.get('uploads.audioPath');
