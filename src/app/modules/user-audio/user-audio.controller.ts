@@ -26,17 +26,17 @@ import {
 import { UserAudioService } from './user-audio.service';
 
 import { JwtPayload } from '@/app/modules/auth/interface/jwt-payload.interface';
-import { Role, validateAudio } from '@/util/Constants';
+import { Role } from '@/util/Constants';
 import { Roles } from '@/util/decorators/Roles';
 import { User } from '@/util/decorators/User';
 import { RoleGuard } from '@/util/guards/role.guard';
 import { Get } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { File, memoryStorage } from 'multer';
+import { File } from 'multer';
 import { ApprovedUserAudioDto } from './dto/ApprovedUserAudioDto';
 import { BaseUserAudioDto } from './dto/BaseUserAudioDto';
 import { UserAudioDto } from './dto/UserAudioDto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @ApiTags('UserAudioController')
 @Controller('user-audio')

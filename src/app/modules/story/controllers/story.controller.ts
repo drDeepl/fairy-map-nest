@@ -19,9 +19,7 @@ import { StoryService } from '../services/story.service';
 import { JwtPayload } from '@/app/modules/auth/interface/jwt-payload.interface';
 import { User } from '@/util/decorators/User';
 import { RoleGuard } from '@/util/guards/role.guard';
-import { AuthGuard } from '@nestjs/passport';
 import { Response } from 'express';
-import { AudioStoryLanguageDto } from '../dto/audio-story/AudioStoryLanguageDto';
 import { ImageStoryDto } from '../dto/image-story/ImageStoryDto';
 import { AddRatingAudioStoryDto } from '../dto/rating-audio-story/AddRatingAudioStoryDto';
 import { AddedRatingAudioStoryDto } from '../dto/rating-audio-story/AddedRatingAudioStoryDto';
@@ -34,6 +32,7 @@ import { ConfigService } from '@nestjs/config';
 import { StoryWithImgResponseDto } from '../dto/story/response/story-with-img.response.dto';
 import { AudioStoryResponseDto } from '../dto/audio-story/response/audio-story.response.dto';
 import { PreviewAudioStoryResponseDto } from '../dto/audio-story/response/preview-audio-story.response.dto';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 
 @ApiTags('StoryController')
 @Controller('story')
@@ -257,7 +256,7 @@ export class StoryController {
     name: 'authorization',
     description: 'Пример: Bearer accessToken',
   })
-  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @UseGuards(JwtAuthGuard, RoleGuard)
   @HttpCode(HttpStatus.OK)
   @Post('/rating/add')
   async addRatingForStoryByCurrentUser(
