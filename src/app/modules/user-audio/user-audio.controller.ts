@@ -57,7 +57,7 @@ export class UserAudioController {
     name: 'authorization',
     description: 'Пример: Bearer accessToken',
   })
-  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @UseGuards(JwtAuthGuard, RoleGuard)
   @HttpCode(HttpStatus.OK)
   @Get('/my-audios')
   async getCurrentUserAudios(
@@ -81,7 +81,7 @@ export class UserAudioController {
     name: 'authorization',
     description: 'Пример: Bearer accessToken',
   })
-  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @UseGuards(JwtAuthGuard, RoleGuard)
   @HttpCode(HttpStatus.OK)
   @Get('/my-audios/approved')
   async getApprovedUserAudiosCurrentUser(
@@ -138,7 +138,7 @@ export class UserAudioController {
     name: 'authorization',
     description: 'Пример: Bearer accessToken',
   })
-  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @UseGuards(JwtAuthGuard, RoleGuard)
   @HttpCode(HttpStatus.OK)
   @Put('/upload/:languageId')
   @UseInterceptors(FileInterceptor('audio', {}))
@@ -180,7 +180,7 @@ export class UserAudioController {
     description: 'Пример: Bearer accessToken',
   })
   @Roles(Role.admin)
-  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @UseGuards(JwtAuthGuard, RoleGuard)
   @HttpCode(HttpStatus.OK)
   @Delete('/delete/:userAudioId')
   async deleteUserAudioById(

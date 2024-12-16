@@ -16,13 +16,14 @@ import { MessageResponseDto } from '../../../../common/dto/response/message.resp
 import { Role } from '@/util/Constants';
 import { Roles } from '@/util/decorators/Roles';
 import { RoleGuard } from '@/util/guards/role.guard';
-import { AuthGuard } from '@nestjs/passport';
+
 import { UserAccess } from '../decorators/user.decorator';
 import { UserResponseDto } from '../dto/response/user.response.dto';
 import { UserService } from '../services/user.service';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 
 @ApiTags('UserController')
-@UseGuards(AuthGuard('jwt'))
+@UseGuards(JwtAuthGuard)
 @Controller('user')
 export class UserController {
   private readonly logger = new Logger(UserController.name);
@@ -39,7 +40,7 @@ export class UserController {
     name: 'authorization',
     description: 'Пример: Bearer accessToken',
   })
-  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @UseGuards(RoleGuard)
   @HttpCode(HttpStatus.OK)
   @HttpCode(HttpStatus.FORBIDDEN)
   getCurrentUserInfo(
@@ -64,7 +65,7 @@ export class UserController {
     description: 'Пример: Bearer accessToken',
   })
   @Roles(Role.admin)
-  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @UseGuards(RoleGuard)
   @HttpCode(HttpStatus.OK)
   @HttpCode(HttpStatus.NOT_FOUND)
   findUserById(@Param('userId') userId: number): Promise<UserResponseDto> {
@@ -82,7 +83,7 @@ export class UserController {
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED })
   @ApiResponse({ status: HttpStatus.NOT_FOUND })
   @Roles(Role.admin)
-  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @UseGuards(RoleGuard)
   @HttpCode(HttpStatus.OK)
   @HttpCode(HttpStatus.NOT_FOUND)
   deleteUser(
