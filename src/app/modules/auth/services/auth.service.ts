@@ -25,7 +25,6 @@ import { JwtTokenOptions } from '@/config/interfaces/jwt-config.interface';
 import { CreateJwt } from '../interface/create-jwt.interface';
 import { Role, User } from '@prisma/client';
 import { JwtPayload } from '../interface/jwt-payload.interface';
-import { UserRepository } from '../../user/repositories/user.repository';
 import { UserService } from '../../user/services/user.service';
 import { UserResponseDto } from '../../user/dto/response/user.response.dto';
 import { TokensResponseDto } from '../dto/response/tokens.response.dto';
@@ -102,6 +101,8 @@ export class AuthService {
       sub: `${newUser.id}`,
       role: newUser.role,
       email: newUser.email,
+      firstName: newUser.firstName,
+      lastName: newUser.lastName,
     };
 
     const tokens = await this.createJwt(payload);
@@ -130,6 +131,8 @@ export class AuthService {
       sub: `${user.id}`,
       role: user.role,
       email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
     };
 
     const tokens: Tokens = await this.createJwt(payload);
@@ -178,6 +181,8 @@ export class AuthService {
       sub: `${user.id}`,
       role: user.role,
       email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
     };
 
     const tokens: Tokens = await this.createJwt(payload);

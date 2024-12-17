@@ -24,6 +24,7 @@ import { AddAudioStoryRequestDto } from './dto/audio-story-request/AddAudioStory
 import { AudioRequestWithUserAudioDto } from './dto/audio-story-request/AudioRequestWithUserAudioDto';
 import { EditAudioStoryRequestDto } from './dto/audio-story-request/EditAudioStoryRequestDto';
 import { AudioStoryRequestEntity } from './entity/AudioStoryRequestEntity';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @ApiTags('AudioStoryRequestController')
 @Controller('audio-story-request')
@@ -48,7 +49,7 @@ export class AudioStoryRequestController {
     name: 'authorization',
     description: 'Пример: Bearer accessToken',
   })
-  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @UseGuards(JwtAuthGuard, RoleGuard)
   @Get('/my-requests')
   async getAllAudioStoryRequestsCurrentUser(
     @User() user: JwtPayload,
@@ -75,7 +76,7 @@ export class AudioStoryRequestController {
     description: 'Пример: Bearer accessToken',
   })
   @Roles(Role.moder)
-  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @UseGuards(JwtAuthGuard, RoleGuard)
   @Get('/all')
   async getAllAudioStoryRequests(): Promise<AudioRequestWithUserAudioDto[]> {
     this.logger.debug('GET ALL AUDIO STORY REQUESTS FOR CURRENT USER');
@@ -98,7 +99,7 @@ export class AudioStoryRequestController {
     description: 'Пример: Bearer accessToken',
   })
   @Roles(Role.moder)
-  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @UseGuards(JwtAuthGuard, RoleGuard)
   @Get('/by-user/:userId')
   async getAllAudioStoryReqeustsByUserId(
     @Param('userId', ParseIntPipe) userId: number,
@@ -119,7 +120,7 @@ export class AudioStoryRequestController {
     name: 'authorization',
     description: 'Пример: Bearer accessToken',
   })
-  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @UseGuards(JwtAuthGuard, RoleGuard)
   @Post('/add')
   async createAddAudioRequest(
     @Body() dto: AddAudioStoryRequestDto,
@@ -145,7 +146,7 @@ export class AudioStoryRequestController {
     description: 'Пример: Bearer accessToken',
   })
   @Roles(Role.admin)
-  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @UseGuards(JwtAuthGuard, RoleGuard)
   @Put('/edit/:audioStoryReqeustId')
   async editAudioStoryRequest(
     @Param('audioStoryReqeustId', ParseIntPipe) audioStoryReqeustId: number,
@@ -177,7 +178,7 @@ export class AudioStoryRequestController {
     description: 'Пример: Bearer accessToken',
   })
   @Roles(Role.admin)
-  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @UseGuards(JwtAuthGuard, RoleGuard)
   @Delete('/delete/:audioStoryRequestId')
   async deleteAudioStoryRequestBydId(
     @Param('audioStoryRequestId', ParseIntPipe) audioStoryRequestId: number,

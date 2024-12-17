@@ -32,6 +32,7 @@ import { AddStoryRequestDto } from './dto/AddStoryRequestDto';
 import { CreateAddStoryRequestDto } from './dto/CreateAddStoryRequestDto';
 import { EditAddStoryRequestDto } from './dto/EditAddStoryRequestDto';
 import { AddStoryRequestEntity } from './entity/AddStoryRequestEntity';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @ApiTags('AddStoryRequestController')
 @Controller('add-story-request')
@@ -62,7 +63,7 @@ export class AddStoryRequestController {
     description: 'Пример: Bearer accessToken',
   })
   @Roles(Role.admin)
-  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @UseGuards(JwtAuthGuard, RoleGuard)
   @Get('/all')
   async getAddStoryRequestAll(
     @Query('start') start: number,
@@ -87,7 +88,7 @@ export class AddStoryRequestController {
     name: 'authorization',
     description: 'Пример: Bearer accessToken',
   })
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(JwtAuthGuard)
   @Get('/my-requests')
   async getAddStoryRequestForCurrentUser(
     @User() user: JwtPayload,
@@ -115,7 +116,7 @@ export class AddStoryRequestController {
     description: 'Пример: Bearer accessToken',
   })
   @Roles(Role.admin)
-  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @UseGuards(JwtAuthGuard, RoleGuard)
   @Get('/by-user/:userId')
   async getAddStoryRequestByUserId(
     @Param('userId', ParseIntPipe) userId: number,
@@ -138,7 +139,7 @@ export class AddStoryRequestController {
     name: 'authorization',
     description: 'Пример: Bearer accessToken',
   })
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(JwtAuthGuard)
   @Post('/create')
   async createAddStoryRequestForCurrentUser(
     @User() user: JwtPayload,
@@ -168,7 +169,7 @@ export class AddStoryRequestController {
     description: 'Пример: Bearer accessToken',
   })
   @Roles(Role.admin)
-  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @UseGuards(JwtAuthGuard, RoleGuard)
   @Put('/edit/:addStoryRequestId')
   async editStatusAddStoryReqeust(
     @Param('addStoryRequestId', ParseIntPipe) addStoryRequestId: number,
@@ -199,7 +200,7 @@ export class AddStoryRequestController {
     description: 'Пример: Bearer accessToken',
   })
   @Roles(Role.admin)
-  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @UseGuards(JwtAuthGuard, RoleGuard)
   @Delete('delete/:addStoryRequestId')
   async deleteAddStoryRequestById(
     @Param('addStoryRequestId', ParseIntPipe) addStoryRequestId: number,

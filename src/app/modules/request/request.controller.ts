@@ -21,6 +21,7 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 import { ApiHeader, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { RequestService } from './request.service';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @ApiTags('RequestController')
 @Controller('request')
@@ -38,7 +39,7 @@ export class RequestController {
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
-  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @UseGuards(JwtAuthGuard, RoleGuard)
   @HttpCode(HttpStatus.OK)
   @Get('/type/all')
   async getAllRequestTypes(): Promise<TypeRequestDto[]> {
@@ -58,7 +59,7 @@ export class RequestController {
     name: 'authorization',
     description: 'Пример: Bearer accessToken',
   })
-  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @UseGuards(JwtAuthGuard, RoleGuard)
   @HttpCode(HttpStatus.OK)
   @Get('/type/:typeRequestId')
   async getTypeRequestById(
@@ -84,7 +85,7 @@ export class RequestController {
     description: 'Пример: Bearer accessToken',
   })
   @Roles(Role.admin)
-  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @UseGuards(JwtAuthGuard, RoleGuard)
   @HttpCode(HttpStatus.OK)
   @Post('/type/add')
   async addTypeRequest(
@@ -110,7 +111,7 @@ export class RequestController {
     description: 'Пример: Bearer accessToken',
   })
   @Roles(Role.admin)
-  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @UseGuards(JwtAuthGuard, RoleGuard)
   @HttpCode(HttpStatus.OK)
   @Put('/type/edit/:typeRequestId')
   async editTypeRequest(
@@ -136,7 +137,7 @@ export class RequestController {
     description: 'Пример: Bearer accessToken',
   })
   @Roles(Role.admin)
-  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @UseGuards(JwtAuthGuard, RoleGuard)
   @HttpCode(HttpStatus.OK)
   @Delete('/type/delete/:typeRequestId')
   async deleteTypeRequestById(

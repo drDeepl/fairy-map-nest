@@ -20,7 +20,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { Request } from 'express';
+
 import { AuthService } from '../services/auth.service';
 import { SignInRequestDto } from '../dto/request/sign-in.request.dto';
 import { SignUpRequestDto } from '../dto/request/sign-up.request.dto';

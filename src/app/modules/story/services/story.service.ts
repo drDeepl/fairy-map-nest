@@ -766,6 +766,7 @@ export class StoryService {
         userId: userId,
       },
     });
+
     try {
       return await this.prisma.$transaction(async (transactionClient) => {
         if (currentRating === null) {
@@ -809,6 +810,7 @@ export class StoryService {
         );
       });
     } catch (error) {
+      console.log(error);
       PrintNameAndCodePrismaException(error, this.logger);
       throw this.dbExceptionHandler.handleError(error);
     }

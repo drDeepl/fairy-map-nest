@@ -26,6 +26,7 @@ import { EthnicGroupDto } from './dto/EthnicGroupDto';
 import { EthnicGroupLanguageDto } from './dto/EthnicGroupLanguage';
 import { LanguageDto } from './dto/LanguageDto';
 import { EthnicGroupService } from './ethnic-group.service';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @ApiTags('EthnicGroupController')
 @Controller('ethnic-group')
@@ -51,7 +52,7 @@ export class EthnicGroupController {
     description: 'Пример: Bearer accessToken',
   })
   @Roles(Role.admin)
-  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @UseGuards(JwtAuthGuard, RoleGuard)
   @HttpCode(HttpStatus.OK)
   @Post('/add')
   async addEthnicGroup(
@@ -111,7 +112,7 @@ export class EthnicGroupController {
     description: 'Пример: Bearer accessToken',
   })
   @Roles(Role.admin)
-  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @UseGuards(JwtAuthGuard, RoleGuard)
   @Put('/edit/:id')
   @HttpCode(HttpStatus.OK)
   async editEthnicGroup(
@@ -137,7 +138,7 @@ export class EthnicGroupController {
     description: 'Пример: Bearer accessToken',
   })
   @Roles(Role.admin)
-  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @UseGuards(JwtAuthGuard, RoleGuard)
   @Delete('/:id')
   async deleteEthnicGroup(@Param('id', ParseIntPipe) id: number) {
     this.logger.warn('DELETE ETHNIC GROUP');
@@ -165,7 +166,7 @@ export class EthnicGroupController {
     description: 'Пример: Bearer accessToken',
   })
   @Roles(Role.admin)
-  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @UseGuards(JwtAuthGuard, RoleGuard)
   @Post('/language/add')
   async addLanguage(@Body() dto: AddLanguageDto): Promise<LanguageDto> {
     this.logger.debug('ADD LANGUAGE');
@@ -201,7 +202,7 @@ export class EthnicGroupController {
     description: 'Пример: Bearer accessToken',
   })
   @Roles(Role.admin)
-  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @UseGuards(JwtAuthGuard, RoleGuard)
   @HttpCode(HttpStatus.OK)
   @Delete('/language/:id')
   async deleteLanguageById(@Param('id', ParseIntPipe) id: number) {

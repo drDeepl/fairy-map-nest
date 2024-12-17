@@ -26,6 +26,7 @@ import { ConstituentFilledDto } from '../dto/ConstituentFilledDto';
 import { DeleteEthnicGroupToConstituentDto } from '../dto/DeleteEthnicGroupToConstituentDto';
 import { EditConstituentDto } from '../dto/EditConstituentDto';
 import { EthnicGroupToConstituentDto } from '../dto/EthnicGroupToConstituentDto';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 
 @ApiTags('ConstituentController')
 @Controller('constituent')
@@ -49,7 +50,7 @@ export class ConstituentsController {
     description: 'Пример: Bearer accessToken',
   })
   @Roles(Role.admin)
-  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @UseGuards(JwtAuthGuard, RoleGuard)
   @HttpCode(HttpStatus.OK)
   @Post('/add')
   async addConstituent(
@@ -75,7 +76,7 @@ export class ConstituentsController {
     description: 'Пример: Bearer accessToken',
   })
   @Roles(Role.admin)
-  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @UseGuards(JwtAuthGuard, RoleGuard)
   @HttpCode(HttpStatus.OK)
   @Post('/add/ethnic-group')
   async addEthnicGroupToConstituent(
@@ -101,7 +102,7 @@ export class ConstituentsController {
     description: 'Пример: Bearer accessToken',
   })
   @Roles(Role.admin)
-  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @UseGuards(JwtAuthGuard, RoleGuard)
   @HttpCode(HttpStatus.OK)
   @Delete('/ethnic-group/delete')
   async deleteEthnicGroupFromConstituent(
@@ -164,7 +165,7 @@ export class ConstituentsController {
     description: 'Пример: Bearer accessToken',
   })
   @Roles(Role.admin)
-  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @UseGuards(JwtAuthGuard, RoleGuard)
   @Put('/edit/:id')
   async editConstituent(
     @Param('id', ParseIntPipe) id,
@@ -190,7 +191,7 @@ export class ConstituentsController {
     description: 'Пример: Bearer accessToken',
   })
   @Roles(Role.admin)
-  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @UseGuards(JwtAuthGuard, RoleGuard)
   @Delete('/:id')
   async deleteConstituentById(@Param('id', ParseIntPipe) id: number) {
     this.logger.warn('DELETE CONSTITUENT BY ID');
