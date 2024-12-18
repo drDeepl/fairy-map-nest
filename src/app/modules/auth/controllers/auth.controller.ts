@@ -30,6 +30,7 @@ import { ValidationExceptionResponseDto } from '@/common/dto/response/validation
 import { CurrentUser } from '@/common/decorators/user.decorator';
 import { JwtPayload } from '../interface/jwt-payload.interface';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
+import { JwtAuthRefresh } from '../guards/jwt-auth-refresh.guard';
 
 @ApiTags('AuthController')
 @Controller('auth')
@@ -69,7 +70,7 @@ export class AuthController {
     return this.authService.signIn(dto);
   }
 
-  @ApiOperation({ summary: ' обновление access token' })
+  @ApiOperation({ summary: 'обновление access token' })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Success',
@@ -81,7 +82,7 @@ export class AuthController {
     name: 'authorization',
     description: 'Пример: Bearer refreshToken',
   })
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthRefresh)
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
   refresh(@CurrentUser() currentUser: JwtPayload) {
