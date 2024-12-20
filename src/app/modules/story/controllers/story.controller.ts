@@ -57,6 +57,22 @@ export class StoryController {
     return this.storyService.getStories();
   }
 
+  @ApiOperation({ summary: 'получение сказок, которые озвучил пользователь' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Success',
+    isArray: true,
+    type: StoryWithImgResponseDto,
+  })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  @Get('/audio/user/:userId')
+  async getStoriesByAuthorAudioStory(
+    @Param('userId', ParseIntPipe) userId: number,
+  ): Promise<StoryWithImgResponseDto[]> {
+    return this.storyService.getStoriesByAuthorAudioStory(userId);
+  }
+
   @ApiOperation({ summary: 'получение сказок в которых есть подстрока name' })
   @ApiResponse({
     status: HttpStatus.OK,

@@ -86,6 +86,30 @@ export class StoryService {
     });
   }
 
+  async getStoriesByAuthorAudioStory(
+    userId: number,
+  ): Promise<StoryWithImgResponseDto[]> {
+    const storiesByAuthorAudioStory = await this.prisma.story.findMany({
+      include: {
+        audios: {
+          where: {
+            author: userId,
+          },
+        },
+        img: true,
+        ethnicGroup: true,
+      },
+    });
+
+    return storiesByAuthorAudioStory.map((story) => {
+      const srcImg: string | null = story.img
+        ? this.prepareSrcImg(story.id, story.img.filename)
+        : null;
+
+      return new StoryWithImgResponseDto(story, srcImg);
+    });
+  }
+
   async getStoryByName(name: string): Promise<StoryDto[]> {
     try {
       const stories = await this.prisma.$queryRaw<StoryDto[]>`
@@ -564,18 +588,9 @@ export class StoryService {
         },
       });
 
-      console.log(audioStory);
-
       if (!audioStory) {
         throw new NotFoundException('Выбранная озвучка не найдена');
       }
-
-      // const pathAudio = join(
-      //   this.configService.get('uploads.audioPath'),
-      //   `${audioStory.userAudio.userId}`,
-      //   `${audioStory.userAudio.languageId}`,
-      //   `${audioStory.userAudio.name}`,
-      // );
 
       const baseUplaodPathAudio = this.configService.get('uploads.audioPath');
 
@@ -729,7 +744,7 @@ export class StoryService {
         userAudioId: userAudioId,
       },
     });
-    console.log(storyAudio);
+
     if (storyAudio == null) {
       throw new BadRequestException('Оценка не найдена');
     }
@@ -803,7 +818,7 @@ export class StoryService {
             moderateScore: totalRatingAudio._avg.rating,
           },
         });
-        console.log(totalRatingAudio);
+
         return new AddedRatingAudioStoryDto(
           dto.rating,
           totalRatingAudio._avg.rating,
