@@ -62,8 +62,8 @@ export class UserAudioService {
   async getApprovedUserAudiosCurrentUser(
     userId: number,
   ): Promise<ApprovedUserAudioDto[]> {
-    return await this.prisma.storyAudio
-      .findMany({
+    try {
+      const approvedAudios = await this.prisma.storyAudio.findMany({
         select: {
           id: true,
           userAudio: {
@@ -85,16 +85,23 @@ export class UserAudioService {
         where: {
           author: userId,
         },
-      })
-      .catch((error) => {
-        PrintNameAndCodePrismaException(error, this.logger);
-        throw this.dbExceptionHandler.handleError(error);
       });
+      return approvedAudios.map(
+        (audio) =>
+          new ApprovedUserAudioDto({
+            ...audio,
+            userAudio: new UserAudioDto(audio.userAudio),
+          }),
+      );
+    } catch (error) {
+      PrintNameAndCodePrismaException(error, this.logger);
+      throw this.dbExceptionHandler.handleError(error);
+    }
   }
 
   async getAudiosByUserId(userId: number): Promise<UserAudioDto[]> {
-    return await this.prisma.userAudioStory
-      .findMany({
+    try {
+      const userAudios = await this.prisma.userAudioStory.findMany({
         select: {
           id: true,
           name: true,
@@ -103,11 +110,12 @@ export class UserAudioService {
         where: {
           userId: userId,
         },
-      })
-      .catch((error) => {
-        PrintNameAndCodePrismaException(error, this.logger);
-        throw this.dbExceptionHandler.handleError(error);
       });
+      return userAudios.map((userAudio) => new UserAudioDto(userAudio));
+    } catch (error) {
+      PrintNameAndCodePrismaException(error, this.logger);
+      throw this.dbExceptionHandler.handleError(error);
+    }
   }
 
   async findUserAudioByParams(params: object) {

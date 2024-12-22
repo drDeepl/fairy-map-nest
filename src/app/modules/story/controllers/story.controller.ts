@@ -9,7 +9,6 @@ import {
   Param,
   ParseIntPipe,
   Post,
-  Put,
   Res,
   StreamableFile,
   UseGuards,

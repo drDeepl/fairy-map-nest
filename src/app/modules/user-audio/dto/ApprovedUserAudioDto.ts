@@ -26,4 +26,11 @@ export class ApprovedUserAudioDto {
     nullable: false,
   })
   story: StoryDto;
+
+  constructor(dto: Partial<ApprovedUserAudioDto>) {
+    this.id = dto.id;
+    this.userAudio = dto.userAudio;
+    this.author = dto.author;
+    this.story = dto.story;
+  }
 }
