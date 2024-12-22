@@ -48,6 +48,12 @@ import { ImgStoryResponseDto } from '../../story/dto/image-story/response/img-st
 import { StoryWithImgResponseDto } from '../../story/dto/story/response/story-with-img.response.dto';
 import { CurrentUser } from '@/common/decorators/user.decorator';
 import { AudioStoryResponseDto } from '../../story/dto/audio-story/response/audio-story.response.dto';
+import { UserAudioService } from '../../user-audio/services/user-audio.service';
+import { BaseUserAudioDto } from '../../user-audio/dto/BaseUserAudioDto';
+import { MessageResponseDto } from '@/common/dto/response/message.response.dto';
+import { UserAccess } from '../../user/decorators/user.decorator';
+import { UserResponseDto } from '../../user/dto/response/user.response.dto';
+import { UserService } from '../../user/services/user.service';
 
 @ApiTags('AdminController')
 @Controller('admin')
@@ -57,7 +63,8 @@ export class AdminController {
   constructor(
     private readonly mapService: MapService,
     private readonly storyService: StoryService,
-    private readonly configService: ConfigService,
+    private readonly userAudioService: UserAudioService,
+    private readonly userService: UserService,
   ) {}
 
   @ApiOperation({
@@ -332,5 +339,62 @@ export class AdminController {
     @Param('storyId', ParseIntPipe) storyId: number,
   ): Promise<void> {
     await this.storyService.deleteStoryImgByStoryId(storyId);
+  }
+
+  @ApiOperation({
+    summary: 'удаление озвучки пользователя',
+    description: 'необходима роль администратора',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Success',
+    type: BaseUserAudioDto,
+  })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  @ApiHeader({
+    name: 'authorization',
+    description: 'Пример: Bearer accessToken',
+  })
+  @Roles(Role.admin)
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  @HttpCode(HttpStatus.OK)
+  @Delete('/audio//delete/:userAudioId')
+  async deleteUserAudioById(
+    @Req() req,
+    @Param('userAudioId', ParseIntPipe) userAudioId: number,
+  ) {
+    this.logger.debug('DELETE USER AUDIO BY ID');
+    return this.userAudioService
+      .deleteUserAudioById(userAudioId)
+      .catch((error) => {
+        this.logger.error(error);
+        throw new HttpException(error.message, error.status);
+      })
+      .then((result) => {});
+  }
+
+  @ApiOperation({
+    summary: 'удаление пользователя по его id',
+    description: 'необходима роль администратора',
+  })
+  @ApiResponse({ status: HttpStatus.OK, type: UserResponseDto })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED })
+  @ApiResponse({ status: HttpStatus.NOT_FOUND })
+  @Roles(Role.admin)
+  @UseGuards(RoleGuard)
+  @HttpCode(HttpStatus.OK)
+  @HttpCode(HttpStatus.NOT_FOUND)
+  @Delete('/user/delete/:userId')
+  deleteUser(
+    @Param('userId', ParseIntPipe) userId: number,
+    @UserAccess() userAccessTokenData,
+  ): Promise<MessageResponseDto> {
+    this.logger.verbose('deleteUser');
+    if (userId === userAccessTokenData.sub || userAccessTokenData.isAdmin) {
+      return this.userService.deleteUser(userId);
+    }
+    throw new HttpException('недостаточно прав', HttpStatus.FORBIDDEN);
   }
 }

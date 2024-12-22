@@ -14,9 +14,9 @@ import {
 import { File } from 'multer';
 import * as fs from 'node:fs';
 import { extname, join } from 'path';
-import { ApprovedUserAudioDto } from './dto/ApprovedUserAudioDto';
-import { UploadedUserAudioDto } from './dto/UploadedUserAudioDto';
-import { UserAudioDto } from './dto/UserAudioDto';
+import { ApprovedUserAudioDto } from '../dto/ApprovedUserAudioDto';
+import { UploadedUserAudioDto } from '../dto/UploadedUserAudioDto';
+import { UserAudioDto } from '../dto/UserAudioDto';
 
 @Injectable()
 export class UserAudioService {

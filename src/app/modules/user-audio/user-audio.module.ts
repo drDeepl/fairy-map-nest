@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
-import { UserAudioController } from './user-audio.controller';
-import { UserAudioService } from './user-audio.service';
+
+import { UserAudioService } from './services/user-audio.service';
 
 @Module({
-  controllers: [UserAudioController],
+  controllers: [],
   providers: [UserAudioService],
+  exports: [UserAudioService],
 })
 export class UserAudioModule {}
