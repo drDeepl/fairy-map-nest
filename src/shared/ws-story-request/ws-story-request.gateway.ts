@@ -11,10 +11,11 @@ import {
 
 import { Server, Socket } from 'socket.io';
 import { SocketWithAuth } from './socket-io-adapter';
-import { AudioRequestWithUserAudioDto } from '@/app/modules/audio-story-request/dto/audio-story-request/AudioRequestWithUserAudioDto';
+
 import { UserAccessDto } from '@/app/modules/user/dto/UserAccessDto';
 import { AddStoryRequestEntity } from '@/app/modules/add-story-request/entity/AddStoryRequestEntity';
 import { AddStoryRequestDto } from '@/app/modules/add-story-request/dto/AddStoryRequestDto';
+import { AudioApplicationWithUserAudioDto } from '@/app/modules/audio-story-application/dto/audio-story-request/AudioApplicationWithUserAudioDto';
 
 @WebSocketGateway(3002, { cors: true, transports: ['websocket'] })
 export class StoryRequestGateway
@@ -46,9 +47,9 @@ export class StoryRequestGateway
     );
   }
 
-  @SubscribeMessage('audio-story-request')
+  @SubscribeMessage('audio-story-application')
   async handleRequestAudioStory(
-    audioRequestWithUserAudioDto: AudioRequestWithUserAudioDto,
+    audioRequestWithUserAudioDto: AudioApplicationWithUserAudioDto,
   ): Promise<void> {
     this.logger.warn('STATUSES');
 
@@ -57,7 +58,7 @@ export class StoryRequestGateway
       const user: UserAccessDto = (client as SocketWithAuth).user;
 
       if (audioRequestWithUserAudioDto.userId === user.sub) {
-        client.emit('audio-story-request', {
+        client.emit('audio-story-application', {
           ...JSON.parse(JSON.stringify(audioRequestWithUserAudioDto)),
         });
       }

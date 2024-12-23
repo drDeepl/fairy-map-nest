@@ -38,6 +38,10 @@ import { ApprovedUserAudioDto } from '../../user-audio/dto/ApprovedUserAudioDto'
 import { UserAudioService } from '../../user-audio/services/user-audio.service';
 import { UserAudioDto } from '../../user-audio/dto/UserAudioDto';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { File } from 'multer';
+import { AudioStoryRequestService } from '../../audio-story-application/services/audio-story-request.service';
+import { AudioApplicationWithUserAudioDto } from '../../audio-story-application/dto/audio-story-request/AudioApplicationWithUserAudioDto';
+import { AudioStoryRequestEntity } from '../../audio-story-application/entity/AudioStoryRequestEntity';
 
 @ApiTags('UserController')
 @UseGuards(JwtAuthGuard)
@@ -48,6 +52,7 @@ export class UserController {
   constructor(
     private readonly userService: UserService,
     private readonly userAudioService: UserAudioService,
+    private readonly audioStoryRequestService: AudioStoryRequestService,
   ) {}
 
   @Get('/me')
@@ -93,27 +98,6 @@ export class UserController {
     return await this.userAudioService.getApprovedUserAudiosCurrentUser(
       parseInt(user.sub),
     );
-  }
-
-  @ApiOperation({ summary: 'получение озвучек текущего пользователя' })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'Success',
-    type: UserAudioDto,
-    isArray: true,
-  })
-  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
-  @ApiHeader({
-    name: 'authorization',
-    description: 'Пример: Bearer accessToken',
-  })
-  @UseGuards(JwtAuthGuard, RoleGuard)
-  @HttpCode(HttpStatus.OK)
-  @Get('/audio/my')
-  async getCurrentUserAudios(
-    @User() user: JwtPayload,
-  ): Promise<UserAudioDto[]> {
-    return await this.userAudioService.getAudiosByUserId(parseInt(user.sub));
   }
 
   @Get('/:userId')
@@ -186,5 +170,30 @@ export class UserController {
         HttpStatus.FORBIDDEN,
       );
     }
+  }
+
+  @ApiOperation({
+    summary: 'получение всех заявок на озвучки текущего пользователя',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Success',
+    isArray: true,
+    type: AudioApplicationWithUserAudioDto,
+  })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  @ApiHeader({
+    name: 'authorization',
+    description: 'Пример: Bearer accessToken',
+  })
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  @Get('story/audio/request/my')
+  async getAllAudioStoryRequestsCurrentUser(
+    @User() user: JwtPayload,
+  ): Promise<AudioApplicationWithUserAudioDto[]> {
+    return this.audioStoryRequestService.getAudioRequestsByUserId(
+      parseInt(user.sub),
+    );
   }
 }

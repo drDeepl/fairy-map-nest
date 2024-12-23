@@ -17,14 +17,14 @@ import {
   Put,
   UseGuards,
 } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
+
 import { ApiHeader, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { AudioStoryRequestService } from './audio-story-request.service';
-import { AddAudioStoryRequestDto } from './dto/audio-story-request/AddAudioStoryRequestDto';
-import { AudioRequestWithUserAudioDto } from './dto/audio-story-request/AudioRequestWithUserAudioDto';
-import { EditAudioStoryRequestDto } from './dto/audio-story-request/EditAudioStoryRequestDto';
-import { AudioStoryRequestEntity } from './entity/AudioStoryRequestEntity';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { AudioStoryRequestService } from '../services/audio-story-request.service';
+import { AddAudioStoryApplicationDto } from '../dto/audio-story-request/request/AddAudioStoryRequestDto';
+import { AudioApplicationWithUserAudioDto } from '../dto/audio-story-request/AudioApplicationWithUserAudioDto';
+import { EditAudioStoryApplicaitonDto } from '../dto/audio-story-request/request/EditAudioStoryApplicaitonDto';
+import { AudioStoryRequestEntity } from '../entity/AudioStoryRequestEntity';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 
 @ApiTags('AudioStoryRequestController')
 @Controller('audio-story-request')
@@ -34,30 +34,6 @@ export class AudioStoryRequestController {
     private audioStoryRequestService: AudioStoryRequestService,
     private readonly audioStoryRequestGateway: StoryRequestGateway,
   ) {}
-
-  @ApiOperation({
-    summary: 'получение всех заявок на озвучки текущего пользователя',
-  })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'Success',
-    type: [AudioStoryRequestEntity],
-  })
-  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
-  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
-  @ApiHeader({
-    name: 'authorization',
-    description: 'Пример: Bearer accessToken',
-  })
-  @UseGuards(JwtAuthGuard, RoleGuard)
-  @Get('/my-requests')
-  async getAllAudioStoryRequestsCurrentUser(
-    @User() user: JwtPayload,
-  ): Promise<AudioRequestWithUserAudioDto[]> {
-    return this.audioStoryRequestService.getAudioRequestsByUserId(
-      parseInt(user.sub),
-    );
-  }
 
   @ApiOperation({
     summary: 'получение всех заявок на озвучки',
@@ -78,7 +54,9 @@ export class AudioStoryRequestController {
   @Roles(Role.moder)
   @UseGuards(JwtAuthGuard, RoleGuard)
   @Get('/all')
-  async getAllAudioStoryRequests(): Promise<AudioRequestWithUserAudioDto[]> {
+  async getAllAudioStoryRequests(): Promise<
+    AudioApplicationWithUserAudioDto[]
+  > {
     this.logger.debug('GET ALL AUDIO STORY REQUESTS FOR CURRENT USER');
     return this.audioStoryRequestService.getAudioRequests();
   }
@@ -103,7 +81,7 @@ export class AudioStoryRequestController {
   @Get('/by-user/:userId')
   async getAllAudioStoryReqeustsByUserId(
     @Param('userId', ParseIntPipe) userId: number,
-  ): Promise<AudioRequestWithUserAudioDto[]> {
+  ): Promise<AudioApplicationWithUserAudioDto[]> {
     this.logger.debug('GET ALL AUDIO STORY REQEUSTS BY USER ID');
     return await this.audioStoryRequestService.getAudioRequestsByUserId(userId);
   }
@@ -123,7 +101,7 @@ export class AudioStoryRequestController {
   @UseGuards(JwtAuthGuard, RoleGuard)
   @Post('/add')
   async createAddAudioRequest(
-    @Body() dto: AddAudioStoryRequestDto,
+    @Body() dto: AddAudioStoryApplicationDto,
   ): Promise<AudioStoryRequestEntity> {
     this.logger.debug('CREATE ADD AUDIO STORY REQUEST');
     return await this.audioStoryRequestService.createAddAudioRequest(dto);
@@ -150,8 +128,8 @@ export class AudioStoryRequestController {
   @Put('/edit/:audioStoryReqeustId')
   async editAudioStoryRequest(
     @Param('audioStoryReqeustId', ParseIntPipe) audioStoryReqeustId: number,
-    @Body() dto: EditAudioStoryRequestDto,
-  ): Promise<AudioRequestWithUserAudioDto> {
+    @Body() dto: EditAudioStoryApplicaitonDto,
+  ): Promise<AudioApplicationWithUserAudioDto> {
     const editableAudioStoryRequest =
       await this.audioStoryRequestService.editAudioStoryRequest(
         audioStoryReqeustId,

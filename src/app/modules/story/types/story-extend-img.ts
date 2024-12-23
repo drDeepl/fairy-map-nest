@@ -1,4 +1,4 @@
-import { EthnicGroup, ImgStory, Story } from '@prisma/client';
+import { EthnicGroup, ImgStory } from '@prisma/client';
 
 export interface StoryExtendImg {
   id: number;

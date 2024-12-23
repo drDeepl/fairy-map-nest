@@ -6,7 +6,7 @@ import imgConfig from '../config/uploads.config';
 import { UserModule } from '@/app/modules/user/user.module';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { AudioStoryRequestModule } from './modules/audio-story-request/audio-story-request.module';
+import { AudioStoryRequestModule } from './modules/audio-story-application/audio-story-request.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { ConstituentsModule } from './modules/constituent/constituent.module';
 import { EthnicGroupModule } from './modules/ethnic-group/ethnic-group.module';
