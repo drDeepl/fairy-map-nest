@@ -3,7 +3,6 @@ import {
   Get,
   HttpCode,
   HttpStatus,
-  Logger,
   Param,
   ParseIntPipe,
   Post,
@@ -44,8 +43,6 @@ import { AudioStoryResponseDto } from '../../story/dto/audio-story/response/audi
 @UseGuards(JwtAuthGuard)
 @Controller('user')
 export class UserController {
-  private readonly logger = new Logger(UserController.name);
-
   constructor(
     private readonly userService: UserService,
     private readonly userAudioService: UserAudioService,
