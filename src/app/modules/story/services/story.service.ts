@@ -213,7 +213,6 @@ export class StoryService {
       const storiesDto: PreviewAudioStoryResponseDto[] = stories.map(
         (story) => {
           const audios: AudioResponseDto[] = story.audios.map((audio) => {
-            // const srcAudio = `${this.configService.get('APP_URL')}/uploads/audio/${audio.userAudio.userId}/${audio.userAudio.language.id}/${audio.userAudio.name}`;
             const appUrl = String(this.configService.get('APP_URL'));
             const srcAudio = prepareSrcAudio({
               appUrl: appUrl,

@@ -10,20 +10,16 @@ import {
   Body,
   Delete,
   HttpException,
-  Get,
   Put,
-  Query,
   Req,
   UploadedFile,
   UseInterceptors,
-  NotImplementedException,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiHeader } from '@nestjs/swagger';
 import { Role } from '@/util/Constants';
 import { Roles } from '@/util/decorators/Roles';
 import { RoleGuard } from '@/util/guards/role.guard';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
-
 import { AddEthnicGroupMapDto } from '../../map/dto/AddEthnicGroupMapDto';
 import { EthnicGroupMapDto } from '../../map/dto/EthnicGroupMapDto';
 import { MapService } from '../../map/services/map.service';
@@ -35,16 +31,12 @@ import { AddTextStoryDto } from '../../story/dto/text-story/AddTextStoryDto';
 import { TextStoryDto } from '../../story/dto/text-story/TextStoryDto';
 import { StoryWithTextDto } from '../../story/dto/story/story-with-text.dto';
 import { User } from '@/util/decorators/User';
-import { File, memoryStorage } from 'multer';
+import { File } from 'multer';
 import { JwtPayload } from '../../auth/interface/jwt-payload.interface';
 import { AddAudioStoryDto } from '../../story/dto/audio-story/AddAudioStoryDto';
-import { validatorImgFile } from '@/util/validators/validators';
+
 import { FileInterceptor } from '@nestjs/platform-express';
-import { CreatedImageStoryDto } from '../../story/dto/image-story/CreatedImageStory';
-import { ConfigService } from '@nestjs/config';
-import { isThisISOWeek } from 'date-fns';
-import { Request } from 'express';
-import { ImgStoryResponseDto } from '../../story/dto/image-story/response/img-story.response.dto';
+
 import { StoryWithImgResponseDto } from '../../story/dto/story/response/story-with-img.response.dto';
 import { CurrentUser } from '@/common/decorators/user.decorator';
 import { AudioStoryResponseDto } from '../../story/dto/audio-story/response/audio-story.response.dto';

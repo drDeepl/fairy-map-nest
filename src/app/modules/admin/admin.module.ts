@@ -3,7 +3,7 @@ import { AdminController } from './controllers/admin.controller';
 import { MapModule } from '../map/map.module';
 import { StoryModule } from '../story/story.module';
 import { MulterModule } from '@nestjs/platform-express';
-import { multerFactory } from './factories/multer.factory';
+import { multerFactory } from '../../../common/factories/multer.factory';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { StoryService } from '../story/services/story.service';
 import { UserAudioModule } from '../user-audio/user-audio.module';

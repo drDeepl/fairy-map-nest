@@ -1,16 +1,12 @@
 import {
   Controller,
-  Delete,
   Get,
   HttpCode,
-  HttpException,
   HttpStatus,
   Logger,
   Param,
   ParseIntPipe,
   Post,
-  Put,
-  Req,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -24,7 +20,6 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 
-import { MessageResponseDto } from '../../../../common/dto/response/message.response.dto';
 import { Role } from '@/util/Constants';
 import { Roles } from '@/util/decorators/Roles';
 import { RoleGuard } from '@/util/guards/role.guard';
@@ -35,14 +30,15 @@ import { UserService } from '../services/user.service';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { User } from '@/util/decorators/User';
 import { JwtPayload } from '../../auth/interface/jwt-payload.interface';
-import { ApprovedUserAudioDto } from '../../user-audio/dto/ApprovedUserAudioDto';
+
 import { UserAudioService } from '../../user-audio/services/user-audio.service';
-import { UserAudioDto } from '../../user-audio/dto/UserAudioDto';
+
 import { FileInterceptor } from '@nestjs/platform-express';
 import { File } from 'multer';
 import { AudioStoryRequestService } from '../../audio-story-application/services/audio-story-request.service';
 import { AudioApplicationWithUserAudioDto } from '../../audio-story-application/dto/audio-story-request/AudioApplicationWithUserAudioDto';
-import { AudioStoryRequestEntity } from '../../audio-story-application/entity/AudioStoryRequestEntity';
+import { UserAudioResponseDto } from '../../user-audio/dto/response/user-audio.response.dto';
+import { AudioStoryResponseDto } from '../../story/dto/audio-story/response/audio-story.response.dto';
 
 @ApiTags('UserController')
 @UseGuards(JwtAuthGuard)
@@ -82,7 +78,7 @@ export class UserController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Success',
-    type: ApprovedUserAudioDto,
+    type: AudioStoryResponseDto,
     isArray: true,
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
@@ -95,7 +91,7 @@ export class UserController {
   @Get('/audio/approved/my')
   async getApprovedUserAudiosCurrentUser(
     @User() user: JwtPayload,
-  ): Promise<ApprovedUserAudioDto[]> {
+  ): Promise<AudioStoryResponseDto[]> {
     return await this.userAudioService.getApprovedUserAudiosCurrentUser(
       parseInt(user.sub),
     );
@@ -124,13 +120,13 @@ export class UserController {
   }
 
   @ApiOperation({
-    summary: 'загрузка озвучки пользователя для выбранного языка',
-    description: 'в теле запроса(body) файл прикрепляется к полю file',
+    summary: 'загрузка озвучки пользователя',
+    description: 'файл прикрепляется к полю audio',
   })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Success',
-    type: UserAudioDto,
+    type: UserAudioResponseDto,
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
@@ -152,25 +148,22 @@ export class UserController {
   })
   @UseGuards(JwtAuthGuard, RoleGuard)
   @HttpCode(HttpStatus.OK)
-  @Post('/audio/upload/:languageId')
+  @Post('/story/:storyId/language/:languageId/audio/upload')
   @UseInterceptors(FileInterceptor('audio'))
   async uploadUserAudio(
     @UploadedFile() file: File,
-    @Req() req,
+    @User() user: JwtPayload,
     @Param('languageId', ParseIntPipe) languageId: number,
-  ) {
-    if (file != undefined) {
-      return await this.userAudioService
-        .saveAudio(req.user.sub, languageId, file)
-        .catch((error) => {
-          throw new HttpException(error.message, HttpStatus.FORBIDDEN);
-        });
-    } else {
-      throw new HttpException(
-        'поле с файлом не может быть пустым',
-        HttpStatus.FORBIDDEN,
-      );
-    }
+    @Param('storyId', ParseIntPipe) storyId: number,
+  ): Promise<UserAudioResponseDto> {
+    console.log(file);
+    return this.userAudioService.addUserAudio({
+      storyId: storyId,
+      languageId: languageId,
+      filename: file.filename,
+      userId: Number(user.sub),
+      pathAudio: file.path,
+    });
   }
 
   @ApiOperation({

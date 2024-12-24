@@ -1,7 +1,7 @@
 import { PrismaService } from '@/prisma/prisma.service';
 import { PCodeMessages, getUuid, uploadsPath } from '@/util/Constants';
 import { PrintNameAndCodePrismaException } from '@/util/ExceptionUtils';
-import { FileUtils } from '@/util/FileUtils';
+
 import { MessageException } from '@/util/MessageException';
 import { DataBaseExceptionHandler } from '@/util/exception/DataBaseExceptionHandler';
 import {
@@ -14,20 +14,28 @@ import {
 import { File } from 'multer';
 import * as fs from 'node:fs';
 import { extname, join } from 'path';
-import { ApprovedUserAudioDto } from '../dto/ApprovedUserAudioDto';
+
 import { UploadedUserAudioDto } from '../dto/UploadedUserAudioDto';
-import { UserAudioDto } from '../dto/UserAudioDto';
+import { AddUserAudioParams } from '../interfaces/add-user-audio-params.interface';
+import { UserAudioResponseDto } from '../dto/response/user-audio.response.dto';
+import { prepareSrcAudio } from '@/common/helpers/path-upload';
+import { ConfigService } from '@nestjs/config';
+import { AudioStoryResponseDto } from '../../story/dto/audio-story/response/audio-story.response.dto';
+import { AuthorAudioStoryResponseDto } from '../../user/dto/response/author-audio-story.response.dto';
+import { LanguageDto } from '../../ethnic-group/dto/LanguageDto';
 
 @Injectable()
 export class UserAudioService {
   private readonly logger = new Logger('UserAudioService');
   private readonly msgException = new MessageException();
-  private readonly fileUtils = new FileUtils();
   private readonly dbExceptionHandler = new DataBaseExceptionHandler(
     PCodeMessages,
   );
 
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly configService: ConfigService,
+  ) {}
 
   async getUserAudioById(userAudioId: number): Promise<StreamableFile> {
     return this.prisma.userAudioStory
@@ -61,19 +69,13 @@ export class UserAudioService {
 
   async getApprovedUserAudiosCurrentUser(
     userId: number,
-  ): Promise<ApprovedUserAudioDto[]> {
+  ): Promise<AudioStoryResponseDto[]> {
     try {
       const approvedAudios = await this.prisma.storyAudio.findMany({
         select: {
           id: true,
-          userAudio: {
-            select: {
-              id: true,
-              name: true,
-              languageId: true,
-            },
-          },
-          author: true,
+          userAudio: true,
+          authors: true,
           story: {
             select: {
               id: true,
@@ -86,11 +88,20 @@ export class UserAudioService {
           author: userId,
         },
       });
+      const appUrl = this.configService.get('APP_URL');
+
       return approvedAudios.map(
-        (audio) =>
-          new ApprovedUserAudioDto({
-            ...audio,
-            userAudio: new UserAudioDto(audio.userAudio),
+        (approvedAudio) =>
+          new AudioStoryResponseDto({
+            ...approvedAudio,
+            srcAudio: prepareSrcAudio({
+              appUrl: appUrl,
+              storyId: approvedAudio.story.id,
+              userId: approvedAudio.userAudio.userId,
+              languageId: approvedAudio.userAudio.languageId,
+              filename: approvedAudio.userAudio.name,
+            }),
+            author: new AuthorAudioStoryResponseDto(approvedAudio.authors),
           }),
       );
     } catch (error) {
@@ -99,19 +110,24 @@ export class UserAudioService {
     }
   }
 
-  async getAudiosByUserId(userId: number): Promise<UserAudioDto[]> {
+  async getAudiosByUserId(userId: number): Promise<UserAudioResponseDto[]> {
     try {
       const userAudios = await this.prisma.userAudioStory.findMany({
-        select: {
-          id: true,
-          name: true,
-          languageId: true,
-        },
         where: {
           userId: userId,
         },
       });
-      return userAudios.map((userAudio) => new UserAudioDto(userAudio));
+      const appUrl = String(this.configService.get('APP_URL'));
+
+      return userAudios.map((userAudio) => {
+        const relativePath = userAudio.pathAudio.split('/static/');
+        const srcAudio = `${appUrl}/${relativePath[1]}`;
+        return new UserAudioResponseDto({
+          ...userAudio,
+          userAudioId: userAudio.id,
+          srcAudio: srcAudio,
+        });
+      });
     } catch (error) {
       PrintNameAndCodePrismaException(error, this.logger);
       throw this.dbExceptionHandler.handleError(error);
@@ -132,51 +148,38 @@ export class UserAudioService {
       });
   }
 
-  async saveAudio(
-    userId: number,
-    languageId: number,
-    file: File,
-  ): Promise<UploadedUserAudioDto> {
-    const filename = file.originalname;
-    const extens = extname(filename);
-    const filenameFolder = `${languageId}@${getUuid(filename)}.${extens}`;
-    const destination = `${uploadsPath}${userId}`;
-    const pathAudio = `${destination}/${filenameFolder}`;
+  async addUserAudio(
+    params: AddUserAudioParams,
+  ): Promise<UserAudioResponseDto> {
+    const userAudio = await this.prisma.userAudioStory.create({
+      select: {
+        id: true,
+        userId: true,
+        language: true,
+        name: true,
+      },
+      data: {
+        name: params.filename,
+        userId: params.userId,
+        languageId: params.languageId,
+        pathAudio: params.pathAudio,
+      },
+    });
 
-    return this.prisma.userAudioStory
-      .create({
-        select: {
-          id: true,
-          name: true,
-          languageId: true,
-        },
-        data: {
-          name: filename,
-          userId: userId,
-          languageId: languageId,
-          pathAudio: pathAudio,
-        },
-      })
-      .catch((error) => {
-        PrintNameAndCodePrismaException(error, this.logger);
-        if (error.code === 'P2003') {
-          throw new HttpException(
-            'выбранного языка не существует',
-            HttpStatus.FORBIDDEN,
-          );
-        } else {
-          throw new HttpException(
-            this.msgException.UnhandledError,
-            HttpStatus.BAD_GATEWAY,
-          );
-        }
-      })
-      .then((result) => {
-        console.log('SAVE FILE');
-        const savedFile = fs.writeFileSync(pathAudio, file.buffer);
-        console.log(savedFile);
-        return result;
-      });
+    const appUrl = String(this.configService.get('APP_URL'));
+    const srcAudio = prepareSrcAudio({
+      appUrl: appUrl,
+      storyId: params.storyId,
+      userId: userAudio.userId,
+      languageId: userAudio.language.id,
+      filename: userAudio.name,
+    });
+
+    return new UserAudioResponseDto({
+      userAudioId: userAudio.id,
+      srcAudio: srcAudio,
+      language: Object.assign(new LanguageDto(), userAudio.language),
+    });
   }
 
   async deleteUserAudioById(id: number) {
