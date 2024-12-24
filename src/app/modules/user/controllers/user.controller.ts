@@ -115,7 +115,6 @@ export class UserController {
   @HttpCode(HttpStatus.OK)
   @HttpCode(HttpStatus.NOT_FOUND)
   findUserById(@Param('userId') userId: number): Promise<UserResponseDto> {
-    this.logger.verbose('findUserById');
     return this.userService.findById(userId);
   }
 
