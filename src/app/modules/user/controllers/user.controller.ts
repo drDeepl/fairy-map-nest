@@ -8,6 +8,7 @@ import {
   Logger,
   Param,
   ParseIntPipe,
+  Post,
   Put,
   Req,
   UploadedFile,
@@ -151,7 +152,7 @@ export class UserController {
   })
   @UseGuards(JwtAuthGuard, RoleGuard)
   @HttpCode(HttpStatus.OK)
-  @Put('/audio/upload/:languageId')
+  @Post('/audio/upload/:languageId')
   @UseInterceptors(FileInterceptor('audio'))
   async uploadUserAudio(
     @UploadedFile() file: File,
