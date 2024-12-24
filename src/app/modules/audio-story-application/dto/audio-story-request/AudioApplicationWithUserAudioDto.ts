@@ -1,22 +1,21 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Status } from '@prisma/client';
-import { IsInt, IsNumber, IsString } from 'class-validator';
+import { Status, TypeRequest } from '@prisma/client';
+import { IsNumber, IsString } from 'class-validator';
 import { UserAudioResponseDto } from './response/user-audio.response.dto';
 
 export class AudioApplicationWithUserAudioDto {
-  @ApiProperty({ description: '', nullable: false })
+  @ApiProperty({ description: 'ид заявки', nullable: false })
   @IsNumber()
   id: number;
 
-  @ApiProperty({ description: '', nullable: false })
+  @ApiProperty({
+    description: 'данные о озвучки пользователя',
+    nullable: false,
+  })
   userAudio: UserAudioResponseDto;
 
-  @ApiProperty({ description: '', nullable: false })
+  @ApiProperty({ description: 'ид пользователя', nullable: false })
   userId: number;
-
-  @ApiProperty({ description: 'ид типа заявки', nullable: false })
-  @IsNumber()
-  typeId: number;
 
   @ApiProperty({ description: 'статус заявки', nullable: false })
   status: Status;
@@ -29,7 +28,6 @@ export class AudioApplicationWithUserAudioDto {
     this.id = dto.id;
     this.userAudio = dto.userAudio;
     this.userId = dto.userId;
-    this.typeId = dto.typeId;
     this.status = dto.status;
     this.comment = dto.comment;
   }

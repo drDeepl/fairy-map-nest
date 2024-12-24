@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { TypeRequest } from '@prisma/client';
 
 export class AudioStoryRequestEntity {
   @ApiProperty()
@@ -14,7 +15,7 @@ export class AudioStoryRequestEntity {
   status: string;
 
   @ApiProperty()
-  typeId: number;
+  typeRequest: TypeRequest;
 
   @ApiProperty()
   storyId: number;

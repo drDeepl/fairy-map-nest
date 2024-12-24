@@ -171,14 +171,14 @@ model RatingAudio{
 }
 
 
-model TypeRequest{
-  id                  Int       @id @default(autoincrement())
-  name                String    @unique @db.VarChar(255)
-  storiesAudioRequest StoryAudioRequest[]
+// model TypeRequest{
+//   id                  Int       @id @default(autoincrement())
+//   name                String    @unique @db.VarChar(255)
+//   storiesAudioRequest StoryAudioRequest[]
 
-  @@map("type_requests")
+//   @@map("type_requests")
 
-}
+// }
 
 
 model AddStoryRequest{
@@ -196,8 +196,7 @@ model StoryAudioRequest{
   id            Int              @id @default(autoincrement())
   userAudioId   Int              @map("user_audio_id")
   userAudio     UserAudioStory   @relation(fields: [userAudioId], references: [id])
-  typeId        Int              @map("type_id")
-  typeRequest   TypeRequest      @relation(fields: [typeId], references: [id])
+  typeRequest   TypeRequest      @default(ADD)
   status        Status           @default(SEND)        
   comment       String           @db.Text @default("")
   userId        Int
@@ -213,6 +212,12 @@ enum Status {
   SEND      @map("отправлено")
   SUCCESSED @map("одобрено")
   CANCELLED @map("отклонено")
+}
+
+enum TypeRequest {
+  ADD @map("добавление")
+  EDIT @map("редактирование")
+  DELETE @map("удаление")
 }
 
 enum Role {

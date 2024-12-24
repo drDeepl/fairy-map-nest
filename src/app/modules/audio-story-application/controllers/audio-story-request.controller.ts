@@ -1,7 +1,6 @@
-import { JwtPayload } from '@/app/modules/auth/interface/jwt-payload.interface';
 import { Role } from '@/util/Constants';
 import { Roles } from '@/util/decorators/Roles';
-import { User } from '@/util/decorators/User';
+
 import { RoleGuard } from '@/util/guards/role.guard';
 import { StoryRequestGateway } from '@/shared/ws-story-request/ws-story-request.gateway';
 import {
@@ -23,7 +22,7 @@ import { AudioStoryRequestService } from '../services/audio-story-request.servic
 import { AddAudioStoryApplicationDto } from '../dto/audio-story-request/request/AddAudioStoryRequestDto';
 import { AudioApplicationWithUserAudioDto } from '../dto/audio-story-request/AudioApplicationWithUserAudioDto';
 import { EditAudioStoryApplicaitonDto } from '../dto/audio-story-request/request/EditAudioStoryApplicaitonDto';
-import { AudioStoryRequestEntity } from '../entity/AudioStoryRequestEntity';
+import { AudioStoryRequestEntity } from '../entity/AudioStoryApplicationtEntity';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 
 @ApiTags('AudioStoryRequestController')
@@ -42,7 +41,7 @@ export class AudioStoryRequestController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Success',
-    type: AudioStoryRequestEntity,
+    type: AudioApplicationWithUserAudioDto,
     isArray: true,
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })

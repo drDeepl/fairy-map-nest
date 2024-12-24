@@ -1,10 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
+
 import { IsNotEmpty, IsNumber } from 'class-validator';
 
 export class AddAudioStoryApplicationDto {
-  @ApiProperty({ description: '', nullable: false })
-  typeId: number;
-
   @ApiProperty({ description: '', nullable: false })
   @IsNotEmpty()
   @IsNumber()

@@ -14,7 +14,7 @@ import { Status } from '@prisma/client';
 import { AddAudioStoryApplicationDto } from '../dto/audio-story-request/request/AddAudioStoryRequestDto';
 import { AudioApplicationWithUserAudioDto } from '../dto/audio-story-request/AudioApplicationWithUserAudioDto';
 import { EditAudioStoryApplicaitonDto } from '../dto/audio-story-request/request/EditAudioStoryApplicaitonDto';
-import { AudioStoryRequestEntity } from '../entity/AudioStoryRequestEntity';
+import { AudioStoryRequestEntity } from '../entity/AudioStoryApplicationtEntity';
 import { UserAudioResponseDto } from '../dto/audio-story-request/response/user-audio.response.dto';
 import { ConfigService } from '@nestjs/config';
 import { prepareSrcAudio } from '@/common/helpers/path-upload';
@@ -35,15 +35,10 @@ export class AudioStoryRequestService {
   async createAddAudioRequest(
     dto: AddAudioStoryApplicationDto,
   ): Promise<AudioStoryRequestEntity> {
-    // FIX: CREATE ENUM STATUS OR STORE IN DB?
-    this.logger.debug('CREATE ADD AUDIO REQUEST');
-    console.log(Status);
-    console.log(dto);
     const addAudioStory = await this.prisma.storyAudioRequest.findFirst({
       where: {
         userAudioId: dto.userAudioId,
         userId: dto.userId,
-        typeId: dto.typeId,
       },
     });
 
@@ -59,7 +54,6 @@ export class AudioStoryRequestService {
           userId: dto.userId,
           userAudioId: dto.userAudioId,
           status: Status.SEND,
-          typeId: dto.typeId,
           storyId: dto.storyId,
           comment: '',
         },
@@ -84,7 +78,7 @@ export class AudioStoryRequestService {
     //       id: true,
     //       userId: true,
     //       userAudio: { select: { id: true, name: true } },
-    //       typeId: true,
+    //       typeRequest: true,
     //       status: true,
     //       storyId: true,
     //       comment: true,
@@ -104,7 +98,6 @@ export class AudioStoryRequestService {
   }
 
   async deleteAudioStoryById(id: number) {
-    this.logger.debug('DELETE AUDIO STORY BY ID');
     try {
       await this.prisma.storyAudioRequest.delete({
         where: {
@@ -123,7 +116,7 @@ export class AudioStoryRequestService {
         id: true,
         userId: true,
         userAudio: { select: { id: true, name: true, languageId: true } },
-        typeId: true,
+        typeRequest: true,
         status: true,
         storyId: true,
         comment: true,
@@ -164,7 +157,7 @@ export class AudioStoryRequestService {
           id: true,
           userId: true,
           userAudio: { select: { id: true, name: true, languageId: true } },
-          typeId: true,
+          typeRequest: true,
           status: true,
           storyId: true,
           comment: true,
