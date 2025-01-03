@@ -14,6 +14,7 @@ import {
   ParseIntPipe,
   Post,
   Put,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 
@@ -24,6 +25,9 @@ import { AudioApplicationWithUserAudioDto } from '../dto/audio-story-request/Aud
 import { EditAudioStoryApplicaitonDto } from '../dto/audio-story-request/request/EditAudioStoryApplicaitonDto';
 import { AudioStoryRequestEntity } from '../entity/AudioStoryApplicationtEntity';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
+import { PageOptionsRequestDto } from '@/common/dto/request/page-options.request.dto';
+import { PageResponseDto } from '@/common/dto/response/page.response.dto';
+import { ApiPaginatedResponse } from '@/common/dto/response/api-paginated.response.dto';
 
 @ApiTags('AudioStoryRequestController')
 @Controller('audio-story-request')
@@ -38,12 +42,7 @@ export class AudioStoryRequestController {
     summary: 'получение всех заявок на озвучки',
     description: 'необходимы роль модератора',
   })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'Success',
-    type: AudioApplicationWithUserAudioDto,
-    isArray: true,
-  })
+  @ApiPaginatedResponse(AudioApplicationWithUserAudioDto)
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
   @ApiHeader({
@@ -53,10 +52,10 @@ export class AudioStoryRequestController {
   @UseGuards(JwtAuthGuard, RoleGuard)
   @Roles(Role.admin, Role.moder)
   @Get('/all')
-  async getAllAudioStoryRequests(): Promise<
-    AudioApplicationWithUserAudioDto[]
-  > {
-    return this.audioStoryRequestService.getAudioRequests();
+  async getAllAudioStoryRequests(
+    @Query() query: PageOptionsRequestDto,
+  ): Promise<PageResponseDto<AudioApplicationWithUserAudioDto>> {
+    return this.audioStoryRequestService.getAudioRequests(query);
   }
 
   @ApiOperation({
