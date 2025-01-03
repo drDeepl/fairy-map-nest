@@ -159,7 +159,6 @@ export class AudioStoryRequestController {
   async deleteAudioStoryRequestBydId(
     @Param('audioStoryRequestId', ParseIntPipe) audioStoryRequestId: number,
   ) {
-    this.logger.debug('DELETE AUDIO STORY REQEUST BY ID');
     return this.audioStoryRequestService.deleteAudioStoryById(
       audioStoryRequestId,
     );
