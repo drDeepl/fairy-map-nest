@@ -1,0 +1,227 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+model User {
+  id                Int             @id @default(autoincrement())
+  firstName         String          @map("first_name") @db.VarChar(64)
+  lastName          String          @map("last_name")  @db.VarChar(64)
+  role              Role            @default(USER)
+  email             String          @unique @db.VarChar(128)
+  passwordHash      String          @map("password_hash")
+  refreshToken      String?         @map("refresh_token") @db.VarChar(255)
+  storyAudios       StoryAudio[]
+  ratings           RatingAudio[]
+  addStoryRequests  AddStoryRequest[]
+  storyAudioRequest StoryAudioRequest[]
+  audioStories      UserAudioStory[]
+
+  @@map("users")
+}
+
+model ConstituentsRF {
+  id                  Int       @id @default(autoincrement())
+  name                String    @unique @db.VarChar(255)
+  ethnicGroupMapPoint EthnicGroupMapPoint[]
+  ethnicGroups        ConstituentsRFOnEthnicGroup[]
+
+  @@map("constituents_rf")
+
+}
+
+model EthnicGroup{
+  id        Int       @id @default(autoincrement())
+  name      String    @unique @db.VarChar(255)
+  languageId Int      @unique @map("language_id")
+  language Language   @relation(fields: [languageId], references: [id])
+  ethnicGroupMapPoints EthnicGroupMapPoint[]
+  constituents ConstituentsRFOnEthnicGroup[]
+  stories Story[]
+
+  @@map("ethnic_groups")
+}
+
+model EthnicGroupMapPoint {
+  id        Int       @id @default(autoincrement())
+  ethnicGroupId Int   @map("ethnic_group_id") 
+  ethnicGroup EthnicGroup @relation(fields: [ethnicGroupId], references: [id])
+  constituentId Int   @map("constituent_id") 
+  constituent ConstituentsRF @relation(fields: [constituentId], references: [id])
+  longitude Float
+  latitude Float
+    @@map("ethnic_group_map_points")
+
+}
+
+
+model ConstituentsRFOnEthnicGroup{
+  id        Int       @id @default(autoincrement())
+  ethnicGroupId Int @map("ethnic_group_id")
+  ethnicGroup EthnicGroup @relation(fields: [ethnicGroupId], references: [id])
+  constituentRfId Int @map("constituent_rf_id")
+  constituentRf ConstituentsRF @relation(fields: [constituentRfId], references: [id])
+
+  @@map("constituents_rf_ethnic_groups")
+}
+
+model Language{
+  id            Int       @id @default(autoincrement())
+  name          String    @unique @db.VarChar(255)
+  ethnicGroup   EthnicGroup?
+  userStories   UserAudioStory[]
+  storiesAudio  StoryAudio[]
+
+  @@map("languages")
+}
+
+
+model TextStory{
+  id            Int         @id @default(autoincrement())
+  text          String      @db.Text
+  storyId       Int         @unique @map("story_id")
+  story         Story       @relation(fields: [storyId], references: [id], onDelete: Cascade)
+
+  @@map("text_stories")
+  
+}
+
+model ImgStory {
+  id            Int         @id @default(autoincrement())
+  filename      String      @db.Text
+  storyId       Int         @unique @map("story_id")
+  story         Story       @relation(fields: [storyId], references: [id], onDelete: Cascade)
+
+  @@map("img_story")
+}
+
+model Story{
+  id                  Int         @id @default(autoincrement())
+  name                String      @unique @db.VarChar(255)
+  ethnicGroupId       Int         @map("ethnic_group_id")
+  ethnicGroup         EthnicGroup @relation(fields: [ethnicGroupId], references: [id])
+  // audioId             Int?         @map("audio_id") @unique
+  // audio               StoryAudio?  @relation(fields: [audioId], references: [id])
+  audios              StoryAudio[]
+  text                TextStory?
+  img                 ImgStory?
+  storyAudioRequest   StoryAudioRequest[]
+
+  @@map("stories")
+  
+}
+
+model StoryAudio{
+  id            Int             @id @default(autoincrement())
+  author        Int
+  authors       User            @relation(fields: [author], references: [id])
+  storyId       Int             @map("story_id")
+  story         Story           @relation(fields: [storyId], references: [id])
+  languageId    Int             @map("language_id")
+  language      Language        @relation(fields:[languageId], references: [id])
+  moderateScore Float
+  userAudioId   Int             @unique() @map("user_audio_id")
+  userAudio     UserAudioStory  @relation(fields:[userAudioId], references: [id], onDelete: Cascade)
+  ratings       RatingAudio[]
+
+
+  @@map("story_audios")
+  
+}
+
+model UserAudioStory{
+  id                 Int         @id @default(autoincrement())
+  name               String      @db.VarChar(255)
+  userId             Int         @map("user_id")
+  user               User        @relation(fields: [userId], references:[id])
+  languageId         Int         @map("language_id")
+  language           Language    @relation(fields:[languageId], references: [id])
+  pathAudio          String      @db.VarChar(255)
+  storyAudio         StoryAudio?
+  storyAudioRequests StoryAudioRequest[]
+
+  @@map("user_audio_story")
+  
+}
+
+
+
+model RatingAudio{
+  id            Int        @id @default(autoincrement())
+  userId        Int
+  user          User       @relation(fields: [userId], references: [id])
+  storyAudioId  Int        @map("story_audio_id")
+  storyAudio    StoryAudio @relation(fields: [storyAudioId], references: [id])
+  rating        Float
+
+
+  @@map("audios_rating")
+
+}
+
+
+// model TypeRequest{
+//   id                  Int       @id @default(autoincrement())
+//   name                String    @unique @db.VarChar(255)
+//   storiesAudioRequest StoryAudioRequest[]
+
+//   @@map("type_requests")
+
+// }
+
+
+model AddStoryRequest{
+  id            Int             @id @default(autoincrement())
+  storyName     String          @map("story_name") @db.VarChar(255)
+  status        Status          @default(SEND)    
+  comment       String          @db.Text @default("")
+  userId        Int             @map("user_id")
+  user          User            @relation(fields: [userId], references: [id])
+  @@map("add_story_requests")
+}
+
+
+model StoryAudioRequest{
+  id            Int              @id @default(autoincrement())
+  userAudioId   Int              @map("user_audio_id")
+  userAudio     UserAudioStory   @relation(fields: [userAudioId], references: [id])
+  typeRequest   TypeRequest      @default(ADD)
+  status        Status           @default(SEND)        
+  comment       String           @db.Text @default("")
+  userId        Int
+  user          User             @relation(fields: [userId], references: [id])
+  storyId       Int              
+  story         Story            @relation(fields: [storyId], references: [id])
+
+  @@map("story_audio_requests")
+  
+}
+
+enum Status {
+  SEND      @map("отправлено")
+  SUCCESSED @map("одобрено")
+  CANCELLED @map("отклонено")
+}
+
+enum TypeRequest {
+  ADD @map("добавление")
+  EDIT @map("редактирование")
+  DELETE @map("удаление")
+}
+
+enum Role {
+  USER  @map("user")
+  ADMIN @map("admin")
+  MODER @map("moder")
+}

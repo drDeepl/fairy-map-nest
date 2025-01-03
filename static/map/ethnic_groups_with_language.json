@@ -1,0 +1,705 @@
+[
+  { "id": 0, "name": "Русские", "language_id": 1, "language_name": "Русский" },
+  { "id": 1, "name": "Татары", "language_id": 2, "language_name": "Татарский" },
+  {
+    "id": 2,
+    "name": "Грузины",
+    "language_id": 3,
+    "language_name": "Грузинский"
+  },
+  {
+    "id": 3,
+    "name": "Адыгейцы",
+    "language_id": 4,
+    "language_name": "Адыгейский"
+  },
+  { "id": 4, "name": "Армяне", "language_id": 5, "language_name": "Армянский" },
+  {
+    "id": 5,
+    "name": "Украинцы",
+    "language_id": 6,
+    "language_name": "Украинский"
+  },
+  { "id": 6, "name": "Курды", "language_id": 7, "language_name": "Курдский" },
+  {
+    "id": 7,
+    "name": "Черкесы",
+    "language_id": 8,
+    "language_name": "Черкесский"
+  },
+  { "id": 8, "name": "Цыгане", "language_id": 9, "language_name": "Цыганский" },
+  {
+    "id": 9,
+    "name": "Алтайцы",
+    "language_id": 10,
+    "language_name": "Алтайский"
+  },
+  {
+    "id": 10,
+    "name": "Теленгиты",
+    "language_id": 11,
+    "language_name": "Теленгитское наречие южно-алтайского языка"
+  },
+  {
+    "id": 11,
+    "name": "Тубалары",
+    "language_id": 12,
+    "language_name": "Тубаларский"
+  },
+  {
+    "id": 12,
+    "name": "Челканцы",
+    "language_id": 13,
+    "language_name": "Челканское наречие"
+  },
+  {
+    "id": 13,
+    "name": "Казахи",
+    "language_id": 14,
+    "language_name": "Казахский"
+  },
+  {
+    "id": 14,
+    "name": "Кумандинцы",
+    "language_id": 15,
+    "language_name": "Кумандинское наречие"
+  },
+  { "id": 15, "name": "Немцы", "language_id": 16, "language_name": "Немецкий" },
+  { "id": 16, "name": "Шорцы", "language_id": 17, "language_name": "Шорский" },
+  {
+    "id": 17,
+    "name": "Башкиры",
+    "language_id": 18,
+    "language_name": "Башкирский"
+  },
+  {
+    "id": 18,
+    "name": "Чуваши",
+    "language_id": 19,
+    "language_name": "Чувашский"
+  },
+  {
+    "id": 19,
+    "name": "Марийцы",
+    "language_id": 20,
+    "language_name": "Марийский"
+  },
+  {
+    "id": 20,
+    "name": "Удмурты",
+    "language_id": 21,
+    "language_name": "Удмуртский"
+  },
+  {
+    "id": 21,
+    "name": "Мордва",
+    "language_id": 22,
+    "language_name": "Мордовский"
+  },
+  {
+    "id": 22,
+    "name": "Белорусы",
+    "language_id": 23,
+    "language_name": "Белорусский"
+  },
+  {
+    "id": 23,
+    "name": "Буряты",
+    "language_id": 24,
+    "language_name": "Бурятский"
+  },
+  {
+    "id": 24,
+    "name": "Сойоты",
+    "language_id": 25,
+    "language_name": "Сойотско-цаатанский язык"
+  },
+  {
+    "id": 25,
+    "name": "Эвенки",
+    "language_id": 26,
+    "language_name": "Эвенкийский"
+  },
+  {
+    "id": 26,
+    "name": "Аварцы",
+    "language_id": 27,
+    "language_name": "Аварский"
+  },
+  {
+    "id": 27,
+    "name": "Андийцы",
+    "language_id": 28,
+    "language_name": "Андийский"
+  },
+  {
+    "id": 28,
+    "name": "Арчинцы",
+    "language_id": 29,
+    "language_name": "Арчинский"
+  },
+  {
+    "id": 29,
+    "name": "Ахвахцы",
+    "language_id": 30,
+    "language_name": "Ахвахский"
+  },
+  {
+    "id": 30,
+    "name": "Бежтинцы",
+    "language_id": 31,
+    "language_name": "Бежтинский"
+  },
+  {
+    "id": 31,
+    "name": "Ботлихцы",
+    "language_id": 32,
+    "language_name": "Ботлихский"
+  },
+  {
+    "id": 32,
+    "name": "Гинухцы",
+    "language_id": 33,
+    "language_name": "Гинухский"
+  },
+  {
+    "id": 33,
+    "name": "Годоберинцы",
+    "language_id": 34,
+    "language_name": "Годоберинский"
+  },
+  {
+    "id": 34,
+    "name": "Гунзибцы",
+    "language_id": 35,
+    "language_name": "Гунзибский"
+  },
+  {
+    "id": 35,
+    "name": "Дидойцы",
+    "language_id": 36,
+    "language_name": "Дидойский"
+  },
+  {
+    "id": 36,
+    "name": "Каратинцы",
+    "language_id": 37,
+    "language_name": "Каратинский"
+  },
+  {
+    "id": 37,
+    "name": "Тиндалы",
+    "language_id": 38,
+    "language_name": "Тиндинский"
+  },
+  {
+    "id": 38,
+    "name": "Хваршины",
+    "language_id": 39,
+    "language_name": "Хваршинский"
+  },
+  {
+    "id": 39,
+    "name": "Чамалинцы",
+    "language_id": 40,
+    "language_name": "Чамалинский"
+  },
+  {
+    "id": 40,
+    "name": "Даргинцы",
+    "language_id": 41,
+    "language_name": "Даргинский"
+  },
+  {
+    "id": 41,
+    "name": "Кумыки",
+    "language_id": 42,
+    "language_name": "Кумыкский"
+  },
+  {
+    "id": 42,
+    "name": "Лезгины",
+    "language_id": 43,
+    "language_name": "Лезгинский"
+  },
+  { "id": 43, "name": "Лакцы", "language_id": 44, "language_name": "Лакский" },
+  {
+    "id": 44,
+    "name": "Азербайджанцы",
+    "language_id": 45,
+    "language_name": "Азербайджанский"
+  },
+  {
+    "id": 45,
+    "name": "Табасараны",
+    "language_id": 46,
+    "language_name": "Табасаранский"
+  },
+  {
+    "id": 46,
+    "name": "Чеченцы",
+    "language_id": 47,
+    "language_name": "Чеченский"
+  },
+  {
+    "id": 47,
+    "name": "Ногайцы",
+    "language_id": 48,
+    "language_name": "Ногайский"
+  },
+  {
+    "id": 48,
+    "name": "Рутульцы",
+    "language_id": 49,
+    "language_name": "Рутульский"
+  },
+  {
+    "id": 49,
+    "name": "Агулы",
+    "language_id": 50,
+    "language_name": "Агульский"
+  },
+  {
+    "id": 50,
+    "name": "Цахуры",
+    "language_id": 51,
+    "language_name": "Цахурский"
+  },
+  { "id": 51, "name": "Таты", "language_id": 52, "language_name": "Татский" },
+  {
+    "id": 52,
+    "name": "Греки",
+    "language_id": 53,
+    "language_name": "Греческий"
+  },
+  {
+    "id": 53,
+    "name": "Ингуши",
+    "language_id": 54,
+    "language_name": "Ингушский"
+  },
+  {
+    "id": 54,
+    "name": "Хакасы",
+    "language_id": 84,
+    "language_name": "Хакасский"
+  },
+  {
+    "id": 55,
+    "name": "Балкарцы",
+    "language_id": 56,
+    "language_name": "Карачаево-балкарский"
+  },
+  { "id": 56, "name": "Турки", "language_id": 57, "language_name": "Турецкий" },
+  {
+    "id": 57,
+    "name": "Осетины",
+    "language_id": 58,
+    "language_name": "Осетинский"
+  },
+  {
+    "id": 58,
+    "name": "Корейцы",
+    "language_id": 59,
+    "language_name": "Корейский"
+  },
+  {
+    "id": 59,
+    "name": "Калмыки",
+    "language_id": 60,
+    "language_name": "Калмыцкий"
+  },
+  {
+    "id": 60,
+    "name": "Месхетинские турки",
+    "language_id": 61,
+    "language_name": "Карсский диалект турецкого языка"
+  },
+  {
+    "id": 61,
+    "name": "Абазины",
+    "language_id": 63,
+    "language_name": "Абазинский"
+  },
+  {
+    "id": 62,
+    "name": "Карелы",
+    "language_id": 64,
+    "language_name": "Карельский"
+  },
+  { "id": 63, "name": "Фины", "language_id": 65, "language_name": "Финский" },
+  { "id": 64, "name": "Вепсы", "language_id": 66, "language_name": "Вепсский" },
+  {
+    "id": 65,
+    "name": "Коми",
+    "language_id": 67,
+    "language_name": "Коми-зырянский"
+  },
+  {
+    "id": 66,
+    "name": "Манси",
+    "language_id": 68,
+    "language_name": "Мансийский"
+  },
+  {
+    "id": 67,
+    "name": "Крымские татары",
+    "language_id": 69,
+    "language_name": "Крымскотатарский"
+  },
+  {
+    "id": 68,
+    "name": "Горные марийцы",
+    "language_id": 70,
+    "language_name": "Горномарийский"
+  },
+  {
+    "id": 69,
+    "name": "Лугово-восточные марийцы",
+    "language_id": 71,
+    "language_name": "Лугово-восточный марийский"
+  },
+  { "id": 70, "name": "Якуты", "language_id": 72, "language_name": "Якутский" },
+  { "id": 71, "name": "Эвены", "language_id": 73, "language_name": "Эвенский" },
+  {
+    "id": 72,
+    "name": "Киргизы",
+    "language_id": 74,
+    "language_name": "Киргизский"
+  },
+  {
+    "id": 73,
+    "name": "Узбеки",
+    "language_id": 75,
+    "language_name": "Узбекский"
+  },
+  {
+    "id": 74,
+    "name": "Таджики",
+    "language_id": 76,
+    "language_name": "Таджикский"
+  },
+  {
+    "id": 75,
+    "name": "Долганы",
+    "language_id": 77,
+    "language_name": "Долганский"
+  },
+  {
+    "id": 76,
+    "name": "Юкагиры",
+    "language_id": 78,
+    "language_name": "Юкагирский"
+  },
+  {
+    "id": 77,
+    "name": "Чукчи",
+    "language_id": 79,
+    "language_name": "Чукотский"
+  },
+  {
+    "id": 78,
+    "name": "Казанские татары",
+    "language_id": 80,
+    "language_name": "Казанский диалект татарского языка"
+  },
+  {
+    "id": 79,
+    "name": "Булгары",
+    "language_id": 81,
+    "language_name": "Булгарский"
+  },
+  {
+    "id": 80,
+    "name": "Тувинцы",
+    "language_id": 82,
+    "language_name": "Тувинский"
+  },
+  {
+    "id": 81,
+    "name": "Бесермяне",
+    "language_id": 85,
+    "language_name": "Язык бесермян"
+  },
+  { "id": 82, "name": "Евреи", "language_id": 107, "language_name": "Иврит" },
+  {
+    "id": 83,
+    "name": "Ительмены",
+    "language_id": 87,
+    "language_name": "Ительменский"
+  },
+  {
+    "id": 84,
+    "name": "Камчадалы",
+    "language_id": 88,
+    "language_name": "Камчадальск"
+  },
+  {
+    "id": 85,
+    "name": "Алеуты",
+    "language_id": 89,
+    "language_name": "Алеутский"
+  },
+  {
+    "id": 86,
+    "name": "Эксимосы",
+    "language_id": 90,
+    "language_name": "Эскимосский"
+  },
+  { "id": 87, "name": "Кеты", "language_id": 92, "language_name": "Кетский" },
+  {
+    "id": 88,
+    "name": "Нганасаны",
+    "language_id": 93,
+    "language_name": "Нганасанский"
+  },
+  {
+    "id": 89,
+    "name": "Селькупы",
+    "language_id": 94,
+    "language_name": "Селькупский"
+  },
+  { "id": 90, "name": "Энцы", "language_id": 95, "language_name": "Энецкий" },
+  {
+    "id": 91,
+    "name": "Чулымцы",
+    "language_id": 96,
+    "language_name": "Чулымский"
+  },
+  {
+    "id": 92,
+    "name": "Китайцы",
+    "language_id": 97,
+    "language_name": "Китайский"
+  },
+  {
+    "id": 93,
+    "name": "Удэгейцы",
+    "language_id": 98,
+    "language_name": "Удэгейский"
+  },
+  {
+    "id": 94,
+    "name": "Нанайцы",
+    "language_id": 99,
+    "language_name": "Нанайский"
+  },
+  {
+    "id": 95,
+    "name": "Тазы",
+    "language_id": 100,
+    "language_name": "Тазский диалект"
+  },
+  {
+    "id": 96,
+    "name": "Туркмены",
+    "language_id": 101,
+    "language_name": "Туркменский"
+  },
+  {
+    "id": 97,
+    "name": "Ульчи",
+    "language_id": 102,
+    "language_name": "Ульчский"
+  },
+  {
+    "id": 98,
+    "name": "Нивхи",
+    "language_id": 103,
+    "language_name": "Нивхский"
+  },
+  {
+    "id": 99,
+    "name": "Негидальцы",
+    "language_id": 104,
+    "language_name": "Негидальский"
+  },
+  {
+    "id": 100,
+    "name": "Орочи",
+    "language_id": 105,
+    "language_name": "Орочский"
+  },
+  {
+    "id": 101,
+    "name": "Поморы",
+    "language_id": 106,
+    "language_name": "Поморянский"
+  },
+  {
+    "id": 102,
+    "name": "Поляки",
+    "language_id": 108,
+    "language_name": "Польский"
+  },
+  {
+    "id": 103,
+    "name": "Молдаване",
+    "language_id": 109,
+    "language_name": "Молдавский"
+  },
+  {
+    "id": 104,
+    "name": "Болгары",
+    "language_id": 110,
+    "language_name": "Болгарский"
+  },
+  {
+    "id": 105,
+    "name": "Тофалары",
+    "language_id": 111,
+    "language_name": "Тофаларский"
+  },
+  {
+    "id": 106,
+    "name": "Литовцы",
+    "language_id": 112,
+    "language_name": "Литовский"
+  },
+  {
+    "id": 107,
+    "name": "Телеуты",
+    "language_id": 113,
+    "language_name": "Телеутский"
+  },
+  { "id": 108, "name": "Водь", "language_id": 114, "language_name": "Водский" },
+  {
+    "id": 109,
+    "name": "Ижоры",
+    "language_id": 115,
+    "language_name": "Ижорский"
+  },
+  {
+    "id": 110,
+    "name": "Саамы",
+    "language_id": 116,
+    "language_name": "Саамские"
+  },
+  {
+    "id": 111,
+    "name": "Эстонцы",
+    "language_id": 117,
+    "language_name": "Эстонский"
+  },
+  {
+    "id": 112,
+    "name": "Ороки",
+    "language_id": 119,
+    "language_name": "Орокский"
+  },
+  {
+    "id": 113,
+    "name": "Нагайбаки",
+    "language_id": 121,
+    "language_name": "Язык нагайбаков"
+  },
+  {
+    "id": 114,
+    "name": "Вьетнамцы",
+    "language_id": 122,
+    "language_name": "Вьетнамский"
+  },
+  {
+    "id": 115,
+    "name": "Кереки",
+    "language_id": 123,
+    "language_name": "Язык кереков"
+  },
+  {
+    "id": 116,
+    "name": "Тувинцы–тоджинцы",
+    "language_id": 83,
+    "language_name": "Тувинский, тоджинский диалект"
+  },
+  {
+    "id": 117,
+    "name": "Ненцы",
+    "language_id": 124,
+    "language_name": "Ненецкий"
+  },
+  {
+    "id": 118,
+    "name": "Японцы",
+    "language_id": 135,
+    "language_name": "Японский язык"
+  },
+  {
+    "id": 119,
+    "name": "Чамалалы",
+    "language_id": 134,
+    "language_name": "Чамальский язык"
+  },
+  {
+    "id": 120,
+    "name": "Ханты",
+    "language_id": 133,
+    "language_name": "Хантыйский язык"
+  },
+  {
+    "id": 121,
+    "name": "Уйльта",
+    "language_id": 132,
+    "language_name": "Уйльтинский язык"
+  },
+  { "id": 122, "name": "Сету", "language_id": 131, "language_name": "Сету" },
+  {
+    "id": 123,
+    "name": "Мордва-эрзя",
+    "language_id": 130,
+    "language_name": "Эрзянский язык"
+  },
+  {
+    "id": 124,
+    "name": "Мордва-мокша",
+    "language_id": 129,
+    "language_name": "Мокшанский язык"
+  },
+  {
+    "id": 125,
+    "name": "Кряшены",
+    "language_id": 128,
+    "language_name": "Кряшенский язык"
+  },
+  {
+    "id": 126,
+    "name": "Коряки",
+    "language_id": 127,
+    "language_name": "Корякский язык"
+  },
+  {
+    "id": 127,
+    "name": "Коми-пермяки",
+    "language_id": 86,
+    "language_name": "Коми-пермяцкӧй кыв"
+  },
+  {
+    "id": 128,
+    "name": "Коми-ижемцы",
+    "language_id": 126,
+    "language_name": "Коми ижемский язык"
+  },
+  {
+    "id": 129,
+    "name": "Казаки",
+    "language_id": 62,
+    "language_name": "Балачка"
+  },
+  {
+    "id": 130,
+    "name": "Кабардинцы",
+    "language_id": 55,
+    "language_name": "Кабардино-черкесский"
+  },
+  {
+    "id": 131,
+    "name": "Езиды",
+    "language_id": 125,
+    "language_name": "Курманджи"
+  },
+  {
+    "id": 132,
+    "name": "Шапсуги",
+    "language_id": 91,
+    "language_name": "Шапсугский диалект адыгейского языка"
+  }
+]

@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "audios_rating" ALTER COLUMN "rating" SET DATA TYPE DOUBLE PRECISION;
