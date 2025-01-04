@@ -19,6 +19,9 @@ import { UserAudioResponseDto } from '../dto/audio-story-request/response/user-a
 import { ConfigService } from '@nestjs/config';
 import { prepareSrcAudio } from '@/common/helpers/path-upload';
 import { AuthorAudioStoryResponseDto } from '../../user/dto/response/author-audio-story.response.dto';
+import { PageOptionsRequestDto } from '@/common/dto/request/page-options.request.dto';
+import { PageResponseDto } from '@/common/dto/response/page.response.dto';
+import { PageMetaDto } from '@/common/dto/page-meta.dto';
 
 @Injectable()
 export class AudioStoryRequestService {
@@ -111,22 +114,29 @@ export class AudioStoryRequestService {
     }
   }
 
-  async getAudioRequests(): Promise<AudioApplicationWithUserAudioDto[]> {
-    const storyAudioRequests = await this.prisma.storyAudioRequest.findMany({
-      select: {
-        id: true,
-        user: true,
-        userAudio: { select: { id: true, name: true, languageId: true } },
-        typeRequest: true,
-        status: true,
-        storyId: true,
-        comment: true,
-      },
-    });
+  async getAudioRequests(
+    query: PageOptionsRequestDto,
+  ): Promise<PageResponseDto<AudioApplicationWithUserAudioDto>> {
+    const [storyAudioRequests, itemCount] = await this.prisma.$transaction([
+      this.prisma.storyAudioRequest.findMany({
+        skip: query.skip,
+        take: query.take,
+        select: {
+          id: true,
+          user: true,
+          userAudio: { select: { id: true, name: true, languageId: true } },
+          typeRequest: true,
+          status: true,
+          storyId: true,
+          comment: true,
+        },
+      }),
+      this.prisma.storyAudioRequest.count(),
+    ]);
 
     const appUrl = String(this.configService.get('APP_URL'));
 
-    return storyAudioRequests.map((request) => {
+    const dto = storyAudioRequests.map((request) => {
       const srcAudio: string = prepareSrcAudio({
         appUrl: appUrl,
         storyId: request.id,
@@ -134,7 +144,6 @@ export class AudioStoryRequestService {
         languageId: request.userAudio.languageId,
         filename: request.userAudio.name,
       });
-
       return new AudioApplicationWithUserAudioDto({
         ...request,
         user: new AuthorAudioStoryResponseDto(request.user),
@@ -144,6 +153,9 @@ export class AudioStoryRequestService {
         }),
       });
     });
+    const pageMetaDto = new PageMetaDto({ pageOptionsDto: query, itemCount });
+
+    return new PageResponseDto(dto, pageMetaDto);
   }
   catch(error) {
     PrintNameAndCodePrismaException(error, this.logger);
