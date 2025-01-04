@@ -4,14 +4,6 @@ import { Type } from 'class-transformer';
 import { IsEnum, IsInt, Min, IsOptional, Max } from 'class-validator';
 
 export class PageOptionsRequestDto {
-  @ApiProperty({ enum: Order, default: Order.ASC })
-  @IsEnum(Order, {
-    message: `порядок может принимать одно из следующих значений ${Object.values(
-      Order,
-    ).join()}`,
-  })
-  order?: Order = Order.ASC;
-
   @ApiPropertyOptional({
     description: 'номер страницы',
     minimum: 1,
