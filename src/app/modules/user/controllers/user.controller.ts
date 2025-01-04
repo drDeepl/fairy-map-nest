@@ -35,7 +35,7 @@ import { UserAudioService } from '../../user-audio/services/user-audio.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { File } from 'multer';
 import { AudioStoryRequestService } from '../../audio-story-request/services/audio-story-request.service';
-import { AudioApplicationWithUserAudioDto } from '../../audio-story-request/dto/audio-story-request/AudioApplicationWithUserAudioDto';
+import { AudioApplicationWithUserAudioResponseDto } from '../../audio-story-request/dto/audio-story-request/audio-application-with-user-audio.dto';
 import { UserAudioResponseDto } from '../../user-audio/dto/response/user-audio.response.dto';
 import { AudioStoryResponseDto } from '../../story/dto/audio-story/response/audio-story.response.dto';
 
@@ -169,7 +169,7 @@ export class UserController {
     status: HttpStatus.OK,
     description: 'Success',
     isArray: true,
-    type: AudioApplicationWithUserAudioDto,
+    type: AudioApplicationWithUserAudioResponseDto,
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
@@ -181,7 +181,7 @@ export class UserController {
   @Get('story/audio/request/my')
   async getAllAudioStoryRequestsCurrentUser(
     @User() user: JwtPayload,
-  ): Promise<AudioApplicationWithUserAudioDto[]> {
+  ): Promise<AudioApplicationWithUserAudioResponseDto[]> {
     return this.audioStoryRequestService.getAudioRequestsByUserId(
       parseInt(user.sub),
     );

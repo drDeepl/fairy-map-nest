@@ -12,16 +12,17 @@ import {
 } from '@nestjs/common';
 import { Status } from '@prisma/client';
 import { AddAudioStoryApplicationDto } from '../dto/audio-story-request/request/AddAudioStoryRequestDto';
-import { AudioApplicationWithUserAudioDto } from '../dto/audio-story-request/AudioApplicationWithUserAudioDto';
+import { AudioApplicationWithUserAudioResponseDto } from '../dto/audio-story-request/audio-application-with-user-audio.dto';
 import { EditAudioStoryApplicaitonDto } from '../dto/audio-story-request/request/EditAudioStoryApplicaitonDto';
 import { AudioStoryRequestEntity } from '../entity/AudioStoryApplicationtEntity';
-import { UserAudioResponseDto } from '../dto/audio-story-request/response/user-audio.response.dto';
+import { UserAudioWithLanguageResponseDto } from '../dto/audio-story-request/response/user-audio.response.dto';
 import { ConfigService } from '@nestjs/config';
 import { prepareSrcAudio } from '@/common/helpers/path-upload';
 import { AuthorAudioStoryResponseDto } from '../../user/dto/response/author-audio-story.response.dto';
 import { PageOptionsRequestDto } from '@/common/dto/request/page-options.request.dto';
 import { PageResponseDto } from '@/common/dto/response/page.response.dto';
 import { PageMetaDto } from '@/common/dto/page-meta.dto';
+import { LanguageDto } from '../../ethnic-group/dto/LanguageDto';
 
 @Injectable()
 export class AudioStoryRequestService {
@@ -71,7 +72,7 @@ export class AudioStoryRequestService {
   async editAudioStoryRequest(
     id: number,
     dto: EditAudioStoryApplicaitonDto,
-  ): Promise<AudioApplicationWithUserAudioDto> {
+  ): Promise<AudioApplicationWithUserAudioResponseDto> {
     this.logger.debug('EDIT AUDIO STORY REQUEST');
 
     throw new NotImplementedException('editAudioStoryRequest');
@@ -116,7 +117,7 @@ export class AudioStoryRequestService {
 
   async getAudioRequests(
     query: PageOptionsRequestDto,
-  ): Promise<PageResponseDto<AudioApplicationWithUserAudioDto>> {
+  ): Promise<PageResponseDto<AudioApplicationWithUserAudioResponseDto>> {
     const [storyAudioRequests, itemCount] = await this.prisma.$transaction([
       this.prisma.storyAudioRequest.findMany({
         skip: query.skip,
@@ -124,7 +125,8 @@ export class AudioStoryRequestService {
         select: {
           id: true,
           user: true,
-          userAudio: { select: { id: true, name: true, languageId: true } },
+
+          userAudio: { select: { id: true, name: true, language: true } },
           typeRequest: true,
           status: true,
           storyId: true,
@@ -141,15 +143,20 @@ export class AudioStoryRequestService {
         appUrl: appUrl,
         storyId: request.id,
         userId: request.user.id,
-        languageId: request.userAudio.languageId,
+        languageId: request.userAudio.language.id,
         filename: request.userAudio.name,
       });
-      return new AudioApplicationWithUserAudioDto({
+
+      return new AudioApplicationWithUserAudioResponseDto({
         ...request,
         user: new AuthorAudioStoryResponseDto(request.user),
-        userAudio: new UserAudioResponseDto({
+        userAudio: new UserAudioWithLanguageResponseDto({
           ...request.userAudio,
           srcAudio: srcAudio,
+          language: Object.assign(
+            new LanguageDto(),
+            request.userAudio.language,
+          ),
         }),
       });
     });
@@ -164,7 +171,7 @@ export class AudioStoryRequestService {
 
   async getAudioRequestsByUserId(
     userId: number,
-  ): Promise<AudioApplicationWithUserAudioDto[]> {
+  ): Promise<AudioApplicationWithUserAudioResponseDto[]> {
     try {
       const storyAudioRequests = await this.prisma.storyAudioRequest.findMany({
         select: {
@@ -192,9 +199,9 @@ export class AudioStoryRequestService {
           filename: request.userAudio.name,
         });
 
-        return new AudioApplicationWithUserAudioDto({
+        return new AudioApplicationWithUserAudioResponseDto({
           ...request,
-          userAudio: new UserAudioResponseDto({
+          userAudio: new UserAudioWithLanguageResponseDto({
             ...request.userAudio,
             srcAudio: srcAudio,
           }),

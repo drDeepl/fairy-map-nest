@@ -21,13 +21,14 @@ import {
 import { ApiHeader, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AudioStoryRequestService } from '../services/audio-story-request.service';
 import { AddAudioStoryApplicationDto } from '../dto/audio-story-request/request/AddAudioStoryRequestDto';
-import { AudioApplicationWithUserAudioDto } from '../dto/audio-story-request/AudioApplicationWithUserAudioDto';
+
 import { EditAudioStoryApplicaitonDto } from '../dto/audio-story-request/request/EditAudioStoryApplicaitonDto';
 import { AudioStoryRequestEntity } from '../entity/AudioStoryApplicationtEntity';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { PageOptionsRequestDto } from '@/common/dto/request/page-options.request.dto';
 import { PageResponseDto } from '@/common/dto/response/page.response.dto';
 import { ApiPaginatedResponse } from '@/common/dto/response/api-paginated.response.dto';
+import { AudioApplicationWithUserAudioResponseDto } from '../dto/audio-story-request/audio-application-with-user-audio.dto';
 
 @ApiTags('AudioStoryRequestController')
 @Controller('audio-story-request')
@@ -42,7 +43,7 @@ export class AudioStoryRequestController {
     summary: 'получение всех заявок на озвучки',
     description: 'необходимы роль модератора',
   })
-  @ApiPaginatedResponse(AudioApplicationWithUserAudioDto)
+  @ApiPaginatedResponse(AudioApplicationWithUserAudioResponseDto)
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
   @ApiHeader({
@@ -54,7 +55,7 @@ export class AudioStoryRequestController {
   @Get('/all')
   async getAllAudioStoryRequests(
     @Query() query: PageOptionsRequestDto,
-  ): Promise<PageResponseDto<AudioApplicationWithUserAudioDto>> {
+  ): Promise<PageResponseDto<AudioApplicationWithUserAudioResponseDto>> {
     return this.audioStoryRequestService.getAudioRequests(query);
   }
 
@@ -78,7 +79,7 @@ export class AudioStoryRequestController {
   @Get('/by-user/:userId')
   async getAllAudioStoryReqeustsByUserId(
     @Param('userId', ParseIntPipe) userId: number,
-  ): Promise<AudioApplicationWithUserAudioDto[]> {
+  ): Promise<AudioApplicationWithUserAudioResponseDto[]> {
     this.logger.debug('GET ALL AUDIO STORY REQEUSTS BY USER ID');
     return await this.audioStoryRequestService.getAudioRequestsByUserId(userId);
   }
@@ -126,7 +127,7 @@ export class AudioStoryRequestController {
   async editAudioStoryRequest(
     @Param('audioStoryReqeustId', ParseIntPipe) audioStoryReqeustId: number,
     @Body() dto: EditAudioStoryApplicaitonDto,
-  ): Promise<AudioApplicationWithUserAudioDto> {
+  ): Promise<AudioApplicationWithUserAudioResponseDto> {
     const editableAudioStoryRequest =
       await this.audioStoryRequestService.editAudioStoryRequest(
         audioStoryReqeustId,

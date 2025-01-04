@@ -15,7 +15,7 @@ import { SocketWithAuth } from './socket-io-adapter';
 import { UserAccessDto } from '@/app/modules/user/dto/UserAccessDto';
 import { AddStoryRequestEntity } from '@/app/modules/add-story-request/entity/AddStoryRequestEntity';
 import { AddStoryRequestDto } from '@/app/modules/add-story-request/dto/AddStoryRequestDto';
-import { AudioApplicationWithUserAudioDto } from '@/app/modules/audio-story-request/dto/audio-story-request/AudioApplicationWithUserAudioDto';
+import { AudioApplicationWithUserAudioResponseDto } from '@/app/modules/audio-story-request/dto/audio-story-request/audio-application-with-user-audio.dto';
 
 @WebSocketGateway(3002, { cors: true, transports: ['websocket'] })
 export class StoryRequestGateway
@@ -49,7 +49,7 @@ export class StoryRequestGateway
 
   @SubscribeMessage('audio-story-application')
   async handleRequestAudioStory(
-    audioRequestWithUserAudioDto: AudioApplicationWithUserAudioDto,
+    audioRequestWithUserAudioDto: AudioApplicationWithUserAudioResponseDto,
   ): Promise<void> {
     this.logger.warn('STATUSES');
 
