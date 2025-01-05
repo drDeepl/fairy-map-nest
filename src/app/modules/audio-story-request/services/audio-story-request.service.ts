@@ -126,7 +126,14 @@ export class AudioStoryRequestService {
           id: true,
           user: true,
 
-          userAudio: { select: { id: true, name: true, language: true } },
+          userAudio: {
+            select: {
+              id: true,
+              name: true,
+              originalName: true,
+              language: true,
+            },
+          },
           typeRequest: true,
           status: true,
           storyId: true,

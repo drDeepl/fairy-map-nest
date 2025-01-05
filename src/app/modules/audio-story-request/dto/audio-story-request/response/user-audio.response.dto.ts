@@ -8,6 +8,9 @@ export class UserAudioWithLanguageResponseDto {
   @ApiProperty({ description: 'название файла' })
   name: string;
 
+  @ApiProperty({ description: 'пользовательское название озвучки' })
+  originalName: string;
+
   @ApiProperty({ description: 'прямая ссылка на файл' })
   srcAudio: string;
 
@@ -20,6 +23,7 @@ export class UserAudioWithLanguageResponseDto {
   constructor(dto: Partial<UserAudioWithLanguageResponseDto>) {
     this.id = dto.id;
     this.name = dto.name;
+    this.originalName = dto.originalName;
     this.srcAudio = dto.srcAudio;
     this.language = dto.language;
   }

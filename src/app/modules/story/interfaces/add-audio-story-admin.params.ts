@@ -3,5 +3,6 @@ export interface AddAudioStoryAdminParams {
   userId: number;
   languageId: number;
   filename: string;
+  originalName: string;
   pathAudio: string;
 }

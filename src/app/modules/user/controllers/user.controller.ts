@@ -155,6 +155,7 @@ export class UserController {
     console.log(file);
     return this.userAudioService.addUserAudio({
       storyId: storyId,
+      originalName: file.originalname,
       languageId: languageId,
       filename: file.filename,
       userId: Number(user.sub),

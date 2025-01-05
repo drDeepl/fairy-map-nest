@@ -111,8 +111,6 @@ model Story{
   name                String      @unique @db.VarChar(255)
   ethnicGroupId       Int         @map("ethnic_group_id")
   ethnicGroup         EthnicGroup @relation(fields: [ethnicGroupId], references: [id])
-  // audioId             Int?         @map("audio_id") @unique
-  // audio               StoryAudio?  @relation(fields: [audioId], references: [id])
   audios              StoryAudio[]
   text                TextStory?
   img                 ImgStory?
@@ -142,7 +140,8 @@ model StoryAudio{
 
 model UserAudioStory{
   id                 Int         @id @default(autoincrement())
-  name               String      @db.VarChar(255)
+  name               String      @db.VarChar(64)
+  originalName       String      @db.VarChar(64) @default("unnamed")
   userId             Int         @map("user_id")
   user               User        @relation(fields: [userId], references:[id])
   languageId         Int         @map("language_id")

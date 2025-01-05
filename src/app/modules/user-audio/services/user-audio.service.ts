@@ -157,9 +157,11 @@ export class UserAudioService {
         userId: true,
         language: true,
         name: true,
+        originalName: true,
       },
       data: {
         name: params.filename,
+        originalName: params.originalName,
         userId: params.userId,
         languageId: params.languageId,
         pathAudio: params.pathAudio,
@@ -179,6 +181,7 @@ export class UserAudioService {
       userAudioId: userAudio.id,
       srcAudio: srcAudio,
       language: Object.assign(new LanguageDto(), userAudio.language),
+      originalName: userAudio.originalName,
     });
   }
 

@@ -275,6 +275,7 @@ export class AdminController {
       storyId: storyId,
       languageId: languageId,
       filename: file.filename,
+      originalName: file.originalname,
       pathAudio: file.path,
     });
 

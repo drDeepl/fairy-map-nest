@@ -497,6 +497,7 @@ export class StoryService {
           name: params.filename,
           userId: params.userId,
           languageId: params.languageId,
+          originalName: params.originalName,
           pathAudio: params.pathAudio,
         },
       });

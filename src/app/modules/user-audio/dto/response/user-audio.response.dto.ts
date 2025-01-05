@@ -11,8 +11,12 @@ export class UserAudioResponseDto {
   @ApiProperty({ description: 'информация о языке озвучки', nullable: false })
   language: LanguageDto;
 
+  @ApiProperty({ description: 'изначальное название озвучки' })
+  originalName: string;
+
   constructor(dto: Partial<UserAudioResponseDto>) {
     this.userAudioId = dto.userAudioId;
+    this.originalName = dto.originalName;
     this.srcAudio = dto.srcAudio;
     this.language = dto.language;
   }
