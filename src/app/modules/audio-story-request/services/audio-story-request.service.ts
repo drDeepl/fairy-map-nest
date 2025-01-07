@@ -136,9 +136,10 @@ export class AudioStoryRequestService {
           },
           typeRequest: true,
           status: true,
-          storyId: true,
+          story: true,
           comment: true,
         },
+        orderBy: { createdAt: 'desc' },
       }),
       this.prisma.storyAudioRequest.count(),
     ]);
@@ -148,7 +149,7 @@ export class AudioStoryRequestService {
     const dto = storyAudioRequests.map((request) => {
       const srcAudio: string = prepareSrcAudio({
         appUrl: appUrl,
-        storyId: request.id,
+        storyId: request.story.id,
         userId: request.user.id,
         languageId: request.userAudio.language.id,
         filename: request.userAudio.name,
@@ -156,6 +157,8 @@ export class AudioStoryRequestService {
 
       return new AudioApplicationWithUserAudioResponseDto({
         ...request,
+        storyId: request.story.id,
+        storyName: request.story.name,
         user: new AuthorAudioStoryResponseDto(request.user),
         userAudio: new UserAudioWithLanguageResponseDto({
           ...request.userAudio,

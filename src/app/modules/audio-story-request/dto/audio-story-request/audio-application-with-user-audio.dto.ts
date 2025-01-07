@@ -43,7 +43,6 @@ export class AudioApplicationWithUserAudioResponseDto {
   storyId: number;
 
   @ApiProperty({ description: 'название сказки', nullable: false })
-  @IsString()
   storyName: string;
 
   constructor(dto: Partial<AudioApplicationWithUserAudioResponseDto>) {
