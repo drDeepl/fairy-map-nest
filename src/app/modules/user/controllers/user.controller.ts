@@ -152,7 +152,6 @@ export class UserController {
     @Param('languageId', ParseIntPipe) languageId: number,
     @Param('storyId', ParseIntPipe) storyId: number,
   ): Promise<UserAudioResponseDto> {
-    console.log(file);
     return this.userAudioService.addUserAudio({
       storyId: storyId,
       originalName: file.originalname,

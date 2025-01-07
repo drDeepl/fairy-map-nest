@@ -187,12 +187,15 @@ export class AudioStoryRequestService {
           userAudio: { select: { id: true, name: true, languageId: true } },
           typeRequest: true,
           status: true,
-          storyId: true,
+          story: true,
+          createdAt: true,
+          updatedAt: true,
           comment: true,
         },
         where: {
           userId: userId,
         },
+        orderBy: { createdAt: 'desc' },
       });
 
       const appUrl = String(this.configService.get('APP_URL'));
@@ -200,7 +203,7 @@ export class AudioStoryRequestService {
       return storyAudioRequests.map((request) => {
         const srcAudio: string = prepareSrcAudio({
           appUrl: appUrl,
-          storyId: request.id,
+          storyId: request.story.id,
           userId: userId,
           languageId: request.userAudio.languageId,
           filename: request.userAudio.name,
@@ -208,6 +211,8 @@ export class AudioStoryRequestService {
 
         return new AudioApplicationWithUserAudioResponseDto({
           ...request,
+          storyId: request.story.id,
+          storyName: request.story.name,
           userAudio: new UserAudioWithLanguageResponseDto({
             ...request.userAudio,
             srcAudio: srcAudio,

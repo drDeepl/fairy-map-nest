@@ -80,7 +80,6 @@ export class AudioStoryRequestController {
   async getAllAudioStoryReqeustsByUserId(
     @Param('userId', ParseIntPipe) userId: number,
   ): Promise<AudioApplicationWithUserAudioResponseDto[]> {
-    this.logger.debug('GET ALL AUDIO STORY REQEUSTS BY USER ID');
     return await this.audioStoryRequestService.getAudioRequestsByUserId(userId);
   }
 
@@ -101,7 +100,6 @@ export class AudioStoryRequestController {
   async createAddAudioRequest(
     @Body() dto: AddAudioStoryApplicationDto,
   ): Promise<AudioStoryRequestEntity> {
-    this.logger.debug('CREATE ADD AUDIO STORY REQUEST');
     return await this.audioStoryRequestService.createAddAudioRequest(dto);
   }
 
@@ -159,7 +157,6 @@ export class AudioStoryRequestController {
   async deleteAudioStoryRequestBydId(
     @Param('audioStoryRequestId', ParseIntPipe) audioStoryRequestId: number,
   ) {
-    this.logger.debug('DELETE AUDIO STORY REQEUST BY ID');
     return this.audioStoryRequestService.deleteAudioStoryById(
       audioStoryRequestId,
     );

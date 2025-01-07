@@ -170,16 +170,6 @@ model RatingAudio{
 }
 
 
-// model TypeRequest{
-//   id                  Int       @id @default(autoincrement())
-//   name                String    @unique @db.VarChar(255)
-//   storiesAudioRequest StoryAudioRequest[]
-
-//   @@map("type_requests")
-
-// }
-
-
 model AddStoryRequest{
   id            Int             @id @default(autoincrement())
   storyName     String          @map("story_name") @db.VarChar(255)
@@ -202,6 +192,8 @@ model StoryAudioRequest{
   user          User             @relation(fields: [userId], references: [id])
   storyId       Int              
   story         Story            @relation(fields: [storyId], references: [id])
+  createdAt     DateTime         @default(now())
+  updatedAt      DateTime?        
 
   @@map("story_audio_requests")
   
