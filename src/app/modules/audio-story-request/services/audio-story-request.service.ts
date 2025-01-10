@@ -4,6 +4,7 @@ import { PrintNameAndCodePrismaException } from '@/util/ExceptionUtils';
 import { MessageException } from '@/util/MessageException';
 import { DataBaseExceptionHandler } from '@/util/exception/DataBaseExceptionHandler';
 import {
+  BadRequestException,
   HttpException,
   HttpStatus,
   Injectable,
@@ -75,6 +76,59 @@ export class AudioStoryRequestService {
   ): Promise<AudioApplicationWithUserAudioResponseDto> {
     this.logger.debug('EDIT AUDIO STORY REQUEST');
 
+    if (!Status[dto.status]) {
+      throw new BadRequestException('неверный статус для заявки');
+    }
+
+    const updatedAppllication = await this.prisma.storyAudioRequest.update({
+      select: {
+        id: true,
+        user: true,
+
+        userAudio: {
+          select: {
+            id: true,
+            name: true,
+            originalName: true,
+            language: true,
+          },
+        },
+        status: true,
+        story: true,
+        comment: true,
+      },
+      where: { id: id },
+      data: {
+        status: dto.status as Status,
+        comment: dto.comment,
+      },
+    });
+
+    const appUrl = String(this.configService.get('APP_URL'));
+
+    const srcAudio: string = prepareSrcAudio({
+      appUrl: appUrl,
+      storyId: updatedAppllication.story.id,
+      userId: updatedAppllication.user.id,
+      languageId: updatedAppllication.userAudio.language.id,
+      filename: updatedAppllication.userAudio.name,
+    });
+
+    return new AudioApplicationWithUserAudioResponseDto({
+      ...updatedAppllication,
+      storyId: updatedAppllication.story.id,
+      storyName: updatedAppllication.story.name,
+      user: new AuthorAudioStoryResponseDto(updatedAppllication.user),
+      userAudio: new UserAudioWithLanguageResponseDto({
+        ...updatedAppllication.userAudio,
+        srcAudio: srcAudio,
+        language: Object.assign(
+          new LanguageDto(),
+          updatedAppllication.userAudio.language,
+        ),
+      }),
+    });
+
     throw new NotImplementedException('editAudioStoryRequest');
 
     // return await this.prisma.storyAudioRequest
@@ -134,7 +188,6 @@ export class AudioStoryRequestService {
               language: true,
             },
           },
-          typeRequest: true,
           status: true,
           story: true,
           comment: true,
