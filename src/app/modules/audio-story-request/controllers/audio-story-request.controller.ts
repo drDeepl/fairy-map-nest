@@ -63,11 +63,7 @@ export class AudioStoryRequestController {
     summary: 'получение всех заявок на озвучки для выбранного пользователя.',
     description: 'Необходима роль модератора',
   })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'Success',
-    type: [AudioStoryRequestEntity],
-  })
+  @ApiPaginatedResponse(AudioApplicationWithUserAudioResponseDto)
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
   @ApiHeader({
@@ -79,8 +75,12 @@ export class AudioStoryRequestController {
   @Get('/by-user/:userId')
   async getAllAudioStoryReqeustsByUserId(
     @Param('userId', ParseIntPipe) userId: number,
-  ): Promise<AudioApplicationWithUserAudioResponseDto[]> {
-    return await this.audioStoryRequestService.getAudioRequestsByUserId(userId);
+    @Query() query: PageOptionsRequestDto,
+  ): Promise<PageResponseDto<AudioApplicationWithUserAudioResponseDto>> {
+    return await this.audioStoryRequestService.getAudioRequestsByUserId(
+      userId,
+      query,
+    );
   }
 
   @ApiOperation({ summary: 'Создание заявки на проверку озвучки' })

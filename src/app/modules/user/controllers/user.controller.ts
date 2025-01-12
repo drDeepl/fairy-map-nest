@@ -6,6 +6,7 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  Query,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -38,6 +39,9 @@ import { AudioStoryRequestService } from '../../audio-story-request/services/aud
 import { AudioApplicationWithUserAudioResponseDto } from '../../audio-story-request/dto/audio-story-request/audio-application-with-user-audio.dto';
 import { UserAudioResponseDto } from '../../user-audio/dto/response/user-audio.response.dto';
 import { AudioStoryResponseDto } from '../../story/dto/audio-story/response/audio-story.response.dto';
+import { ApiPaginatedResponse } from '@/common/dto/response/api-paginated.response.dto';
+import { PageResponseDto } from '@/common/dto/response/page.response.dto';
+import { PageOptionsRequestDto } from '@/common/dto/request/page-options.request.dto';
 
 @ApiTags('UserController')
 @UseGuards(JwtAuthGuard)
@@ -165,12 +169,7 @@ export class UserController {
   @ApiOperation({
     summary: 'получение всех заявок на озвучки текущего пользователя',
   })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'Success',
-    isArray: true,
-    type: AudioApplicationWithUserAudioResponseDto,
-  })
+  @ApiPaginatedResponse(AudioApplicationWithUserAudioResponseDto)
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
   @ApiHeader({
@@ -181,9 +180,11 @@ export class UserController {
   @Get('story/audio/request/my')
   async getAllAudioStoryRequestsCurrentUser(
     @User() user: JwtPayload,
-  ): Promise<AudioApplicationWithUserAudioResponseDto[]> {
+    @Query() query: PageOptionsRequestDto,
+  ): Promise<PageResponseDto<AudioApplicationWithUserAudioResponseDto>> {
     return this.audioStoryRequestService.getAudioRequestsByUserId(
       parseInt(user.sub),
+      query,
     );
   }
 }

@@ -234,34 +234,44 @@ export class AudioStoryRequestService {
 
   async getAudioRequestsByUserId(
     userId: number,
-  ): Promise<AudioApplicationWithUserAudioResponseDto[]> {
+    query: PageOptionsRequestDto,
+  ): Promise<PageResponseDto<AudioApplicationWithUserAudioResponseDto>> {
     try {
-      const storyAudioRequests = await this.prisma.storyAudioRequest.findMany({
-        select: {
-          id: true,
-          userId: true,
-          userAudio: { select: { id: true, name: true, languageId: true } },
-          typeRequest: true,
-          status: true,
-          story: true,
-          createdAt: true,
-          updatedAt: true,
-          comment: true,
-        },
-        where: {
-          userId: userId,
-        },
-        orderBy: { createdAt: 'desc' },
-      });
+      const [storyAudioRequests, itemCount] = await this.prisma.$transaction([
+        this.prisma.storyAudioRequest.findMany({
+          skip: query.skip,
+          take: query.take,
+          select: {
+            id: true,
+            user: true,
+            userAudio: {
+              select: {
+                id: true,
+                name: true,
+                originalName: true,
+                language: true,
+              },
+            },
+            status: true,
+            story: true,
+            comment: true,
+          },
+          where: {
+            userId: userId,
+          },
+          orderBy: { createdAt: 'desc' },
+        }),
+        this.prisma.storyAudioRequest.count(),
+      ]);
 
       const appUrl = String(this.configService.get('APP_URL'));
 
-      return storyAudioRequests.map((request) => {
+      const dto = storyAudioRequests.map((request) => {
         const srcAudio: string = prepareSrcAudio({
           appUrl: appUrl,
           storyId: request.story.id,
-          userId: userId,
-          languageId: request.userAudio.languageId,
+          userId: request.user.id,
+          languageId: request.userAudio.language.id,
           filename: request.userAudio.name,
         });
 
@@ -269,12 +279,20 @@ export class AudioStoryRequestService {
           ...request,
           storyId: request.story.id,
           storyName: request.story.name,
+          user: new AuthorAudioStoryResponseDto(request.user),
           userAudio: new UserAudioWithLanguageResponseDto({
             ...request.userAudio,
             srcAudio: srcAudio,
+            language: Object.assign(
+              new LanguageDto(),
+              request.userAudio.language,
+            ),
           }),
         });
       });
+      const pageMetaDto = new PageMetaDto({ pageOptionsDto: query, itemCount });
+
+      return new PageResponseDto(dto, pageMetaDto);
     } catch (error) {
       PrintNameAndCodePrismaException(error, this.logger);
       throw this.dbExceptionHandler.handleError(error);
