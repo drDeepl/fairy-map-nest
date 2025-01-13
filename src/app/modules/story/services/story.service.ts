@@ -15,7 +15,7 @@ import {
   NotImplementedException,
   StreamableFile,
 } from '@nestjs/common';
-import { Language, RatingAudio, StoryAudio } from '@prisma/client';
+import { Language, RatingAudio, Story, StoryAudio } from '@prisma/client';
 import { File } from 'multer';
 
 import { AddAudioStoryDto } from '../dto/audio-story/AddAudioStoryDto';
@@ -89,24 +89,29 @@ export class StoryService {
   async getStoriesByAuthorAudioStory(
     userId: number,
   ): Promise<StoryWithImgResponseDto[]> {
-    const storiesByAuthorAudioStory = await this.prisma.story.findMany({
-      include: {
-        audios: {
-          where: {
-            author: userId,
+    const storiesByAuthorAudioStory = await this.prisma.storyAudio.findMany({
+      select: {
+        id: true,
+        author: true,
+        story: {
+          include: {
+            img: true,
+            ethnicGroup: true,
           },
         },
-        img: true,
-        ethnicGroup: true,
+      },
+      distinct: ['storyId'],
+      where: {
+        author: userId,
       },
     });
 
-    return storiesByAuthorAudioStory.map((story) => {
-      const srcImg: string | null = story.img
-        ? this.prepareSrcImg(story.id, story.img.filename)
+    return storiesByAuthorAudioStory.map((audioStory) => {
+      const srcImg: string | null = audioStory.story.img
+        ? this.prepareSrcImg(audioStory.story.id, audioStory.story.img.filename)
         : null;
 
-      return new StoryWithImgResponseDto(story, srcImg);
+      return new StoryWithImgResponseDto(audioStory.story, srcImg);
     });
   }
 
