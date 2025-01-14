@@ -573,7 +573,8 @@ export class StoryService {
     storyId: number,
     dto: AddAudioStoryDto,
   ): Promise<void> {
-     const userAudio = await this.prisma.userAudioStory.findUnique({
+    try {
+      const userAudio = await this.prisma.userAudioStory.findUnique({
         where: {
           id: dto.userAudioId,
         },
@@ -582,6 +583,7 @@ export class StoryService {
       if (!userAudio) {
         throw new NotFoundException('файл озвучки не найден');
       }
+
       await this.prisma.storyAudio.create({
         data: {
           author: dto.userId,
@@ -591,6 +593,15 @@ export class StoryService {
           userAudioId: userAudio.id,
         },
       });
+
+      // await this.prisma.storyAudio.create({
+      //   data:{
+
+      //   }
+      // })
+      // throw new NotImplementedException(
+      //   'добавление озвучки пользователя находится в разработке',
+      // );
     } catch (error) {
       if (error instanceof NotImplementedException) throw error;
       PrintNameAndCodePrismaException(error, this.logger);
