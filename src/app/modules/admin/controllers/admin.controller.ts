@@ -233,17 +233,12 @@ export class AdminController {
   })
   @UseGuards(JwtAuthGuard, RoleGuard)
   @Roles(Role.admin)
-  @Put('/story/:storyId/audio')
+  @Post('/story/:storyId/audio')
   async setUserAudioToStory(
     @Param('storyId', ParseIntPipe) storyId: number,
     @Body() dto: AddAudioStoryDto,
-    @User() user: JwtPayload,
   ): Promise<void> {
-    return this.storyService.setUserAudioToStory(
-      parseInt(user.sub),
-      storyId,
-      dto,
-    );
+    return this.storyService.setUserAudioToStory(storyId, dto);
   }
 
   @ApiOperation({

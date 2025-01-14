@@ -129,8 +129,6 @@ export class AudioStoryRequestService {
       }),
     });
 
-    throw new NotImplementedException('editAudioStoryRequest');
-
     // return await this.prisma.storyAudioRequest
     //   .update({
     //     select: {

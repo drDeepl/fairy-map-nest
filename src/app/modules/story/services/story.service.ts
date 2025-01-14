@@ -569,7 +569,6 @@ export class StoryService {
   }
 
   async setUserAudioToStory(
-    moderatorId: number,
     storyId: number,
     dto: AddAudioStoryDto,
   ): Promise<void> {

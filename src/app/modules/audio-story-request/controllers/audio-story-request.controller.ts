@@ -131,9 +131,9 @@ export class AudioStoryRequestController {
         audioStoryReqeustId,
         dto,
       );
-    await this.audioStoryRequestGateway.handleRequestAudioStory(
-      editableAudioStoryRequest,
-    );
+    // await this.audioStoryRequestGateway.handleRequestAudioStory(
+    //   editableAudioStoryRequest,
+    // );
     return editableAudioStoryRequest;
   }
 

@@ -4,6 +4,7 @@ import { IsNotEmpty, IsNumber } from 'class-validator';
 
 export class AddAudioStoryDto extends BaseAudioStoryDto {
   @ApiProperty({ description: '', nullable: false })
+  @IsNumber()
   userId: number;
 
   @ApiProperty({
