@@ -57,6 +57,20 @@ export class StoryController {
     return this.storyService.getStories(query);
   }
 
+  @ApiOperation({
+    summary: 'получение всех сказок выбранной этнической группы',
+  })
+  @ApiPaginatedResponse(StoryBookResponseDto)
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  @Get('/ethnic-group/:ethnicGroupId')
+  async getStoriesByEthnicGroupId(
+    @Param('ethnicGroupId', ParseIntPipe) ethnicGroupId: number,
+    @Query() query: PageOptionsRequestDto,
+  ): Promise<PageResponseDto<StoryBookResponseDto>> {
+    return this.storyService.getStoriesByEthnicGroup(ethnicGroupId, query);
+  }
+
   @ApiOperation({ summary: 'получение сказок, которые озвучил пользователь' })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -117,24 +131,6 @@ export class StoryController {
   @Get('/:storyId/audio/all')
   async getAudiosByStoryId(@Param('storyId', ParseIntPipe) storyId: number) {
     return this.storyService.getAudiosForStory(storyId);
-  }
-
-  @ApiOperation({
-    summary: 'получение всех сказок выбранной этнической группы',
-  })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'Success',
-    isArray: true,
-    type: StoryBookResponseDto,
-  })
-  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
-  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
-  @Get('/ethnic-group/:ethnicGroupId')
-  async getStoriesByEthnicGroupId(
-    @Param('ethnicGroupId', ParseIntPipe) ethnicGroupId: number,
-  ): Promise<StoryBookResponseDto[]> {
-    return this.storyService.getStoriesByEthnicGroup(ethnicGroupId);
   }
 
   @ApiOperation({ summary: 'получение текста сказки' })

@@ -161,26 +161,40 @@ export class StoryService {
 
   async getStoriesByEthnicGroup(
     ethnicGroupId: number,
-  ): Promise<StoryBookResponseDto[]> {
-    const stories = await this.prisma.story.findMany({
-      select: {
-        id: true,
-        name: true,
-        ethnicGroup: true,
+    query: PageOptionsRequestDto,
+  ): Promise<PageResponseDto<StoryBookResponseDto>> {
+    const [stories, itemCount] = await this.prisma.$transaction([
+      this.prisma.story.findMany({
+        skip: query.skip,
+        take: query.take,
+        select: {
+          id: true,
+          name: true,
+          ethnicGroup: true,
 
-        img: true,
-      },
-      where: {
-        ethnicGroupId: ethnicGroupId,
-      },
-    });
-    return stories.map((story) => {
+          img: true,
+        },
+        where: {
+          ethnicGroupId: ethnicGroupId,
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+      }),
+      this.prisma.story.count(),
+    ]);
+
+    const storiesDto = stories.map((story) => {
       const srcImg: string | null = story.img
         ? this.prepareSrcImg(story.id, story.img.filename)
         : null;
 
       return new StoryBookResponseDto(story, srcImg);
     });
+
+    const pageMetaDto = new PageMetaDto({ pageOptionsDto: query, itemCount });
+
+    return new PageResponseDto(storiesDto, pageMetaDto);
   }
 
   async getStoryById(storyId: number): Promise<StoryDto | null> {
