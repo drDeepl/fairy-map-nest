@@ -22,6 +22,10 @@ model User {
   email             String          @unique @db.VarChar(128)
   passwordHash      String          @map("password_hash")
   refreshToken      String?         @map("refresh_token") @db.VarChar(255)
+  createdAt     DateTime         @default(now())
+  updatedAt      DateTime?        
+
+
   storyAudios       StoryAudio[]
   ratings           RatingAudio[]
   addStoryRequests  AddStoryRequest[]
@@ -79,6 +83,9 @@ model ConstituentsRFOnEthnicGroup{
 model Language{
   id            Int       @id @default(autoincrement())
   name          String    @unique @db.VarChar(255)
+  createdAt     DateTime         @default(now())
+  updatedAt      DateTime?        
+
   ethnicGroup   EthnicGroup?
   userStories   UserAudioStory[]
   storiesAudio  StoryAudio[]
@@ -111,6 +118,9 @@ model Story{
   name                String      @unique @db.VarChar(255)
   ethnicGroupId       Int         @map("ethnic_group_id")
   ethnicGroup         EthnicGroup @relation(fields: [ethnicGroupId], references: [id])
+  createdAt           DateTime         @default(now())
+  updatedAt           DateTime?        
+
   audios              StoryAudio[]
   text                TextStory?
   img                 ImgStory?
@@ -130,6 +140,9 @@ model StoryAudio{
   language      Language        @relation(fields:[languageId], references: [id])
   moderateScore Float
   userAudioId   Int             @unique() @map("user_audio_id")
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime?        
+ 
   userAudio     UserAudioStory  @relation(fields:[userAudioId], references: [id], onDelete: Cascade)
   ratings       RatingAudio[]
 
@@ -147,6 +160,9 @@ model UserAudioStory{
   languageId         Int         @map("language_id")
   language           Language    @relation(fields:[languageId], references: [id])
   pathAudio          String      @db.VarChar(255)
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime?        
+
   storyAudio         StoryAudio?
   storyAudioRequests StoryAudioRequest[]
 
@@ -163,7 +179,8 @@ model RatingAudio{
   storyAudioId  Int        @map("story_audio_id")
   storyAudio    StoryAudio @relation(fields: [storyAudioId], references: [id])
   rating        Float
-
+  createdAt     DateTime         @default(now())
+  updatedAt      DateTime?        
 
   @@map("audios_rating")
 
@@ -177,6 +194,9 @@ model AddStoryRequest{
   comment       String          @db.Text @default("")
   userId        Int             @map("user_id")
   user          User            @relation(fields: [userId], references: [id])
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime?        
+
   @@map("add_story_requests")
 }
 

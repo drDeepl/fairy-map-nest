@@ -9,6 +9,7 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  Query,
   Res,
   StreamableFile,
   UseGuards,
@@ -28,10 +29,13 @@ import { TextStoryDto } from '../dto/text-story/TextStoryDto';
 import { RatingAudioStoryEntity } from '../entity/rating-audio-story/RatingAudioStoryEntity';
 import { MessageResponseDto } from '@/common/dto/response/message.response.dto';
 import { ConfigService } from '@nestjs/config';
-import { StoryWithImgResponseDto } from '../dto/story/response/story-with-img.response.dto';
+import { StoryBookResponseDto } from '../dto/story/response/story-with-img.response.dto';
 import { AudioStoryResponseDto } from '../dto/audio-story/response/audio-story.response.dto';
 import { PreviewAudioStoryResponseDto } from '../dto/audio-story/response/preview-audio-story.response.dto';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
+import { ApiPaginatedResponse } from '@/common/dto/response/api-paginated.response.dto';
+import { PageResponseDto } from '@/common/dto/response/page.response.dto';
+import { PageOptionsRequestDto } from '@/common/dto/request/page-options.request.dto';
 
 @ApiTags('StoryController')
 @Controller('story')
@@ -43,17 +47,14 @@ export class StoryController {
   ) {}
 
   @ApiOperation({ summary: 'получение всех сказок' })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'Success',
-    isArray: true,
-    type: StoryWithImgResponseDto,
-  })
+  @ApiPaginatedResponse(StoryBookResponseDto)
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
   @Get('/all')
-  async getAllStories(): Promise<StoryWithImgResponseDto[]> {
-    return this.storyService.getStories();
+  async getAllStories(
+    @Query() query: PageOptionsRequestDto,
+  ): Promise<PageResponseDto<StoryBookResponseDto>> {
+    return this.storyService.getStories(query);
   }
 
   @ApiOperation({ summary: 'получение сказок, которые озвучил пользователь' })
@@ -61,14 +62,14 @@ export class StoryController {
     status: HttpStatus.OK,
     description: 'Success',
     isArray: true,
-    type: StoryWithImgResponseDto,
+    type: StoryBookResponseDto,
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
   @Get('/audio/user/:userId')
   async getStoriesByAuthorAudioStory(
     @Param('userId', ParseIntPipe) userId: number,
-  ): Promise<StoryWithImgResponseDto[]> {
+  ): Promise<StoryBookResponseDto[]> {
     return this.storyService.getStoriesByAuthorAudioStory(userId);
   }
 
@@ -125,14 +126,14 @@ export class StoryController {
     status: HttpStatus.OK,
     description: 'Success',
     isArray: true,
-    type: StoryWithImgResponseDto,
+    type: StoryBookResponseDto,
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
   @Get('/ethnic-group/:ethnicGroupId')
   async getStoriesByEthnicGroupId(
     @Param('ethnicGroupId', ParseIntPipe) ethnicGroupId: number,
-  ): Promise<StoryWithImgResponseDto[]> {
+  ): Promise<StoryBookResponseDto[]> {
     return this.storyService.getStoriesByEthnicGroup(ethnicGroupId);
   }
 

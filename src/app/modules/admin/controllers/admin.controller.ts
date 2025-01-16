@@ -37,7 +37,7 @@ import { AddAudioStoryDto } from '../../story/dto/audio-story/AddAudioStoryDto';
 
 import { FileInterceptor } from '@nestjs/platform-express';
 
-import { StoryWithImgResponseDto } from '../../story/dto/story/response/story-with-img.response.dto';
+import { StoryBookResponseDto } from '../../story/dto/story/response/story-with-img.response.dto';
 import { CurrentUser } from '@/common/decorators/user.decorator';
 import { AudioStoryResponseDto } from '../../story/dto/audio-story/response/audio-story.response.dto';
 import { UserAudioService } from '../../user-audio/services/user-audio.service';
@@ -283,7 +283,7 @@ export class AdminController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Success',
-    type: StoryWithImgResponseDto,
+    type: StoryBookResponseDto,
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
@@ -299,7 +299,7 @@ export class AdminController {
   async uploadStoryImage(
     @UploadedFile() file: File,
     @Param('storyId', ParseIntPipe) storyId: number,
-  ): Promise<StoryWithImgResponseDto> {
+  ): Promise<StoryBookResponseDto> {
     return await this.storyService.createImgForStoryOrUpdateIfExists(
       storyId,
       file,

@@ -36,7 +36,7 @@ import { ConfigService } from '@nestjs/config';
 import { promises as fsPromises } from 'fs';
 import * as fs from 'node:fs';
 import { join } from 'path';
-import { StoryWithImgResponseDto } from '../dto/story/response/story-with-img.response.dto';
+import { StoryBookResponseDto } from '../dto/story/response/story-with-img.response.dto';
 import { StoryExtendImg } from '../dto/story/interfaces/story-extend-img';
 import { AddAudioStoryAdminParams } from '../interfaces/add-audio-story-admin.params';
 import { AudioStoryResponseDto } from '../dto/audio-story/response/audio-story.response.dto';
@@ -48,6 +48,9 @@ import {
   preparePathToAudioUpload,
   prepareSrcAudio,
 } from '@/common/helpers/path-upload';
+import { PageOptionsRequestDto } from '@/common/dto/request/page-options.request.dto';
+import { PageResponseDto } from '@/common/dto/response/page.response.dto';
+import { PageMetaDto } from '@/common/dto/page-meta.dto';
 
 @Injectable()
 export class StoryService {
@@ -66,29 +69,41 @@ export class StoryService {
     return `${this.configService.get('APP_URL')}/uploads/img/${storyId}/${filename}`;
   }
 
-  async getStories(): Promise<StoryWithImgResponseDto[]> {
-    const stories = await this.prisma.story.findMany({
-      select: {
-        id: true,
-        name: true,
-        ethnicGroup: true,
-
-        img: true,
-      },
-    });
-
-    return stories.map((story) => {
+  async getStories(
+    query: PageOptionsRequestDto,
+  ): Promise<PageResponseDto<StoryBookResponseDto>> {
+    const [stories, itemCount] = await this.prisma.$transaction([
+      this.prisma.story.findMany({
+        skip: query.skip,
+        take: query.take,
+        select: {
+          id: true,
+          name: true,
+          ethnicGroup: true,
+          img: true,
+          text: true,
+        },
+        orderBy: { createdAt: 'desc' },
+      }),
+      this.prisma.story.count(),
+    ]);
+    const storiesDto = stories.map((story) => {
       const srcImg: string | null = story.img
         ? this.prepareSrcImg(story.id, story.img.filename)
         : null;
-
-      return new StoryWithImgResponseDto(story, srcImg);
+      return new StoryBookResponseDto(
+        { ...story, text: story.text.text },
+        srcImg,
+      );
     });
+
+    const pageMetaDto = new PageMetaDto({ pageOptionsDto: query, itemCount });
+    return new PageResponseDto(storiesDto, pageMetaDto);
   }
 
   async getStoriesByAuthorAudioStory(
     userId: number,
-  ): Promise<StoryWithImgResponseDto[]> {
+  ): Promise<StoryBookResponseDto[]> {
     const storiesByAuthorAudioStory = await this.prisma.storyAudio.findMany({
       select: {
         id: true,
@@ -111,7 +126,7 @@ export class StoryService {
         ? this.prepareSrcImg(audioStory.story.id, audioStory.story.img.filename)
         : null;
 
-      return new StoryWithImgResponseDto(audioStory.story, srcImg);
+      return new StoryBookResponseDto(audioStory.story, srcImg);
     });
   }
 
@@ -146,7 +161,7 @@ export class StoryService {
 
   async getStoriesByEthnicGroup(
     ethnicGroupId: number,
-  ): Promise<StoryWithImgResponseDto[]> {
+  ): Promise<StoryBookResponseDto[]> {
     const stories = await this.prisma.story.findMany({
       select: {
         id: true,
@@ -164,7 +179,7 @@ export class StoryService {
         ? this.prepareSrcImg(story.id, story.img.filename)
         : null;
 
-      return new StoryWithImgResponseDto(story, srcImg);
+      return new StoryBookResponseDto(story, srcImg);
     });
   }
 
@@ -672,7 +687,7 @@ export class StoryService {
   async createImgForStoryOrUpdateIfExists(
     storyId: number,
     file: File,
-  ): Promise<StoryWithImgResponseDto> {
+  ): Promise<StoryBookResponseDto> {
     try {
       const srcUrl = `${this.configService.get('APP_URL')}/uploads/img/${storyId}`;
       const storyImg = await this.prisma.imgStory.findUnique({
@@ -696,7 +711,7 @@ export class StoryService {
             },
           },
         });
-        return new StoryWithImgResponseDto(
+        return new StoryBookResponseDto(
           createdImgStory.story,
           `${srcUrl}/${createdImgStory.filename}`,
         );
@@ -718,7 +733,7 @@ export class StoryService {
             },
           },
         });
-        return new StoryWithImgResponseDto(
+        return new StoryBookResponseDto(
           updatedStoryImg.story,
           `${srcUrl}/${updatedStoryImg.filename}`,
         );
