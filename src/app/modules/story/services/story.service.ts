@@ -101,6 +101,32 @@ export class StoryService {
     return new PageResponseDto(storiesDto, pageMetaDto);
   }
 
+  async searchStoryByName(name: string): Promise<StoryBookResponseDto[]> {
+    const foundStories = await this.prisma.story.findMany({
+      where: {
+        name: {
+          contains: name,
+          mode: 'insensitive',
+        },
+      },
+      include: {
+        img: true,
+        text: true,
+        ethnicGroup: true,
+      },
+    });
+
+    return foundStories.map((story) => {
+      const srcImg: string | null = story.img
+        ? this.prepareSrcImg(story.id, story.img.filename)
+        : null;
+      return new StoryBookResponseDto(
+        { ...story, text: story.text.text },
+        srcImg,
+      );
+    });
+  }
+
   async getStoriesByAuthorAudioStory(
     userId: number,
   ): Promise<StoryBookResponseDto[]> {

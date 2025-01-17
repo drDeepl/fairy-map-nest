@@ -14,7 +14,13 @@ import {
   StreamableFile,
   UseGuards,
 } from '@nestjs/common';
-import { ApiHeader, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiHeader,
+  ApiOkResponse,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { StoryService } from '../services/story.service';
 import { JwtPayload } from '@/app/modules/auth/interface/jwt-payload.interface';
 import { User } from '@/util/decorators/User';
@@ -36,6 +42,7 @@ import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { ApiPaginatedResponse } from '@/common/dto/response/api-paginated.response.dto';
 import { PageResponseDto } from '@/common/dto/response/page.response.dto';
 import { PageOptionsRequestDto } from '@/common/dto/request/page-options.request.dto';
+import { SearchStoryOptionsRequestDto } from '../dto/story/request/search-story-options.request.dto';
 
 @ApiTags('StoryController')
 @Controller('story')
@@ -55,6 +62,18 @@ export class StoryController {
     @Query() query: PageOptionsRequestDto,
   ): Promise<PageResponseDto<StoryBookResponseDto>> {
     return this.storyService.getStories(query);
+  }
+
+  @ApiOperation({ summary: 'поиск сказки по имени' })
+  // @ApiPaginatedResponse(StoryBookResponseDto)
+  @ApiOkResponse({ isArray: true, type: StoryBookResponseDto })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  @Get('/search')
+  async searchStoryByName(
+    @Query() query: SearchStoryOptionsRequestDto,
+  ): Promise<StoryBookResponseDto[]> {
+    return this.storyService.searchStoryByName(query.name);
   }
 
   @ApiOperation({
