@@ -51,6 +51,7 @@ import {
 import { PageOptionsRequestDto } from '@/common/dto/request/page-options.request.dto';
 import { PageResponseDto } from '@/common/dto/response/page.response.dto';
 import { PageMetaDto } from '@/common/dto/page-meta.dto';
+import { SearchStoryOptionsRequestDto } from '../dto/story/request/search-story-options.request.dto';
 
 @Injectable()
 export class StoryService {
@@ -101,22 +102,30 @@ export class StoryService {
     return new PageResponseDto(storiesDto, pageMetaDto);
   }
 
-  async searchStoryByName(name: string): Promise<StoryBookResponseDto[]> {
-    const foundStories = await this.prisma.story.findMany({
-      where: {
-        name: {
-          contains: name,
-          mode: 'insensitive',
+  async searchStoryByName(
+    query: SearchStoryOptionsRequestDto,
+  ): Promise<PageResponseDto<StoryBookResponseDto>> {
+    const [foundStories, itemCount] = await this.prisma.$transaction([
+      this.prisma.story.findMany({
+        skip: query.skip,
+        take: query.take,
+        where: {
+          name: {
+            contains: query.name,
+            mode: 'insensitive',
+          },
         },
-      },
-      include: {
-        img: true,
-        text: true,
-        ethnicGroup: true,
-      },
-    });
+        include: {
+          img: true,
+          text: true,
+          ethnicGroup: true,
+        },
+        orderBy: { createdAt: 'desc' },
+      }),
+      this.prisma.story.count(),
+    ]);
 
-    return foundStories.map((story) => {
+    const storiesDto = foundStories.map((story) => {
       const srcImg: string | null = story.img
         ? this.prepareSrcImg(story.id, story.img.filename)
         : null;
@@ -125,6 +134,9 @@ export class StoryService {
         srcImg,
       );
     });
+
+    const pageMetaDto = new PageMetaDto({ pageOptionsDto: query, itemCount });
+    return new PageResponseDto(storiesDto, pageMetaDto);
   }
 
   async getStoriesByAuthorAudioStory(

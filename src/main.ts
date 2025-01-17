@@ -2,7 +2,7 @@ import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 
 import { AppModule } from './app/app.module';
-import { SocketIOAdapter } from './shared/ws-story-request/socket-io-adapter';
+import { SocketIOAdapter } from './shared/ws-story/socket-io-adapter';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { ConfigService } from '@nestjs/config';
 import { AppConfig } from './config/interfaces/app-environment.interface';

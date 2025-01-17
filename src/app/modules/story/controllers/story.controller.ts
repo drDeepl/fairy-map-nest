@@ -64,16 +64,19 @@ export class StoryController {
     return this.storyService.getStories(query);
   }
 
-  @ApiOperation({ summary: 'поиск сказки по имени' })
-  // @ApiPaginatedResponse(StoryBookResponseDto)
-  @ApiOkResponse({ isArray: true, type: StoryBookResponseDto })
+  @ApiOperation({
+    summary: 'поиск сказки по имени',
+    description:
+      'для работы с websockets используется событие searchStoryByName для отправления запроса и searchResultStoryByName для получения результатов',
+  })
+  @ApiPaginatedResponse(StoryBookResponseDto)
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
   @Get('/search')
   async searchStoryByName(
     @Query() query: SearchStoryOptionsRequestDto,
-  ): Promise<StoryBookResponseDto[]> {
-    return this.storyService.searchStoryByName(query.name);
+  ): Promise<PageResponseDto<StoryBookResponseDto>> {
+    return this.storyService.searchStoryByName(query);
   }
 
   @ApiOperation({

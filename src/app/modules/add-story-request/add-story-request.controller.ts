@@ -3,7 +3,7 @@ import { Role } from '@/util/Constants';
 import { Roles } from '@/util/decorators/Roles';
 import { User } from '@/util/decorators/User';
 import { RoleGuard } from '@/util/guards/role.guard';
-import { StoryRequestGateway } from '@/shared/ws-story-request/ws-story-request.gateway';
+import { StoryRequestGateway } from '@/shared/ws-story/ws-story.gateway';
 import {
   Body,
   Controller,
@@ -19,7 +19,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
+
 import {
   ApiHeader,
   ApiOperation,
@@ -39,10 +39,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 export class AddStoryRequestController {
   private readonly logger = new Logger(AddStoryRequestController.name);
 
-  constructor(
-    private readonly addStoryReqService: AddStoryRequestService,
-    private readonly addStoryRequestGateway: StoryRequestGateway,
-  ) {}
+  constructor(private readonly addStoryReqService: AddStoryRequestService) {}
 
   @ApiOperation({
     summary: 'получение всех заявок на добавление сказки',
@@ -178,7 +175,7 @@ export class AddStoryRequestController {
     try {
       const editedRequest: AddStoryRequestEntity =
         await this.addStoryReqService.editStatusById(addStoryRequestId, dto);
-      await this.addStoryRequestGateway.handleRequestAddStory(editedRequest);
+
       return editedRequest;
     } catch (error) {
       throw new HttpException(error.message, error.status);

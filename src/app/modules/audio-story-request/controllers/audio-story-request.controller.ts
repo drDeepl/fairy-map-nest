@@ -2,7 +2,7 @@ import { Role } from '@/util/Constants';
 import { Roles } from '@/util/decorators/Roles';
 
 import { RoleGuard } from '@/util/guards/role.guard';
-import { StoryRequestGateway } from '@/shared/ws-story-request/ws-story-request.gateway';
+import { StoryRequestGateway } from '@/shared/ws-story/ws-story.gateway';
 import {
   Body,
   Controller,

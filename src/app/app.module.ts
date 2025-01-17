@@ -15,7 +15,7 @@ import { PrismaModule } from '../prisma/prisma.module';
 import { RequestModule } from './modules/request/request.module';
 import { StoryModule } from './modules/story/story.module';
 import { UserAudioModule } from './modules/user-audio/user-audio.module';
-import { WsStoryRequestModule } from '../shared/ws-story-request/ws-story-request.module';
+import { WebSocketStoryModule } from '../shared/ws-story/ws-story.module';
 import { AddStoryRequestModule } from './modules/add-story-request/add-story-request.module';
 import { environmentsVariablesValidationSchema } from '../config/validation/schemas/environment-validation.schema';
 import { ServeStaticModule } from '@nestjs/serve-static';
@@ -43,9 +43,9 @@ import { AdminModule } from './modules/admin/admin.module';
     AudioStoryRequestModule,
     RequestModule,
     AddStoryRequestModule,
-    WsStoryRequestModule,
     UserModule,
     AdminModule,
+    WebSocketStoryModule,
   ],
   controllers: [],
   providers: [],
