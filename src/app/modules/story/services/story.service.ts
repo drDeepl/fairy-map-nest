@@ -52,6 +52,7 @@ import { PageOptionsRequestDto } from '@/common/dto/request/page-options.request
 import { PageResponseDto } from '@/common/dto/response/page.response.dto';
 import { PageMetaDto } from '@/common/dto/page-meta.dto';
 import { SearchStoryOptionsRequestDto } from '../dto/story/request/search-story-options.request.dto';
+import { StoryBookWithAudiosResponseDto } from '../dto/story/response/story-book-with-audios.response.dto';
 
 @Injectable()
 export class StoryService {
@@ -234,6 +235,85 @@ export class StoryService {
 
     return new PageResponseDto(storiesDto, pageMetaDto);
   }
+
+  async getStoriesWithAudiosByEthnicGroup(
+    ethnicGroupId: number,
+    query: PageOptionsRequestDto,
+  ) {
+    const [stories, itemCount] = await this.prisma.$transaction([
+      this.prisma.story.findMany({
+        skip: query.skip,
+        take: query.take,
+        select: {
+          id: true,
+          name: true,
+          ethnicGroup: true,
+          text: true,
+          audios: {
+            select: {
+              id: true,
+              moderateScore: true,
+              authors: true,
+              userAudio: {
+                select: {
+                  userId: true,
+                  name: true,
+                  language: true,
+                },
+              },
+            },
+          },
+          img: true,
+        },
+        where: {
+          ethnicGroupId: ethnicGroupId,
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+      }),
+      this.prisma.story.count(),
+    ]);
+
+    const storiesDto = stories.map((story) => {
+      const srcImg: string | null = story.img
+        ? this.prepareSrcImg(story.id, story.img.filename)
+        : null;
+
+      const dtoAudios: AudioResponseDto[] = story.audios.map((audio) => {
+        const appUrl = String(this.configService.get('APP_URL'));
+        const srcAudio = prepareSrcAudio({
+          appUrl: appUrl,
+          storyId: story.id,
+          userId: audio.userAudio.userId,
+          languageId: audio.userAudio.language.id,
+          filename: audio.userAudio.name,
+        });
+        const languageDto = new LanguageDto();
+        languageDto.id = audio.userAudio.language.id;
+        languageDto.name = audio.userAudio.language.name;
+        return new AudioResponseDto({
+          id: audio.id,
+          language: languageDto,
+          srcAudio: srcAudio,
+          author: new AuthorAudioStoryResponseDto(audio.authors),
+          moderateScore: audio.moderateScore,
+        });
+      });
+
+      return new StoryBookWithAudiosResponseDto({
+        ...story,
+        text: story.text.text,
+        srcImg,
+        audios: dtoAudios,
+      });
+    });
+
+    const pageMetaDto = new PageMetaDto({ pageOptionsDto: query, itemCount });
+
+    return new PageResponseDto(storiesDto, pageMetaDto);
+  }
+
 
   async getStoryById(storyId: number): Promise<StoryDto | null> {
     try {

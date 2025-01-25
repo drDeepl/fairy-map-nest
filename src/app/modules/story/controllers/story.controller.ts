@@ -93,6 +93,24 @@ export class StoryController {
     return this.storyService.getStoriesByEthnicGroup(ethnicGroupId, query);
   }
 
+  @ApiOperation({
+    summary:
+      'получение всех сказок выбранной этнической группы и озвучек для них',
+  })
+  @ApiPaginatedResponse(StoryBookResponseDto)
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
+  @Get('/ethnic-group/books/:ethnicGroupId')
+  async getStoriesWithAudiosByEthnicGroupId(
+    @Param('ethnicGroupId', ParseIntPipe) ethnicGroupId: number,
+    @Query() query: PageOptionsRequestDto,
+  ): Promise<PageResponseDto<StoryBookResponseDto>> {
+    return this.storyService.getStoriesWithAudiosByEthnicGroup(
+      ethnicGroupId,
+      query,
+    );
+  }
+
   @ApiOperation({ summary: 'получение сказок, которые озвучил пользователь' })
   @ApiResponse({
     status: HttpStatus.OK,
