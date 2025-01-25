@@ -43,6 +43,7 @@ import { ApiPaginatedResponse } from '@/common/dto/response/api-paginated.respon
 import { PageResponseDto } from '@/common/dto/response/page.response.dto';
 import { PageOptionsRequestDto } from '@/common/dto/request/page-options.request.dto';
 import { SearchStoryOptionsRequestDto } from '../dto/story/request/search-story-options.request.dto';
+import { StoryBookWithAudiosResponseDto } from '../dto/story/response/story-book-with-audios.response.dto';
 
 @ApiTags('StoryController')
 @Controller('story')
@@ -97,14 +98,14 @@ export class StoryController {
     summary:
       'получение всех сказок выбранной этнической группы и озвучек для них',
   })
-  @ApiPaginatedResponse(StoryBookResponseDto)
+  @ApiPaginatedResponse(StoryBookWithAudiosResponseDto)
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
   @Get('/ethnic-group/books/:ethnicGroupId')
   async getStoriesWithAudiosByEthnicGroupId(
     @Param('ethnicGroupId', ParseIntPipe) ethnicGroupId: number,
     @Query() query: PageOptionsRequestDto,
-  ): Promise<PageResponseDto<StoryBookResponseDto>> {
+  ): Promise<PageResponseDto<StoryBookWithAudiosResponseDto>> {
     return this.storyService.getStoriesWithAudiosByEthnicGroup(
       ethnicGroupId,
       query,
