@@ -39,20 +39,38 @@ export class PrismaService
       fs.readFileSync(ethnicGroupsFilePath, 'utf8'),
     );
 
-    ethnicGroupsJson.forEach(async (ethnicGroup) => {
+    ethnicGroupsJson.forEach(async (ethnicGroup: any) => {
       const language = await this.language.create({
         data: {
           name: ethnicGroup.language_name,
         },
       });
 
-      await this.ethnicGroup.create({
+      const newEthnicGroup = await this.ethnicGroup.create({
         data: {
           id: Number(ethnicGroup.id) + 1,
           name: ethnicGroup.name,
           languageId: language.id,
         },
       });
+
+      if (ethnicGroup.stories.length > 0) {
+        ethnicGroup.stories.forEach(async (story) => {
+          const newStory = await this.story.create({
+            data: {
+              name: story.story_name,
+              ethnicGroupId: newEthnicGroup.id,
+            },
+          });
+
+          await this.textStory.create({
+            data: {
+              storyId: newStory.id,
+              text: story.text,
+            },
+          });
+        });
+      }
     });
   }
   async onModuleDestroy() {
