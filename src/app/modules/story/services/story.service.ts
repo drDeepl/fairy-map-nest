@@ -238,42 +238,39 @@ export class StoryService {
 
   async getStoriesWithAudiosByEthnicGroup(
     ethnicGroupId: number,
-    query: PageOptionsRequestDto,
-  ) {
-    const [stories, itemCount] = await this.prisma.$transaction([
-      this.prisma.story.findMany({
-        skip: query.skip,
-        take: query.take,
-        select: {
-          id: true,
-          name: true,
-          ethnicGroup: true,
-          text: true,
-          audios: {
-            select: {
-              id: true,
-              moderateScore: true,
-              authors: true,
-              userAudio: {
-                select: {
-                  userId: true,
-                  name: true,
-                  language: true,
-                },
+  ): Promise<StoryBookWithAudiosResponseDto[]> {
+    const stories = await this.prisma.story.findMany({
+      select: {
+        id: true,
+        name: true,
+        ethnicGroup: true,
+        text: true,
+        audios: {
+          select: {
+            id: true,
+            moderateScore: true,
+            authors: true,
+            userAudio: {
+              select: {
+                userId: true,
+                name: true,
+                language: true,
               },
             },
           },
-          img: true,
+          orderBy: {
+            commonRating: 'desc',
+          },
         },
-        where: {
-          ethnicGroupId: ethnicGroupId,
-        },
-        orderBy: {
-          createdAt: 'desc',
-        },
-      }),
-      this.prisma.story.count(),
-    ]);
+        img: true,
+      },
+      where: {
+        ethnicGroupId: ethnicGroupId,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
 
     const storiesDto = stories.map((story) => {
       const srcImg: string | null = story.img
@@ -309,11 +306,8 @@ export class StoryService {
       });
     });
 
-    const pageMetaDto = new PageMetaDto({ pageOptionsDto: query, itemCount });
-
-    return new PageResponseDto(storiesDto, pageMetaDto);
+    return storiesDto;
   }
-
 
   async getStoryById(storyId: number): Promise<StoryDto | null> {
     try {
