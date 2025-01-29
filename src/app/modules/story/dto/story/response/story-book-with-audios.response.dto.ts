@@ -35,7 +35,7 @@ export class StoryBookWithAudiosResponseDto {
 
   @ApiProperty({
     description: 'одобренные озвучки для сказки',
-    type: () => AudioResponseDto,
+    type: () => AudioStoryResponseDto,
     isArray: true,
   })
   audios: AudioStoryResponseDto[];
