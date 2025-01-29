@@ -3,6 +3,7 @@ import { AudioResponseDto } from '../../audio-story/response/audio-response.dto'
 
 import { EthnicGroupDto } from '@/app/modules/ethnic-group/dto/EthnicGroupDto';
 import { IsInt, IsNotEmpty } from 'class-validator';
+import { AudioStoryResponseDto } from '../../audio-story/response/audio-story.response.dto';
 
 export class StoryBookWithAudiosResponseDto {
   @ApiProperty({ description: 'id сказки', nullable: false })
@@ -37,7 +38,7 @@ export class StoryBookWithAudiosResponseDto {
     type: () => AudioResponseDto,
     isArray: true,
   })
-  audios: AudioResponseDto[];
+  audios: AudioStoryResponseDto[];
 
   constructor(dto: Partial<StoryBookWithAudiosResponseDto>) {
     this.id = dto.id;

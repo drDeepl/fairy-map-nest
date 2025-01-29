@@ -20,14 +20,14 @@ export class AudioStoryResponseDto {
   author: AuthorAudioStoryResponseDto;
 
   @ApiProperty({ description: 'рейтинг озвучки' })
-  moderateScore: number;
+  commonRating: number;
 
   constructor(dto: Partial<AudioStoryResponseDto>) {
     this.id = dto.id;
     this.srcAudio = dto.srcAudio;
     this.language = dto.language;
     this.storyId = dto.storyId;
-    this.moderateScore = dto.moderateScore;
+    this.commonRating = dto.commonRating;
     this.author = dto.author;
   }
 }

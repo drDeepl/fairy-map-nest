@@ -248,7 +248,7 @@ export class StoryService {
         audios: {
           select: {
             id: true,
-            moderateScore: true,
+            commonRating: true,
             authors: true,
             userAudio: {
               select: {
@@ -277,7 +277,7 @@ export class StoryService {
         ? this.prepareSrcImg(story.id, story.img.filename)
         : null;
 
-      const dtoAudios: AudioResponseDto[] = story.audios.map((audio) => {
+      const dtoAudios: AudioStoryResponseDto[] = story.audios.map((audio) => {
         const appUrl = String(this.configService.get('APP_URL'));
         const srcAudio = prepareSrcAudio({
           appUrl: appUrl,
@@ -289,12 +289,13 @@ export class StoryService {
         const languageDto = new LanguageDto();
         languageDto.id = audio.userAudio.language.id;
         languageDto.name = audio.userAudio.language.name;
-        return new AudioResponseDto({
+        return new AudioStoryResponseDto({
           id: audio.id,
+          storyId: story.id,
           language: languageDto,
           srcAudio: srcAudio,
           author: new AuthorAudioStoryResponseDto(audio.authors),
-          moderateScore: audio.moderateScore,
+          commonRating: audio.commonRating,
         });
       });
 
@@ -340,7 +341,7 @@ export class StoryService {
           audios: {
             select: {
               id: true,
-              moderateScore: true,
+              commonRating: true,
               authors: true,
               userAudio: {
                 select: {
@@ -375,7 +376,7 @@ export class StoryService {
               language: languageDto,
               srcAudio: srcAudio,
               author: new AuthorAudioStoryResponseDto(audio.authors),
-              moderateScore: audio.moderateScore,
+              commonRating: audio.commonRating,
             });
           });
 
@@ -654,7 +655,7 @@ export class StoryService {
           authors: true,
           storyId: true,
           language: true,
-          moderateScore: true,
+          commonRating: true,
         },
         data: {
           author: params.userId,
@@ -933,9 +934,6 @@ export class StoryService {
         storyAudio.userAudioId,
       );
     } catch (error) {
-      // if (error.name === 'BadRequestException') {
-      //   throw new BadRequestException(error.message);
-      // }
       PrintNameAndCodePrismaException(error, this.logger);
       throw this.dbExceptionHandler.handleError(error);
     }
@@ -985,7 +983,7 @@ export class StoryService {
             id: dto.audioId,
           },
           data: {
-            moderateScore: totalRatingAudio._avg.rating,
+            commonRating: totalRatingAudio._avg.rating,
           },
         });
 
