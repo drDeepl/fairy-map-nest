@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 
 import * as fs from 'fs';
-import { Language, Story } from '@prisma/client';
+import { Language } from '@prisma/client';
 import { preparePathToAudioUpload } from '@/common/helpers/path-upload';
 import { StoryDto } from '../../app/modules/story/dto/story/StoryDto';
 
@@ -123,6 +123,9 @@ export const multerFactory = async (
         if (file.fieldname === 'file') {
           imgFilename(req, file, cb);
         } else if (file.fieldname === 'audio') {
+          file.originalname = Buffer.from(file.originalname, 'latin1').toString(
+            'utf8',
+          );
           audioFilename(req, file, cb);
         } else {
           cb(new BadRequestException('неверное название поля'));
