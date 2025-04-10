@@ -1,0 +1,146 @@
+@startuml JWT
+
+!define ICONURL https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/v2.4.0
+!includeurl ICONURL/font-awesome-5/user.puml
+!includeurl ICONURL/font-awesome-5/user_shield.puml
+!includeurl ICONURL/font-awesome-5/user_cog.puml
+!includeurl ICONURL/font-awesome-5/server.puml
+!includeurl ICONURL/font-awesome-5/database.puml
+
+skinparam backgroundColor white
+skinparam handwritten false
+skinparam sequenceMessageAlign center
+skinparam sequenceArrowThickness 1
+skinparam roundcorner 5
+
+' Actors and Systems
+actor "Пользователь\n(User)" as User
+actor "Модератор\n(Moderator)" as Moderator
+actor "Администратор\n(Admin)" as Admin
+participant "Клиент\n(Frontend)" as Client
+participant "Сервер\nаутентификации" as AuthServer
+participant "API\nресурсов" as ResourceAPI
+database "База\nданных" as DB
+
+title "JWT авторизация для различных ролей пользователей"
+
+' Legend with JWT structure explanation
+legend right
+  <b>Структура JWT токена:</b>
+  
+  header.payload.signature
+
+  <b>Пример для USER:</b>
+  eyJhbGciOiJIUzI1NiJ9.
+  eyJzdWIiOiJ1c2VyIiwicm9sZSI6IlVTRVIiLCJleHAiOjE2MTY0MjYyMjJ9.
+  AbCdEf123456_пример_подписи_USER
+  
+  <b>Пример для MODERATOR:</b>
+  eyJhbGciOiJIUzI1NiJ9.
+  eyJzdWIiOiJtb2RlcmF0b3IiLCJyb2xlIjoiTU9ERVJBVE9SIiwiZXhwIjoxNjE2NDI2MjIyfQ.
+  GhIjKl789012_пример_подписи_MODERATOR
+  
+  <b>Пример для ADMIN:</b>
+  eyJhbGciOiJIUzI1NiJ9.
+  eyJzdWIiOiJhZG1pbiIsInJvbGUiOiJBRE1JTiIsImV4cCI6MTYxNjQyNjIyMn0.
+  MnOpQr345678_пример_подписи_ADMIN
+endlegend
+
+' === USER Authentication & Authorization ===
+group Аутентификация обычного пользователя
+    User -> Client: Вход (логин: user, пароль: pass)
+    Client -> AuthServer: POST /auth/login {credentials}
+    AuthServer -> DB: Проверка учетных данных
+    DB --> AuthServer: Данные пользователя (id: 1, роль: USER)
+    
+    note over AuthServer
+      <b>Создание JWT токена</b>
+      
+      header = {
+        "alg": "HS256",
+        "typ": "JWT"
+      }
+      
+      payload = {
+        "sub": "user",
+        "role": "USER",
+        "exp": 1616426222,
+        "iat": 1616422622
+      }
+      
+      signature = HMAC-SHA256(
+        base64(header) + "." + base64(payload), 
+        SECRET_KEY
+      )
+    end note
+    
+    AuthServer --> Client: JWT токен для пользователя
+    Client -> Client: Сохранение токена в localStorage/cookies
+end
+
+group Доступ к ресурсам (USER)
+    User -> Client: Запрос своего профиля
+    Client -> ResourceAPI: GET /api/profile\nAuthorization: Bearer [JWT токен]
+    
+    note over ResourceAPI
+      <b>Проверка токена</b>
+      1. Декодирование header и payload
+      2. Проверка подписи с SECRET_KEY
+      3. Проверка срока действия (exp)
+      4. Проверка роли (USER)
+    end note
+    
+    ResourceAPI --> Client: 200 OK + данные профиля
+    Client --> User: Отображение профиля
+    
+    User -> Client: Попытка доступа к панели модерации
+    Client -> ResourceAPI: GET /api/moderation\nAuthorization: Bearer [JWT токен]
+    ResourceAPI --> Client: 403 Forbidden (недостаточно прав)
+    Client --> User: Сообщение об ошибке доступа
+end
+
+' === MODERATOR Authentication & Authorization ===
+group Аутентификация модератора
+    Moderator -> Client: Вход (логин: moderator, пароль: pass)
+    Client -> AuthServer: POST /auth/login {credentials}
+    AuthServer -> DB: Проверка учетных данных
+    DB --> AuthServer: Данные пользователя (id: 2, роль: MODERATOR)
+    
+    note over AuthServer
+      <b>Создание JWT токена</b>
+      
+      payload = {
+        "sub": "moderator",
+        "role": "MODERATOR",
+        "exp": 1616426222,
+        "iat": 1616422622
+      }
+    end note
+    
+    AuthServer --> Client: JWT токен для модератора
+    Client -> Client: Сохранение токена в localStorage/cookies
+end
+
+group Доступ к ресурсам (MODERATOR)
+    Moderator -> Client: Запрос панели модерации
+    Client -> ResourceAPI: GET /api/moderation\nAuthorization: Bearer [JWT токен]
+    
+    note over ResourceAPI
+      <b>Проверка токена</b>
+      1. Декодирование header и payload
+      2. Проверка подписи с SECRET_KEY
+      3. Проверка срока действия (exp)
+      4. Проверка роли (MODERATOR)
+    end note
+    
+    ResourceAPI --> Client: 200 OK + панель модерации
+    Client --> Moderator: Отображение панели модерации
+    
+    Moderator -> Client: Попытка доступа к админ-панели
+    Client -> ResourceAPI: GET /api/admin\nAuthorization: Bearer [JWT токен]
+    ResourceAPI --> Client: 403 Forbidden (недостаточно прав)
+    Client --> Moderator: Сообщение об ошибке доступа
+end
+
+
+@enduml

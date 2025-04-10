@@ -1,0 +1,198 @@
+@startuml Fairy Map Database Schema
+
+' Заголовок и описание
+title Fairy Map Database Schema
+caption Схема базы данных для проекта Fairy Map, представляющая этнокультурное наследие России
+
+' Стили
+skinparam linetype ortho
+skinparam class {
+    BackgroundColor LightBlue
+    ArrowColor DarkBlue
+    BorderColor DarkBlue
+    FontColor Black
+    FontSize 12
+}
+skinparam enum {
+    BackgroundColor LightGreen
+    BorderColor DarkGreen
+    FontColor Black
+    FontSize 12
+}
+skinparam title {
+    FontSize 16
+    FontColor DarkBlue
+}
+skinparam caption {
+    FontSize 12
+    FontColor DarkBlue
+}
+
+' Сущности
+class User {
+    + id: Int <<PK>>
+    + firstName: String
+    + lastName: String
+    + role: Role
+    + email: String <<unique>>
+    + passwordHash: String
+    + refreshToken: String?
+    + createdAt: DateTime
+    + updatedAt: DateTime?
+}
+
+class ConstituentsRF {
+    + id: Int <<PK>>
+    + name: String <<unique>>
+}
+
+class EthnicGroup {
+    + id: Int <<PK>>
+    + name: String <<unique>>
+    + languageId: Int <<FK>>
+}
+
+class EthnicGroupMapPoint {
+    + id: Int <<PK>>
+    + ethnicGroupId: Int <<FK>>
+    + constituentId: Int <<FK>>
+    + longitude: Float
+    + latitude: Float
+}
+
+class ConstituentsRFOnEthnicGroup {
+    + id: Int <<PK>>
+    + ethnicGroupId: Int <<FK>>
+    + constituentRfId: Int <<FK>>
+}
+
+class Language {
+    + id: Int <<PK>>
+    + name: String <<unique>>
+    + createdAt: DateTime
+    + updatedAt: DateTime?
+}
+
+class TextStory {
+    + id: Int <<PK>>
+    + text: String
+    + storyId: Int <<FK>>
+}
+
+class ImgStory {
+    + id: Int <<PK>>
+    + filename: String
+    + storyId: Int <<FK>>
+}
+
+class Story {
+    + id: Int <<PK>>
+    + name: String <<unique>>
+    + ethnicGroupId: Int <<FK>>
+    + createdAt: DateTime
+    + updatedAt: DateTime?
+}
+
+class StoryAudio {
+    + id: Int <<PK>>
+    + author: Int <<FK>>
+    + storyId: Int <<FK>>
+    + languageId: Int <<FK>>
+    + moderateScore: Float
+    + commonRating: Float
+    + userAudioId: Int <<FK>>
+    + createdAt: DateTime
+    + updatedAt: DateTime?
+}
+
+class UserAudioStory {
+    + id: Int <<PK>>
+    + name: String
+    + originalName: String
+    + userId: Int <<FK>>
+    + languageId: Int <<FK>>
+    + pathAudio: String
+    + createdAt: DateTime
+    + updatedAt: DateTime?
+}
+
+class RatingAudio {
+    + id: Int <<PK>>
+    + userId: Int <<FK>>
+    + storyAudioId: Int <<FK>>
+    + rating: Float
+    + createdAt: DateTime
+    + updatedAt: DateTime?
+}
+
+class AddStoryRequest {
+    + id: Int <<PK>>
+    + storyName: String
+    + status: Status
+    + comment: String
+    + userId: Int <<FK>>
+    + createdAt: DateTime
+    + updatedAt: DateTime?
+}
+
+class StoryAudioRequest {
+    + id: Int <<PK>>
+    + userAudioId: Int <<FK>>
+    + typeRequest: TypeRequest
+    + status: Status
+    + comment: String
+    + userId: Int <<FK>>
+    + storyId: Int <<FK>>
+    + createdAt: DateTime
+    + updatedAt: DateTime?
+}
+
+' Связи
+User "1" -- "*" StoryAudio : author
+User "1" -- "*" RatingAudio : rates
+User "1" -- "*" AddStoryRequest : requests
+User "1" -- "*" StoryAudioRequest : requests
+User "1" -- "*" UserAudioStory : owns
+
+ConstituentsRF "1" -- "*" EthnicGroupMapPoint : has
+ConstituentsRF "1" -- "*" ConstituentsRFOnEthnicGroup : contains
+
+EthnicGroup "1" -- "*" EthnicGroupMapPoint : located at
+EthnicGroup "1" -- "*" ConstituentsRFOnEthnicGroup : belongs to
+EthnicGroup "1" -- "*" Story : has
+EthnicGroup "1" -- "1" Language : speaks
+
+Story "1" -- "1" TextStory : has
+Story "1" -- "1" ImgStory : has
+Story "1" -- "*" StoryAudio : has
+Story "1" -- "*" StoryAudioRequest : requested for
+
+Language "1" -- "1" EthnicGroup : used by
+Language "1" -- "*" UserAudioStory : used in
+Language "1" -- "*" StoryAudio : used in
+
+StoryAudio "1" -- "1" UserAudioStory : based on
+StoryAudio "1" -- "*" RatingAudio : rated by
+
+UserAudioStory "1" -- "*" StoryAudioRequest : requested for
+
+' Перечисления
+enum Role {
+    USER
+    ADMIN
+    MODER
+}
+
+enum Status {
+    SEND
+    SUCCESSED
+    CANCELLED
+}
+
+enum TypeRequest {
+    ADD
+    EDIT
+    DELETE
+}
+
+@enduml 
