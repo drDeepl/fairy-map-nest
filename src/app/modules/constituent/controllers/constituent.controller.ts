@@ -166,13 +166,12 @@ export class ConstituentsController {
   })
   @Roles(Role.admin)
   @UseGuards(JwtAuthGuard, RoleGuard)
-  @Put('/edit/:id')
+  @Put('/edit/:constituentId')
   async editConstituent(
-    @Param('id', ParseIntPipe) id,
+    @Param('constituentId', ParseIntPipe) constituentId: number,
     @Body() dto: EditConstituentDto,
   ) {
-    this.logger.warn('EDIT CONSTITUENT');
-    return this.constituentService.editConstituentById(id, dto);
+    return this.constituentService.editConstituentById(constituentId, dto);
   }
 
   @HttpCode(HttpStatus.OK)

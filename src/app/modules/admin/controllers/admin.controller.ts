@@ -212,7 +212,7 @@ export class AdminController {
   @HttpCode(HttpStatus.OK)
   @Post('story/text/add/:storyId')
   async addTextStory(
-    @Param('storyId', ParseIntPipe) storyId,
+    @Param('storyId', ParseIntPipe) storyId: number,
     @Body() dto: AddTextStoryDto,
   ) {
     return this.storyService.addTextStory(storyId, dto);

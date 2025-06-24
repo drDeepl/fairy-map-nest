@@ -39,9 +39,10 @@ import { AudioStoryRequestService } from '../../audio-story-request/services/aud
 import { AudioApplicationWithUserAudioResponseDto } from '../../audio-story-request/dto/audio-story-request/audio-application-with-user-audio.dto';
 import { UserAudioResponseDto } from '../../user-audio/dto/response/user-audio.response.dto';
 import { AudioStoryResponseDto } from '../../story/dto/audio-story/response/audio-story.response.dto';
-import { ApiPaginatedResponse } from '@/common/dto/response/api-paginated.response.dto';
+
 import { PageResponseDto } from '@/common/dto/response/page.response.dto';
 import { PageOptionsRequestDto } from '@/common/dto/request/page-options.request.dto';
+import { AudioApplicationPageResponseDto } from '../../audio-story-request/dto/audio-story-request/response/page-audio-application.response.dto';
 
 @ApiTags('UserController')
 @UseGuards(JwtAuthGuard)
@@ -169,7 +170,12 @@ export class UserController {
   @ApiOperation({
     summary: 'получение всех заявок на озвучки текущего пользователя',
   })
-  @ApiPaginatedResponse(AudioApplicationWithUserAudioResponseDto)
+  // @ApiPaginatedResponse(AudioApplicationWithUserAudioResponseDto)
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'заявки пользователей на добавление озвучки, постранично',
+    type: AudioApplicationPageResponseDto,
+  })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
   @ApiHeader({

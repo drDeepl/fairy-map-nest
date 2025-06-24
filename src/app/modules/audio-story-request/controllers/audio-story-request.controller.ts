@@ -29,6 +29,7 @@ import { PageOptionsRequestDto } from '@/common/dto/request/page-options.request
 import { PageResponseDto } from '@/common/dto/response/page.response.dto';
 import { ApiPaginatedResponse } from '@/common/dto/response/api-paginated.response.dto';
 import { AudioApplicationWithUserAudioResponseDto } from '../dto/audio-story-request/audio-application-with-user-audio.dto';
+import { AudioApplicationPageResponseDto } from '../dto/audio-story-request/response/page-audio-application.response.dto';
 
 @ApiTags('AudioStoryRequestController')
 @Controller('audio-story-request')
@@ -43,7 +44,12 @@ export class AudioStoryRequestController {
     summary: 'получение всех заявок на озвучки',
     description: 'необходимы роль модератора',
   })
-  @ApiPaginatedResponse(AudioApplicationWithUserAudioResponseDto)
+  // @ApiPaginatedResponse(AudioApplicationWithUserAudioResponseDto)
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'заявки на озвучки, постранично',
+    type: AudioApplicationPageResponseDto,
+  })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
   @ApiHeader({
@@ -63,7 +69,12 @@ export class AudioStoryRequestController {
     summary: 'получение всех заявок на озвучки для выбранного пользователя.',
     description: 'Необходима роль модератора',
   })
-  @ApiPaginatedResponse(AudioApplicationWithUserAudioResponseDto)
+  // @ApiPaginatedResponse(AudioApplicationWithUserAudioResponseDto)
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'заявки на озвучки, постранично',
+    type: AudioApplicationPageResponseDto,
+  })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
   @ApiHeader({

@@ -12,6 +12,7 @@ import { join } from 'path';
 import validationExceptionFactory from './common/filters/validation-exception-factory';
 import { HttpErrorFilter } from './common/filters/http-error.filter';
 import { PrismaErrorFilter } from './common/filters/prisma-error.filter';
+import { LoggerInterceptor } from './common/interceptors/logger.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -51,7 +52,9 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe());
   app.enableCors(corsOptions);
   app.setGlobalPrefix(globalPrefix);
+
   app.useWebSocketAdapter(new SocketIOAdapter(app));
+  app.useGlobalInterceptors(new LoggerInterceptor());
 
   const swaggerConfig: SwaggerConfig = configService.get('swagger');
 

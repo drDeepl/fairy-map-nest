@@ -11,21 +11,22 @@ class SwaggerDocumentBuilder {
   ) {}
 
   private buildConfig() {
+    const swaggerConfig = {
+      options: {
+        type: this.swaggerConfig.documentBuilder.bearerAuth.options.type,
+        scheme: this.swaggerConfig.documentBuilder.bearerAuth.options.scheme,
+        bearerFormat:
+          this.swaggerConfig.documentBuilder.bearerAuth.options.bearerFormat,
+      },
+      securitySchemeType: this.swaggerConfig.documentBuilder.bearerAuth.name,
+    };
+    console.log(swaggerConfig);
     const docBuilder = new DocumentBuilder()
       .setTitle(this.swaggerConfig.documentBuilder.title)
       .addServer(this.swaggerConfig.documentBuilder.appUrl)
       .setDescription(this.swaggerConfig.documentBuilder.description)
       .setVersion(this.swaggerConfig.documentBuilder.version)
-      .addBearerAuth(
-        {
-          type: this.swaggerConfig.documentBuilder.bearerAuth.options.type,
-          bearerFormat:
-            this.swaggerConfig.documentBuilder.bearerAuth.options.bearerFormat,
-          scheme: this.swaggerConfig.documentBuilder.bearerAuth.options.scheme,
-          in: this.swaggerConfig.documentBuilder.bearerAuth.options.in,
-        },
-        this.swaggerConfig.documentBuilder.bearerAuth.name,
-      )
+      .addBearerAuth(swaggerConfig.options, swaggerConfig.securitySchemeType)
       .addSecurityRequirements(
         this.swaggerConfig.documentBuilder.securityRequirements.name,
       );

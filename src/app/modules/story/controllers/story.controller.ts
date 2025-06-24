@@ -39,11 +39,12 @@ import { StoryBookResponseDto } from '../dto/story/response/story-with-img.respo
 import { AudioStoryResponseDto } from '../dto/audio-story/response/audio-story.response.dto';
 import { PreviewAudioStoryResponseDto } from '../dto/audio-story/response/preview-audio-story.response.dto';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
-import { ApiPaginatedResponse } from '@/common/dto/response/api-paginated.response.dto';
+
 import { PageResponseDto } from '@/common/dto/response/page.response.dto';
 import { PageOptionsRequestDto } from '@/common/dto/request/page-options.request.dto';
 import { SearchStoryOptionsRequestDto } from '../dto/story/request/search-story-options.request.dto';
 import { StoryBookWithAudiosResponseDto } from '../dto/story/response/story-book-with-audios.response.dto';
+import { PageStoryBookResponseDto } from '../dto/story/response/page-story-book.response.dto';
 
 @ApiTags('StoryController')
 @Controller('story')
@@ -55,7 +56,12 @@ export class StoryController {
   ) {}
 
   @ApiOperation({ summary: 'получение всех сказок' })
-  @ApiPaginatedResponse(StoryBookResponseDto)
+  // @ApiPaginatedResponse(StoryBookResponseDto)
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'список сказок, постранично',
+    type: PageStoryBookResponseDto,
+  })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
   @Get('/all')
@@ -70,7 +76,11 @@ export class StoryController {
     description:
       'для работы с websockets используется событие searchStoryByName для отправления запроса и searchResultStoryByName для получения результатов',
   })
-  @ApiPaginatedResponse(StoryBookResponseDto)
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'список сказок, постранично',
+    type: PageStoryBookResponseDto,
+  })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
   @Get('/search')
@@ -83,7 +93,12 @@ export class StoryController {
   @ApiOperation({
     summary: 'получение всех сказок выбранной этнической группы',
   })
-  @ApiPaginatedResponse(StoryBookResponseDto)
+  // @ApiPaginatedResponse(StoryBookResponseDto)
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'список всех сказок, постранично',
+    type: PageStoryBookResponseDto,
+  })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Unauthorized' })
   @Get('/ethnic-group/:ethnicGroupId')

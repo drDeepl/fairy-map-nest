@@ -29,8 +29,8 @@ import { ConstituentsService } from '../../constituent/services/constituent.serv
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { promises as fsPromises } from 'fs';
 import { join } from 'path';
-import { MapDto } from '../dto/MapDto';
-import { MapTopologyDto } from '../dto/MapTopologyDto';
+
+import { FeatureCollectionDto } from '../dto/FeatureCollectionResponseDto';
 
 @ApiTags('MapController')
 @Controller('map')
@@ -45,28 +45,29 @@ export class MapController {
   })
   @ApiResponse({
     status: HttpStatus.OK,
-    description: 'Success',
-    type: MapDto,
+    description: 'Успешный ответ с коллекцией гео-объектов.',
+    type: FeatureCollectionDto,
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad Request' })
   @Get('')
   async getMapTopojson(
     @Res({ passthrough: true }) res: Response,
-  ): Promise<MapDto> {
+  ): Promise<FeatureCollectionDto> {
     const filePath = join(
       __dirname,
       '../../../..',
       'static',
       'map',
-      'map_with_ethnic_groups_points.json',
+      'map_with_ethnic_groups_points_latest.json',
     );
     try {
-      const data: MapTopologyDto = JSON.parse(
+      const data = JSON.parse(
         await fsPromises.readFile(filePath, 'utf-8'),
-      );
+      ) as FeatureCollectionDto;
 
-      return new MapDto(data);
+      return data;
     } catch (error) {
+      console.log(error);
       throw new HttpException(
         'ошибка при чтении данных карты',
         HttpStatus.BAD_GATEWAY,
